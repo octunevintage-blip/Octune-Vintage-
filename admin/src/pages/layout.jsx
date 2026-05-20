@@ -53,7 +53,7 @@ export default function AdminLayout({ children }) {
           <div className="flex items-center space-x-10">
             <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=2"
                 alt="Octune Vintage"
                 width={90}
                 height={36}

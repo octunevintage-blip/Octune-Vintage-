@@ -38,7 +38,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-md bg-white p-10 border border-ink/10 shadow-xl">
         <div className="flex flex-col items-center mb-10">
           <Image
-            src="/logo.png"
+            src="/logo.png?v=2"
             alt="Octune Vintage"
             width={160}
             height={64}

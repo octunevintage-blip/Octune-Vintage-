@@ -47,7 +47,7 @@ export default function InvoicePage() {
         <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
           <div>
             <Image
-              src="/logo.png"
+              src="/logo.png?v=2"
               alt="Octune Vintage"
               width={150}
               height={60}

@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="space-y-6">
           <Link href="/" className="block">
             <Image
-              src="/logo.png"
+              src="/logo.png?v=2"
               alt="Octune Vintage"
               width={140}
               height={56}

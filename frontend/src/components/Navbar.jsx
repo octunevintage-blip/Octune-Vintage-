@@ -40,7 +40,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="shrink-0 lg:w-1/3 flex items-center ml-4 lg:ml-8">
             <Image
-              src="/logo.png"
+              src="/logo.png?v=2"
               alt="Octune Vintage"
               width={1925}
               height={921}
