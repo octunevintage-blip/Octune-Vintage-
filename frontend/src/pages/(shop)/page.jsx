@@ -21,14 +21,15 @@ export default function Home() {
           api.get('/coupons/active')
         ]);
 
-        if (recentRes.status === 'fulfilled') {
-          setRecentFinds(recentRes.value.data.products || []);
+        if (recentRes.status === 'fulfilled' && recentRes.value?.data) {
+          setRecentFinds(Array.isArray(recentRes.value.data.products) ? recentRes.value.data.products : []);
         }
-        if (contentRes.status === 'fulfilled') {
+        if (contentRes.status === 'fulfilled' && contentRes.value?.data) {
           setSiteContent(contentRes.value.data || null);
         }
-        if (couponsRes.status === 'fulfilled') {
-          setActiveCoupons(couponsRes.value.data || []);
+        if (couponsRes.status === 'fulfilled' && couponsRes.value?.data) {
+          const couponData = couponsRes.value.data;
+          setActiveCoupons(Array.isArray(couponData) ? couponData : []);
         }
       } catch (error) {
         console.error('Error loading home data:', error);
@@ -48,7 +49,7 @@ export default function Home() {
   }
 
   // Construct hero banners to display
-  let heroBanners = siteContent?.heroBanners || [];
+  let heroBanners = Array.isArray(siteContent?.heroBanners) ? siteContent.heroBanners : [];
   if (heroBanners.length === 0) {
     // Fallback to old single hero format
     const oldHero = siteContent?.hero || { 
@@ -63,23 +64,23 @@ export default function Home() {
       linkUrl: '/shop'
     }];
   }
-  const banners = siteContent?.splitBanners || [
+  const banners = Array.isArray(siteContent?.splitBanners) ? siteContent.splitBanners : [
     { title: 'JACKETS', linkCategory: 'Jackets', image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=800&auto=format&fit=crop' },
     { title: 'TRACKTOPS', linkCategory: 'Tracktops', image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=800&auto=format&fit=crop' }
   ];
-  const customBanners = siteContent?.customBanners || [];
+  const customBanners = Array.isArray(siteContent?.customBanners) ? siteContent.customBanners : [];
   
   // Use admin-curated trending products if available, otherwise fallback to recent finds
-  const trendingProductsToDisplay = (siteContent?.trendingProducts && siteContent.trendingProducts.length > 0) 
+  const trendingProductsToDisplay = (siteContent?.trendingProducts && Array.isArray(siteContent.trendingProducts) && siteContent.trendingProducts.length > 0) 
     ? siteContent.trendingProducts 
-    : recentFinds;
+    : (Array.isArray(recentFinds) ? recentFinds : []);
 
   return (
     <div className="bg-vnv-white text-vnv-black overflow-hidden">
       <HomeClient />
       
       {/* Promotional Ad Bar — centered */}
-      {activeCoupons.length > 0 && (
+      {Array.isArray(activeCoupons) && activeCoupons.length > 0 && (
         <div
           className="bg-vnv-black text-vnv-white border-b border-vnv-gray/30"
           style={{ paddingTop: '6px', paddingBottom: '6px' }}
@@ -134,7 +135,7 @@ export default function Home() {
         
         {/* Horizontal scroll container */}
         <div className="flex overflow-x-auto hide-scrollbar space-x-4 md:space-x-6 pb-12 pt-4 snap-x pl-1">
-          {trendingProductsToDisplay.map(product => (
+          {Array.isArray(trendingProductsToDisplay) && trendingProductsToDisplay.map(product => (
             <div key={product._id} className="min-w-[65vw] md:min-w-[240px] lg:min-w-[280px] snap-start shrink-0">
               <ProductCard product={product} variant="trending" />
             </div>
@@ -150,7 +151,7 @@ export default function Home() {
 
       {/* Split Banners */}
       <section className="mt-8 md:mt-16 container mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {banners.map((banner, i) => (
+        {Array.isArray(banners) && banners.map((banner, i) => (
           <Link key={i} href={`/shop?category=${banner.linkCategory}`} className="relative h-[400px] md:h-[600px] bg-vnv-light-gray group overflow-hidden flex items-end p-8">
             <div className="absolute inset-0 bg-vnv-black/20 z-10 group-hover:bg-vnv-black/40 transition-colors duration-500"></div>
             <Image src={banner.image} fill className="object-cover grayscale" alt={banner.title} />
@@ -160,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Custom Banners */}
-      {customBanners.length > 0 && (
+      {Array.isArray(customBanners) && customBanners.length > 0 && (
         <section className="mt-8 md:mt-16 container mx-auto px-4 md:px-8 flex flex-col gap-4">
           {customBanners.map((banner, i) => (
             <div key={i} className="relative w-full h-[300px] md:h-[500px] bg-vnv-light-gray group overflow-hidden flex flex-col items-center justify-center text-center p-8">
