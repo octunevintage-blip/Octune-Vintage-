@@ -5,7 +5,6 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
 
 // Config
 import connectDB from './config/db.js';
@@ -35,43 +34,69 @@ import wishlistRoutes from './routes/wishlistRoutes.js';
 
 dotenv.config();
 
-// Connect to MongoDB
+// Connect MongoDB
 connectDB();
 
 const app = express();
 
-// Security and middleware
+// Security
 app.use(helmet());
 
-const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://localhost:5173'];
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      return callback(new Error('CORS Policy: Origin not allowed'), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-// We need raw body for razorpay webhook verification
-app.use(express.json({ limit: '10mb', verify: (req, res, buf) => { req.rawBody = buf; } }));
+// CORS
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000',
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('CORS Policy: Origin not allowed'));
+    },
+    credentials: true,
+  })
+);
+
+// Body parser
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
+
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
+// Logger
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting
+// Rate Limit
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 200,
-  message: 'Too many requests from this IP, please try again after 15 minutes',
+  message: 'Too many requests, please try again later.',
 });
+
 app.use('/api/', apiLimiter);
 
-// Routes
+// ROOT ROUTE
+app.get('/', (req, res) => {
+  res.send('Octune Vintage Backend Running Successfully 🚀');
+});
+
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -85,45 +110,52 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 
-// Error Handling
+// Error Middleware
 app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+// Start Server
 const server = app.listen(PORT, async () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  
-  // Auto-seed admin if none exists
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+  );
+
+  // Auto Seed Admin
   try {
     const adminCount = await Admin.countDocuments();
+
     if (adminCount === 0) {
-      console.log('No admin found. Auto-seeding superadmin from .env...');
+      console.log('No admin found. Creating superadmin...');
+
       await Admin.create({
         name: 'Super Admin',
         email: process.env.ADMIN_EMAIL,
         password: process.env.ADMIN_PASSWORD,
-        role: 'superadmin'
+        role: 'superadmin',
       });
-      console.log('Superadmin created! Login with:', process.env.ADMIN_EMAIL);
+
+      console.log('Superadmin created successfully!');
     }
   } catch (error) {
-    console.error('Failed to auto-seed admin:', error);
+    console.error('Admin seed error:', error);
   }
 
   startCronJobs();
 });
 
-// Graceful shutdown – prevents EADDRINUSE when Nodemon restarts
+// Graceful Shutdown
 const gracefulShutdown = (signal) => {
-  console.log(`\n${signal} received. Closing server gracefully...`);
+  console.log(`${signal} received. Closing server...`);
+
   server.close(() => {
     console.log('HTTP server closed.');
     process.exit(0);
   });
-  // Force exit after 5s if server hangs
+
   setTimeout(() => process.exit(1), 5000).unref();
 };
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
