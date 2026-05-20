@@ -43,11 +43,29 @@ const app = express();
 app.use(helmet());
 
 // CORS
+let rawFrontendUrl = process.env.FRONTEND_URL || 'https://octunevintage.in';
+if (rawFrontendUrl.endsWith('/')) {
+  rawFrontendUrl = rawFrontendUrl.slice(0, -1);
+}
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
-  'https://octunevintage.in/',
-  'https://octunevintage.in/',
+  rawFrontendUrl,
+  'https://octunevintage.in',
+  'https://www.octunevintage.in',
+  'https://admin.octunevintage.in',
+  'https://www.admin.octunevintage.in',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173'
 ];
+
+if (!rawFrontendUrl.includes('www.')) {
+  const wwwUrl = rawFrontendUrl.replace('://', '://www.');
+  if (!allowedOrigins.includes(wwwUrl)) allowedOrigins.push(wwwUrl);
+} else {
+  const nonWwwUrl = rawFrontendUrl.replace('://www.', '://');
+  if (!allowedOrigins.includes(nonWwwUrl)) allowedOrigins.push(nonWwwUrl);
+}
 
 app.use(
   cors({
