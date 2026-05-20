@@ -29,7 +29,7 @@ export default function Footer() {
             <li><Link href="/terms" className="hover:text-vnv-white transition-colors">Terms of Service</Link></li>
             <li><Link href="/privacy" className="hover:text-vnv-white transition-colors">Privacy Policy</Link></li>
             <li><Link href="/refund" className="hover:text-vnv-white transition-colors">Refund Policy</Link></li>
-            <li><Link href="/admin/login" className="text-red-400 hover:text-red-300 font-bold transition-colors">Admin Login</Link></li>
+
           </ul>
         </div>
 

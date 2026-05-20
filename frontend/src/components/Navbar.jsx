@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle, Shield } from 'lucide-react';
+import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle } from 'lucide-react';
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useState } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
@@ -105,14 +105,7 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Admin Profile / Login link - Desktop */}
-            <Link
-              href="/admin/login"
-              className="hidden md:flex items-center gap-1.5 text-vnv-gray hover:text-vnv-black transition-colors"
-              title="Admin Login"
-            >
-              <Shield size={18} strokeWidth={1.5} />
-            </Link>
+
 
             <Link href="/cart" className="flex items-center hover:text-vnv-gray transition-colors relative">
               <ShoppingBag size={20} strokeWidth={1.5} />
@@ -218,16 +211,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            <div className="border-t border-vnv-gray/20 pt-4 mt-2">
-              <Link
-                href="/admin/login"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 px-4 py-3 text-vnv-gray hover:text-vnv-black transition-colors"
-              >
-                <Shield size={16} strokeWidth={1.5} />
-                Admin Login
-              </Link>
-            </div>
+
           </div>
         </div>
       </div>
