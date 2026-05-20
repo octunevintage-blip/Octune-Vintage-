@@ -224,7 +224,7 @@ export default function AdminOrders() {
                     </button>
                   )}
                   <button 
-                    onClick={() => window.open(`/admin/orders/invoice/${order._id}`, '_blank')}
+                    onClick={() => window.open(`/orders/invoice/${order._id}`, '_blank')}
                     className="bg-brick text-cream px-3 py-1 text-[9px] uppercase tracking-widest hover:bg-brick-dark"
                   >
                     Invoice

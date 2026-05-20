@@ -15,7 +15,7 @@ export default function AdminLogin() {
   const router = useRouter();
 
   useEffect(() => {
-    if (admin) router.push('/admin/dashboard');
+    if (admin) router.push('/dashboard');
   }, [admin, router]);
 
   const handleSubmit = async (e) => {
@@ -25,7 +25,7 @@ export default function AdminLogin() {
       const res = await api.post('/auth/admin/login', { email, password });
       setAdmin(res.data);
       toast.success('Welcome back');
-      router.push('/admin/dashboard');
+      router.push('/dashboard');
     } catch (error) {
       toast.error(error.message || 'Invalid credentials');
     } finally {

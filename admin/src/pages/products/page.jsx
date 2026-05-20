@@ -58,7 +58,7 @@ export default function AdminProducts() {
     <div>
       <div className="flex justify-between items-center mb-10 pb-4 border-b border-ink/10">
         <h1 className="font-serif text-3xl uppercase tracking-widest">Inventory</h1>
-        <Link href="/admin/products/new" className="btn btn-primary flex items-center shadow-md">
+        <Link href="/products/new" className="btn btn-primary flex items-center shadow-md">
           <Plus size={16} className="mr-2" /> Add Piece
         </Link>
       </div>
@@ -106,7 +106,7 @@ export default function AdminProducts() {
                 <td className="p-4 font-medium">{formatINR(product.price)}</td>
                 <td className="p-4 text-right">
                   <div className="flex justify-end space-x-3">
-                    <Link href={`/admin/products/${product._id}/edit`} className="text-ink/50 hover:text-ink transition-colors">
+                    <Link href={`/products/${product._id}/edit`} className="text-ink/50 hover:text-ink transition-colors">
                       <Edit size={18} strokeWidth={1.5} />
                     </Link>
                     <button onClick={() => handleDelete(product._id)} className="text-ink/50 hover:text-brick transition-colors">

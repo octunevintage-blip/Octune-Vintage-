@@ -44,7 +44,7 @@ export default function EditProduct() {
         setExistingImages(prod.images || []);
       } catch (error) {
         toast.error('Failed to load product');
-        router.push('/admin/products');
+        router.push('/products');
       } finally {
         setFetching(false);
       }
@@ -118,7 +118,7 @@ export default function EditProduct() {
     try {
       await api.put(`/products/${params.id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success('Piece updated successfully');
-      router.push('/admin/products');
+      router.push('/products');
     } catch (error) {
       toast.error(error.message || 'Failed to update product');
     } finally {

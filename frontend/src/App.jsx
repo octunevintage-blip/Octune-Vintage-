@@ -21,18 +21,6 @@ import Terms from '@/pages/terms/page';
 import Shipping from '@/pages/shipping/page';
 import Refund from '@/pages/refund/page';
 
-// Admin Portal Pages
-import AdminLayout from '@/pages/admin/layout';
-import AdminLogin from '@/pages/admin/login/page';
-import AdminDashboard from '@/pages/admin/dashboard/page';
-import AdminProducts from '@/pages/admin/products/page';
-import AdminProductsNew from '@/pages/admin/products/new/page';
-import AdminProductsEdit from '@/pages/admin/products/[id]/edit/page';
-import AdminOrders from '@/pages/admin/orders/page';
-import AdminInvoice from '@/pages/admin/orders/invoice/[id]/page';
-import AdminContent from '@/pages/admin/content/page';
-import AdminMarketing from '@/pages/admin/marketing/page';
-
 // Shop Layout Wrapper with global Navbar and Footer
 function ShopLayout() {
   return (
@@ -68,21 +56,6 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/shipping" element={<Shipping />} />
           <Route path="/refund" element={<Refund />} />
-        </Route>
-
-        {/* Admin Login Portal */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-
-        {/* Admin Dashboard Protected Portal */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="products/new" element={<AdminProductsNew />} />
-          <Route path="products/:id/edit" element={<AdminProductsEdit />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="orders/invoice/:id" element={<AdminInvoice />} />
-          <Route path="content" element={<AdminContent />} />
-          <Route path="marketing" element={<AdminMarketing />} />
         </Route>
       </Routes>
     </Router>

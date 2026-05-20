@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased text-vnv-black bg-vnv-white selection:bg-vnv-black selection:text-vnv-white;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 text-sm font-display tracking-[0.1em] uppercase transition-colors duration-200 border;
+  }
+  
+  .btn-primary {
+    @apply bg-vnv-black text-vnv-white border-vnv-black hover:bg-vnv-gray hover:border-vnv-gray;
+  }
+  
+  .btn-outline {
+    @apply bg-transparent text-vnv-black border-vnv-black hover:bg-vnv-black hover:text-vnv-white;
+  }
+
+  .input {
+    @apply w-full border border-vnv-gray/30 bg-vnv-white px-4 py-3 text-sm focus:outline-none focus:border-vnv-black focus:ring-1 focus:ring-vnv-black transition-all rounded-none;
+  }
+}
+
+/* Hide scrollbar for carousels but allow scrolling */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Promotional Marquee ─────────────────────────────────────────── */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+.marquee-outer { display: flex; overflow: hidden; width: 100%; }
+.marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  animation: marquee-scroll 22s linear infinite;
+}
+
+/* ── Auth Modal Animations ─────────────────────────────────────── */
+@keyframes auth-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes auth-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.auth-backdrop-enter {
+  animation: auth-backdrop-in 0.25s ease-out both;
+}
+.auth-modal-enter {
+  animation: auth-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ── Account Page ──────────────────────────────────────────────── */
+.account-tab {
+  @apply relative px-5 py-3 text-xs font-bold uppercase tracking-[0.15em] transition-all duration-200 flex items-center gap-2.5;
+}
+.account-tab-active {
+  @apply text-black;
+  background: rgba(0,0,0,0.04);
+}
+.account-tab-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #000;
+}
+
+

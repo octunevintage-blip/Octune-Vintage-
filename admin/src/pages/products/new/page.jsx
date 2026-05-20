@@ -102,7 +102,7 @@ export default function NewProduct() {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success('Piece archived successfully');
-      router.push('/admin/products');
+      router.push('/products');
     } catch (error) {
       toast.error(error.message || 'Failed to create product');
     } finally {

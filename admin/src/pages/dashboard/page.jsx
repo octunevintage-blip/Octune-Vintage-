@@ -62,7 +62,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 border border-ink/10 shadow-sm">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-ink/10">
             <h2 className="font-serif text-xl tracking-widest">Recent Orders</h2>
-            <Link href="/admin/orders" className="text-xs uppercase tracking-widest text-brick hover:underline">View All</Link>
+            <Link href="/orders" className="text-xs uppercase tracking-widest text-brick hover:underline">View All</Link>
           </div>
           {stats.recentOrders && stats.recentOrders.length > 0 ? (
             <div className="space-y-4">
@@ -94,7 +94,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 border border-ink/10 shadow-sm">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-ink/10">
             <h2 className="font-serif text-xl tracking-widest">Recently Archived (Sold)</h2>
-            <Link href="/admin/products" className="text-xs uppercase tracking-widest text-brick hover:underline">Inventory</Link>
+            <Link href="/products" className="text-xs uppercase tracking-widest text-brick hover:underline">Inventory</Link>
           </div>
           {stats.recentSales && stats.recentSales.length > 0 ? (
             <div className="space-y-4">

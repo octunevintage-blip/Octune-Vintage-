@@ -15,7 +15,7 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const mounted = useHasMounted();
 
-  if (pathname === '/admin/login') {
+  if (pathname === '/login') {
     return <div className="bg-paper min-h-screen">{children || <Outlet />}</div>;
   }
 
@@ -23,7 +23,7 @@ export default function AdminLayout({ children }) {
   if (!mounted) return <div className="bg-paper min-h-screen" />;
 
   if (!admin) {
-    router.push('/admin/login');
+    router.push('/login');
     return null;
   }
 
@@ -31,18 +31,18 @@ export default function AdminLayout({ children }) {
     try {
       await api.post('/auth/logout');
       logout();
-      router.push('/admin/login');
+      router.push('/login');
     } catch (error) {
       console.error(error);
     }
   };
 
   const navLinks = [
-    { href: '/admin/dashboard', label: 'Dashboard', startMatch: false },
-    { href: '/admin/products',  label: 'Products',  startMatch: true  },
-    { href: '/admin/orders',    label: 'Orders',    startMatch: true  },
-    { href: '/admin/marketing', label: 'Marketing', startMatch: true  },
-    { href: '/admin/content',   label: 'Content',   startMatch: true  },
+    { href: '/dashboard', label: 'Dashboard', startMatch: false },
+    { href: '/products',  label: 'Products',  startMatch: true  },
+    { href: '/orders',    label: 'Orders',    startMatch: true  },
+    { href: '/marketing', label: 'Marketing', startMatch: true  },
+    { href: '/content',   label: 'Content',   startMatch: true  },
   ];
 
   return (
@@ -51,7 +51,7 @@ export default function AdminLayout({ children }) {
       <header className="bg-white text-ink sticky top-0 z-50 border-b border-ink/10 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-10">
-            <Link href="/admin/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link href="/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <Image
                 src="/logo.png"
                 alt="Octune Vintage"
