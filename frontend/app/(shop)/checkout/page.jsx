@@ -90,8 +90,16 @@ export default function CheckoutPage() {
       theme: {
         color: "#B5432A",
       },
+      modal: {
+        ondismiss: () => {
+          toast.error('Payment cancelled by user');
+        }
+      }
     };
     const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      toast.error(response.error.description || 'Payment failed');
+    });
     rzp.open();
   };
 

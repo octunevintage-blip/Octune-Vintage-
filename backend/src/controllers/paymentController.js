@@ -57,14 +57,31 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
   const shipping = (subtotal - couponDiscount) >= 999 ? 0 : 99;
   const total = subtotal - couponDiscount + shipping;
 
+  const amount = Math.round(total * 100);
+  if (amount < 100) {
+    res.status(400);
+    throw new Error('Amount must be at least 100 paise (₹1)');
+  }
+
   const orderNumber = `OCT-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  const razorpayOrder = await razorpay.orders.create({
-    amount: Math.round(total * 100),
-    currency: 'INR',
-    receipt: orderNumber,
-    notes: { productId: product._id.toString() }
-  });
+  let razorpayOrder;
+  try {
+    razorpayOrder = await razorpay.orders.create({
+      amount,
+      currency: 'INR',
+      receipt: orderNumber,
+      notes: { productId: product._id.toString() }
+    });
+  } catch (error) {
+    console.error('Razorpay Order Creation Error:', error);
+    if (error.statusCode === 401 || error.status === 401 || (error.message && error.message.includes('401'))) {
+      res.status(401);
+      throw new Error('Razorpay authentication failure. Please check API credentials.');
+    }
+    res.status(500);
+    throw new Error(error.description || error.message || 'Failed to create payment order with Razorpay');
+  }
 
   const order = await Order.create({
     orderNumber,
@@ -100,6 +117,11 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
 
 export const verifyPayment = asyncHandler(async (req, res) => {
   const { orderId, razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
+
+  if (!orderId || !razorpayPaymentId || !razorpayOrderId || !razorpaySignature) {
+    res.status(400);
+    throw new Error('Missing fields required for payment verification');
+  }
 
   const order = await Order.findById(orderId);
   if (!order) {
