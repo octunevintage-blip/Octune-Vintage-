@@ -55,9 +55,9 @@ export default function AdminLayout({ children }) {
               <Image
                 src="/logo.png?v=2"
                 alt="Octune Vintage"
-                width={90}
-                height={36}
-                className="h-9 w-auto object-contain brightness-0"
+                width={130}
+                height={52}
+                className="h-11 md:h-14 w-auto object-contain"
               />
               <span className="font-serif tracking-[0.25em] text-[10px] text-ink/40 uppercase hidden md:inline border-l border-ink/10 pl-3">Admin Portal</span>
             </Link>

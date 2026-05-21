@@ -69,6 +69,18 @@ const contentSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     default: []
   },
+  newArrivals: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    default: []
+  },
+  vintageClassics: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    default: []
+  },
+  archivePicks: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    default: []
+  },
   looks: {
     type: [lookSchema],
     default: [

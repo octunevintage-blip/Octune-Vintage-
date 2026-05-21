@@ -1,15 +1,29 @@
 'use client';
-import { useCartStore } from '@/lib/store';
+import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Lock } from 'lucide-react';
 
 export default function AddToCartBtn({ product, isLocked }) {
   const { setItem, item } = useCartStore();
+  const { user } = useAuthStore();
+  const { open } = useAuthModalStore();
   const router = useRouter();
 
   const handleAdd = () => {
+    if (!user) {
+      open('signup');
+      return;
+    }
     setItem(product);
+    router.push('/cart');
+  };
+
+  const handleCheckoutRedirect = () => {
+    if (!user) {
+      open('signup');
+      return;
+    }
     router.push('/cart');
   };
 
@@ -31,7 +45,7 @@ export default function AddToCartBtn({ product, isLocked }) {
   if (item?._id === product._id) {
     return (
       <motion.button
-        onClick={() => router.push('/cart')}
+        onClick={handleCheckoutRedirect}
         className="w-full flex items-center justify-center gap-3 bg-black text-white font-display uppercase font-bold tracking-[0.15em] py-4 text-xs relative overflow-hidden group"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

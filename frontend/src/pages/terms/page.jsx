@@ -10,6 +10,9 @@ export default function TermsPage() {
           <p>By accessing our website and placing an order, you agree to the following terms and conditions. Please read them carefully before making a purchase.</p>
         </section>
         <section>
+           <p>This website is an independent thrift and resale platform. References to third-party brand names, logos, labels, product names, and trademarks are made solely for the purpose of accurately identifying genuine pre-owned products. All such trademarks and intellectual property belong to their respective owners. We do not claim ownership of any third-party marks and are not affiliated with, authorised by, endorsed by, sponsored by, or officially associated with any brand displayed or mentioned on this website.</p>
+        </section>
+        <section>
           <h2 className="font-serif text-xl uppercase tracking-widest mb-4">1. Product Information</h2>
           <p>Octune Vintage deals in thrifted, pre-loved, and vintage clothing. Most products are one-of-a-kind and available in limited quantities, usually only one piece per item. As these are pre-loved pieces, minor signs of wear, fading, or natural ageing may be present. We make every effort to mention noticeable flaws, defects, or imperfections in the product description along with images.</p>
         </section>

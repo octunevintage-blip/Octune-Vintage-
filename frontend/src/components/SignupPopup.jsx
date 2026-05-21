@@ -11,15 +11,6 @@ export default function SignupPopup() {
   const mounted = useHasMounted();
   const timerRef = useRef(null);
 
-  const startTimer = useCallback(() => {
-    // Clear any existing timer
-    if (timerRef.current) clearTimeout(timerRef.current);
-    // Show popup after 15 seconds
-    timerRef.current = setTimeout(() => {
-      setVisible(true);
-    }, 15000);
-  }, []);
-
   useEffect(() => {
     if (!mounted) return;
     if (user) {
@@ -29,20 +20,21 @@ export default function SignupPopup() {
       return;
     }
 
-    // Start the first popup timer (show after 15s)
-    startTimer();
+    const hasShown = sessionStorage.getItem('hasShownWelcomePopup');
+    if (!hasShown) {
+      timerRef.current = setTimeout(() => {
+        setVisible(true);
+        sessionStorage.setItem('hasShownWelcomePopup', 'true');
+      }, 1500);
+    }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [mounted, user, startTimer]);
+  }, [mounted, user]);
 
   const handleDismiss = () => {
     setVisible(false);
-    // If user is still not logged in, restart the 15s timer
-    if (!user) {
-      startTimer();
-    }
   };
 
   const handleSignup = () => {

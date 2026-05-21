@@ -83,4 +83,35 @@
   background: #000;
 }
 
+/* ── Swiper Product Carousel Custom Styling ────────────────────── */
+.product-swiper .swiper-button-next,
+.product-swiper .swiper-button-prev {
+  color: #000 !important;
+  background: #fff !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 0% !important;
+  border: 1.5px solid #000 !important;
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,1) !important;
+  transition: all 0.2s !important;
+}
+.product-swiper .swiper-button-next:hover,
+.product-swiper .swiper-button-prev:hover {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,1) !important;
+}
+.product-swiper .swiper-button-next::after,
+.product-swiper .swiper-button-prev::after {
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+.product-swiper .swiper-pagination-bullet-active {
+  background: #000 !important;
+}
+.product-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+}
+
+
 

@@ -57,7 +57,10 @@ export default function AdminContentPage() {
         heroBanners: content.heroBanners || [],
         splitBanners: content.splitBanners,
         customBanners: content.customBanners || [],
-        trendingProducts: (content.trendingProducts || []).map(p => p._id || p)
+        trendingProducts: (content.trendingProducts || []).map(p => p._id || p),
+        newArrivals: (content.newArrivals || []).map(p => p._id || p),
+        vintageClassics: (content.vintageClassics || []).map(p => p._id || p),
+        archivePicks: (content.archivePicks || []).map(p => p._id || p)
       };
 
       await api.put('/content', payload);
@@ -71,6 +74,13 @@ export default function AdminContentPage() {
   };
 
   if (loading || !content) return <div>Loading...</div>;
+
+  const sections = [
+    { key: 'trendingProducts', title: 'What\'s Trending', subtitle: 'Select the exact products you want to feature in the trending section on the homepage.' },
+    { key: 'newArrivals', title: 'New Arrivals', subtitle: 'Select the exact products you want to feature in the new arrivals section on the homepage.' },
+    { key: 'vintageClassics', title: 'Vintage Classics', subtitle: 'Select the exact products you want to feature in the vintage classics section on the homepage.' },
+    { key: 'archivePicks', title: 'Archive Picks', subtitle: 'Select the exact products you want to feature in the archive picks section on the homepage.' }
+  ];
 
   return (
     <div className="space-y-12 pb-20">
@@ -206,80 +216,84 @@ export default function AdminContentPage() {
         </div>
       </section>
 
-      {/* TRENDING PRODUCTS SECTION */}
-      <section className="bg-white p-6 border border-paper-dark shadow-sm">
-        <h2 className="font-serif text-2xl tracking-widest mb-6">2. "What's Trending" Carousel</h2>
-        <p className="text-sm text-ink/70 mb-4">Select the exact products you want to feature in the trending section on the homepage. Drag and drop functionality is not supported yet, so add them in the order you want them to appear.</p>
-        
-        <div className="space-y-4">
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Add Product to Trending</label>
-              <select 
-                className="w-full p-3 border border-paper-dark bg-paper focus:outline-none focus:border-brick font-mono text-sm"
-                onChange={(e) => {
-                  if (!e.target.value) return;
-                  const selectedProduct = products.find(p => p._id === e.target.value);
-                  if (selectedProduct && !(content.trendingProducts || []).some(p => (p._id || p) === selectedProduct._id)) {
-                    setContent({
-                      ...content,
-                      trendingProducts: [...(content.trendingProducts || []), selectedProduct]
-                    });
-                  }
-                  e.target.value = '';
-                }}
-                defaultValue=""
-              >
-                <option value="" disabled>Select a product to feature...</option>
-                {products.filter(p => !(content.trendingProducts || []).some(tp => (tp._id || tp) === p._id)).map(p => (
-                  <option key={p._id} value={p._id}>{p.name} - ₹{p.price}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* List of currently trending products */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-            {(content.trendingProducts || []).length === 0 && (
-              <p className="text-sm text-ink/50 uppercase tracking-widest col-span-4 py-4">No products selected. The homepage will automatically show the latest arrivals instead.</p>
-            )}
-            {(content.trendingProducts || []).map((product, index) => {
-              // Handle populated product object or just ID
-              const prodData = product._id ? product : products.find(p => p._id === product);
-              if (!prodData) return null;
-
-              return (
-                <div key={prodData._id} className="border border-paper-dark bg-paper p-3 flex flex-col gap-3 relative group">
-                  <div className="relative w-full aspect-[4/5] bg-white">
-                    {prodData.images && prodData.images[0] && (
-                      <Image src={prodData.images[0].url} fill className="object-cover" alt={prodData.name} />
-                    )}
-                    <button 
-                      onClick={() => {
-                        const newTrending = [...(content.trendingProducts || [])];
-                        newTrending.splice(index, 1);
-                        setContent({...content, trendingProducts: newTrending});
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Remove from Trending"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-sm uppercase tracking-widest truncate" title={prodData.name}>{prodData.name}</h4>
-                    <p className="text-xs text-ink/60 font-mono mt-1">₹{prodData.price}</p>
-                  </div>
+      {/* PRODUCT CAROUSEL SECTIONS */}
+      {sections.map((sec, secIdx) => {
+        const secProducts = content[sec.key] || [];
+        return (
+          <section key={sec.key} className="bg-white p-6 border border-paper-dark shadow-sm">
+            <h2 className="font-serif text-2xl tracking-widest mb-6">{secIdx + 2}. "{sec.title}" Carousel</h2>
+            <p className="text-sm text-ink/70 mb-4">{sec.subtitle} Add them in the order you want them to appear.</p>
+            
+            <div className="space-y-4">
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Add Product to {sec.title}</label>
+                  <select 
+                    className="w-full p-3 border border-paper-dark bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                    onChange={(e) => {
+                      if (!e.target.value) return;
+                      const selectedProduct = products.find(p => p._id === e.target.value);
+                      if (selectedProduct && !secProducts.some(p => (p._id || p) === selectedProduct._id)) {
+                        setContent({
+                          ...content,
+                          [sec.key]: [...secProducts, selectedProduct]
+                        });
+                      }
+                      e.target.value = '';
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select a product to feature...</option>
+                    {products.filter(p => !secProducts.some(tp => (tp._id || tp) === p._id)).map(p => (
+                      <option key={p._id} value={p._id}>{p.name} - ₹{p.price}</option>
+                    ))}
+                  </select>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+              </div>
+
+              {/* List of currently selected products */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                {secProducts.length === 0 && (
+                  <p className="text-sm text-ink/50 uppercase tracking-widest col-span-4 py-4">No products selected. The section will be empty on the homepage.</p>
+                )}
+                {secProducts.map((product, index) => {
+                  const prodData = product._id ? product : products.find(p => p._id === product);
+                  if (!prodData) return null;
+
+                  return (
+                    <div key={prodData._id} className="border border-paper-dark bg-paper p-3 flex flex-col gap-3 relative group">
+                      <div className="relative w-full aspect-[4/5] bg-white">
+                        {prodData.images && prodData.images[0] && (
+                          <Image src={prodData.images[0].url} fill className="object-cover" alt={prodData.name} />
+                        )}
+                        <button 
+                          onClick={() => {
+                            const newSecProducts = [...secProducts];
+                            newSecProducts.splice(index, 1);
+                            setContent({...content, [sec.key]: newSecProducts});
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={`Remove from ${sec.title}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm uppercase tracking-widest truncate" title={prodData.name}>{prodData.name}</h4>
+                        <p className="text-xs text-ink/60 font-mono mt-1">₹{prodData.price}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        );
+      })}
 
       {/* SPLIT BANNERS SECTION */}
       <section className="bg-white p-6 border border-paper-dark shadow-sm">
-        <h2 className="font-serif text-2xl tracking-widest mb-6">3. Split Banners</h2>
+        <h2 className="font-serif text-2xl tracking-widest mb-6">6. Split Banners</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {content.splitBanners.map((banner, index) => (
             <div key={index} className="border border-paper-dark p-4 bg-paper/50">
@@ -338,7 +352,7 @@ export default function AdminContentPage() {
       {/* CUSTOM BANNERS SECTION */}
       <section className="bg-white p-6 border border-paper-dark shadow-sm">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-serif text-2xl tracking-widest">4. Custom Banners</h2>
+          <h2 className="font-serif text-2xl tracking-widest">7. Custom Banners</h2>
           <button 
             onClick={() => {
               setContent({

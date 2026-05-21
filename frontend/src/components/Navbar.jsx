@@ -25,12 +25,10 @@ export default function Navbar() {
   return (
     <>
       <nav className="fixed w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm">
-        {/* Top Info Bar */}
-        <div className="bg-vnv-black text-vnv-white text-center py-2 text-xs tracking-[0.2em] font-sans">
-          FREE SHIPPING ON ORDERS OVER ₹999
-        </div>
+        {/* Top Info Bar — Scrolling Marquee on Mobile, Static on Desktop */}
+        
 
-        <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+        <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
 
           {/* Mobile Menu Toggle */}
           <button className="lg:hidden p-2 text-vnv-black" onClick={() => setIsOpen(true)}>
@@ -44,8 +42,7 @@ export default function Navbar() {
               alt="Octune Vintage"
               width={1925}
               height={921}
-              className="w-auto object-contain"
-              style={{ height: '75px' }}
+              className="w-auto object-contain h-[50px] md:h-[75px]"
               priority
             />
           </Link>

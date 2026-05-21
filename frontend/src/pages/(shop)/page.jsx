@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '@/lib/api';
-import ProductCard from '@/components/ProductCard';
 import HeroSlider from '@/components/HeroSlider';
 import HomeClient from '@/components/HomeClient';
+import ProductSectionCarousel from '@/components/ProductSectionCarousel';
 
 export default function Home() {
   const [recentFinds, setRecentFinds] = useState([]);
@@ -79,75 +79,92 @@ export default function Home() {
     <div className="bg-vnv-white text-vnv-black overflow-hidden">
       <HomeClient />
       
-      {/* Promotional Ad Bar — centered */}
+      {/* Promotional Ad Bar — Centered Marquee */}
       {Array.isArray(activeCoupons) && activeCoupons.length > 0 && (
-        <div
-          className="bg-vnv-black text-vnv-white border-b border-vnv-gray/30"
-          style={{ paddingTop: '6px', paddingBottom: '6px' }}
-        >
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4">
-            {activeCoupons.map((coupon) => (
-              <span
-                key={coupon._id}
-                className="inline-flex items-center gap-3 font-sans uppercase tracking-widest font-semibold"
-                style={{ fontSize: '14px', whiteSpace: 'nowrap' }}
-              >
+        <div className="bg-vnv-black text-vnv-white border-b border-vnv-gray/30 overflow-hidden py-2.5 relative flex items-center">
+          <div className="flex whitespace-nowrap animate-marquee">
+            {/* Main items */}
+            <div className="flex shrink-0 items-center justify-around min-w-full gap-x-12 px-4">
+              {activeCoupons.map((coupon) => (
                 <span
-                  style={{
-                    background: 'white',
-                    color: 'black',
-                    fontSize: '10px',
-                    fontWeight: 900,
-                    padding: '2px 8px',
-                    letterSpacing: '0.15em',
-                    flexShrink: 0,
-                  }}
+                  key={coupon._id}
+                  className="inline-flex items-center gap-3 font-sans uppercase tracking-[0.2em] font-semibold text-xs md:text-sm"
+                  style={{ whiteSpace: 'nowrap' }}
                 >
-                  PROMO
+                  <span className="bg-vnv-white text-vnv-black text-[9px] font-black px-2 py-0.5 tracking-[0.1em] flex-shrink-0">
+                    PROMO
+                  </span>
+                  USE CODE{' '}
+                  <span className="underline decoration-2 underline-offset-4 font-black">
+                    {coupon.code}
+                  </span>
+                  {' — '}
+                  <span className="font-black">
+                    {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
+                  </span>
+                  {coupon.minOrderValue > 0
+                    ? ` ON ORDERS ABOVE ₹${coupon.minOrderValue}`
+                    : ' ON ANY ORDER'}
                 </span>
-                USE CODE{' '}
-                <span style={{ fontWeight: 900, textDecoration: 'underline', textDecorationThickness: '2px', textUnderlineOffset: '4px' }}>
-                  {coupon.code}
+              ))}
+            </div>
+
+            {/* Duplicate items for infinite scrolling loop */}
+            <div className="flex shrink-0 items-center justify-around min-w-full gap-x-12 px-4" aria-hidden="true">
+              {activeCoupons.map((coupon) => (
+                <span
+                  key={`${coupon._id}-dup`}
+                  className="inline-flex items-center gap-3 font-sans uppercase tracking-[0.2em] font-semibold text-xs md:text-sm"
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  <span className="bg-vnv-white text-vnv-black text-[9px] font-black px-2 py-0.5 tracking-[0.1em] flex-shrink-0">
+                    PROMO
+                  </span>
+                  USE CODE{' '}
+                  <span className="underline decoration-2 underline-offset-4 font-black">
+                    {coupon.code}
+                  </span>
+                  {' — '}
+                  <span className="font-black">
+                    {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
+                  </span>
+                  {coupon.minOrderValue > 0
+                    ? ` ON ORDERS ABOVE ₹${coupon.minOrderValue}`
+                    : ' ON ANY ORDER'}
                 </span>
-                {' — '}
-                <span style={{ fontWeight: 900 }}>
-                  {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`}
-                </span>
-                {coupon.minOrderValue > 0
-                  ? ` ON ORDERS ABOVE ₹${coupon.minOrderValue}`
-                  : ' ON ANY ORDER'}
-              </span>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
+
       {/* Full Width Auto-Scrolling Hero Banners */}
       <HeroSlider banners={heroBanners} />
 
-      {/* What's Trending / Recent Finds Carousel */}
-      <section className="mt-16 md:mt-24 container mx-auto px-4 md:px-8">
-        <div className="flex justify-between items-end mb-8 border-b-2 border-vnv-black pb-4">
-          <h2 className="font-display text-2xl md:text-4xl font-bold uppercase tracking-wide">WHAT'S TRENDING</h2>
-          <Link href="/shop" className="font-display text-xs md:text-sm uppercase tracking-widest text-vnv-gray hover:text-vnv-black transition-colors hidden md:block">
-            VIEW ALL
-          </Link>
-        </div>
-        
-        {/* Horizontal scroll container */}
-        <div className="flex overflow-x-auto hide-scrollbar space-x-4 md:space-x-6 pb-12 pt-4 snap-x pl-1">
-          {Array.isArray(trendingProductsToDisplay) && trendingProductsToDisplay.map(product => (
-            <div key={product._id} className="min-w-[65vw] md:min-w-[240px] lg:min-w-[280px] snap-start shrink-0">
-              <ProductCard product={product} variant="trending" />
-            </div>
-          ))}
-          {/* View All Card */}
-          <div className="min-w-[65vw] md:min-w-[240px] lg:min-w-[280px] snap-start shrink-0 flex items-center justify-center bg-vnv-light-gray border border-vnv-gray/20 group cursor-pointer aspect-[4/5] relative shadow-sm hover:shadow-xl transition-shadow duration-500">
-            <Link href="/shop" className="absolute inset-0 flex items-center justify-center">
-              <span className="font-display text-xl uppercase tracking-widest group-hover:underline decoration-2 underline-offset-4">EXPLORE MORE LOOKS</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* 4 Featured Product Carousels */}
+      <ProductSectionCarousel 
+        title="WHAT'S TRENDING" 
+        products={trendingProductsToDisplay} 
+        viewAllLink="/shop"
+      />
+
+      <ProductSectionCarousel 
+        title="NEW ARRIVALS" 
+        products={siteContent?.newArrivals || []} 
+        viewAllLink="/shop"
+      />
+
+      <ProductSectionCarousel 
+        title="VINTAGE CLASSICS" 
+        products={siteContent?.vintageClassics || []} 
+        viewAllLink="/shop"
+      />
+
+      <ProductSectionCarousel 
+        title="ARCHIVE PICKS" 
+        products={siteContent?.archivePicks || []} 
+        viewAllLink="/shop"
+      />
 
       {/* Split Banners */}
       <section className="mt-8 md:mt-16 container mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-4">

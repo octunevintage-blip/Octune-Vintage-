@@ -1,5 +1,5 @@
 'use client';
-import { useCartStore } from '@/lib/store';
+import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatINR } from '@/lib/utils';
@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const { item, clearCart } = useCartStore();
+  const { user } = useAuthStore();
+  const { open: openAuthModal } = useAuthModalStore();
   const router = useRouter();
 
   if (!item) {
@@ -25,6 +27,14 @@ export default function CartPage() {
   const subtotal = item.price;
   const shipping = subtotal >= 999 ? 0 : 99;
   const total = subtotal + shipping;
+
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      openAuthModal('signup');
+      return;
+    }
+    router.push('/checkout');
+  };
 
   return (
     <div className="container mx-auto px-4 md:px-8 py-12 md:py-20">
@@ -90,7 +100,7 @@ export default function CartPage() {
               <span>{formatINR(total)}</span>
             </div>
 
-            <button onClick={() => router.push('/checkout')} className="w-full bg-vnv-black text-vnv-white font-display uppercase font-bold tracking-widest py-4 hover:bg-vnv-gray transition-colors border-2 border-vnv-black hover:border-vnv-gray">
+            <button onClick={handleProceedToCheckout} className="w-full bg-vnv-black text-vnv-white font-display uppercase font-bold tracking-widest py-4 hover:bg-vnv-gray transition-colors border-2 border-vnv-black hover:border-vnv-gray">
               PROCEED TO CHECKOUT
             </button>
           </div>

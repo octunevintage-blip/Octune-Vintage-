@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCartStore } from '@/lib/store';
+import { useCartStore, useAuthStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Script from 'next/script';
@@ -12,6 +12,7 @@ import { useHasMounted } from '@/hooks/useHasMounted';
 
 export default function CheckoutPage() {
   const { item, clearCart } = useCartStore();
+  const { user } = useAuthStore();
   const router = useRouter();
   const mounted = useHasMounted();
   
@@ -25,14 +26,19 @@ export default function CheckoutPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   useEffect(() => {
-    if (mounted && !item) {
-      router.push('/shop');
+    if (mounted) {
+      if (!user) {
+        router.push('/shop');
+        toast.error('Please sign up or log in to checkout.');
+      } else if (!item) {
+        router.push('/shop');
+      }
     }
-  }, [item, router, mounted]);
+  }, [item, user, router, mounted]);
 
   // Don't render until client-side so zustand localStorage is ready
   if (!mounted) return null;
-  if (!item) return null;
+  if (!user || !item) return null;
 
   const subtotal = item.price;
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
