@@ -63,7 +63,8 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!mounted) return;
-    if (!user) {
+    if (!user || !user.token) {
+      if (user) logout();
       openAuthModal('login');
       router.push('/');
       return;

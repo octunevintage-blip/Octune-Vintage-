@@ -15,7 +15,7 @@ export default function AdminLogin() {
   const router = useRouter();
 
   useEffect(() => {
-    if (admin) router.push('/dashboard');
+    if (admin && admin.token) router.push('/dashboard');
   }, [admin, router]);
 
   const handleSubmit = async (e) => {

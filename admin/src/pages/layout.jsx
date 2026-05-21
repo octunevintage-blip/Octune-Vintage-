@@ -22,7 +22,10 @@ export default function AdminLayout({ children }) {
   // Don't check auth until client-side (zustand persist uses localStorage)
   if (!mounted) return <div className="bg-paper min-h-screen" />;
 
-  if (!admin) {
+  if (!admin || !admin.token) {
+    if (admin) {
+      logout();
+    }
     router.push('/login');
     return null;
   }
@@ -30,10 +33,11 @@ export default function AdminLayout({ children }) {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
+    } catch (error) {
+      console.error('API logout failed, clearing state locally:', error);
+    } finally {
       logout();
       router.push('/login');
-    } catch (error) {
-      console.error(error);
     }
   };
 
