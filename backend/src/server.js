@@ -39,6 +39,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy for correct client IP detection behind Render load balancer
+app.set('trust proxy', 1);
+
 // Security
 app.use(helmet());
 
@@ -100,10 +103,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate Limit
+// Rate Limit - 1000 requests per 15 minutes per client IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 1000,
   message: 'Too many requests, please try again later.',
 });
 
