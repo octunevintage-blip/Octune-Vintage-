@@ -14,9 +14,23 @@ import AdminInvoice from '@/pages/orders/invoice/[id]/page';
 import AdminContent from '@/pages/content/page';
 import AdminMarketing from '@/pages/marketing/page';
 
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Redirect Root path to Dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

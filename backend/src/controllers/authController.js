@@ -16,7 +16,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (user) {
     const token = generateToken(user._id);
     setTokenCookie(res, token, 'token');
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email });
+    res.status(201).json({ _id: user._id, name: user.name, email: user.email, token });
   } else {
     res.status(400);
     throw new Error('Invalid user data');
@@ -30,7 +30,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (user && (await user.matchPassword(password))) {
     const token = generateToken(user._id);
     setTokenCookie(res, token, 'token');
-    res.json({ _id: user._id, name: user.name, email: user.email });
+    res.json({ _id: user._id, name: user.name, email: user.email, token });
   } else {
     res.status(401);
     throw new Error('Invalid email or password');
@@ -44,7 +44,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
   if (admin && (await admin.matchPassword(password))) {
     const token = generateToken(admin._id);
     setTokenCookie(res, token, 'adminToken');
-    res.json({ _id: admin._id, name: admin.name, email: admin.email, role: admin.role });
+    res.json({ _id: admin._id, name: admin.name, email: admin.email, role: admin.role, token });
   } else {
     res.status(401);
     throw new Error('Invalid email or password');
