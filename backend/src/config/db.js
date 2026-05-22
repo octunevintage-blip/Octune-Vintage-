@@ -7,6 +7,16 @@ const connectDB = async () => {
   try {
     let uri = process.env.MONGODB_URI;
 
+    // Check if uri is missing or empty
+    if (!uri) {
+      console.log('No MONGODB_URI provided. Starting in-memory MongoDB for testing...');
+      mongod = await MongoMemoryServer.create();
+      uri = mongod.getUri();
+      const conn = await mongoose.connect(uri);
+      console.log(`In-Memory MongoDB Connected: ${conn.connection.host}`);
+      return;
+    }
+
     // Try normal connection first if we think it's a real cluster
     if (!uri.includes('localhost') && !uri.includes('127.0.0.1')) {
       const conn = await mongoose.connect(uri);

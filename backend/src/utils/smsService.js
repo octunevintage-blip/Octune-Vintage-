@@ -26,11 +26,14 @@ export const sendSMS = async (phone, otp) => {
   console.log(`[SMS MOCK] MESSAGE: ${message}`);
   console.log('========================================\n');
 
-  // Check if Twilio API keys are configured
+  // Check if Twilio API keys are configured and are not placeholders
   if (
     process.env.TWILIO_ACCOUNT_SID &&
+    !process.env.TWILIO_ACCOUNT_SID.includes('your_') &&
     process.env.TWILIO_AUTH_TOKEN &&
-    process.env.TWILIO_FROM_NUMBER
+    !process.env.TWILIO_AUTH_TOKEN.includes('your_') &&
+    process.env.TWILIO_FROM_NUMBER &&
+    !process.env.TWILIO_FROM_NUMBER.includes('your_')
   ) {
     try {
       // Dynamic import to prevent app crashes if package is not present in local packages
