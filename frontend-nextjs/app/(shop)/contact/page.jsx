@@ -30,12 +30,12 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="bg-vnv-white min-h-screen text-vnv-black pt-20">
-      <div className="container mx-auto px-4 md:px-8 py-12 max-w-4xl">
+    <div className="bg-vnv-white text-vnv-black flex flex-col">
+      <div className="container mx-auto px-4 md:px-8 pt-4 pb-12 max-w-4xl flex-grow">
         
         {/* Header */}
-        <div className="border-b-4 border-vnv-black pb-6 mb-12 text-center md:text-left">
-          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight uppercase mb-4">
+        <div className="border-b-4 border-vnv-black pb-6 mb-8 text-center md:text-left">
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase mb-2">
             CONTACT US
           </h1>
           <p className="text-sm md:text-base font-sans max-w-2xl text-vnv-gray">
@@ -52,7 +52,7 @@ export default function ContactPage() {
               <h3 className="font-display text-xl font-bold uppercase tracking-widest mb-2 border-b border-vnv-black inline-block pb-1">HQ / SHOWROOM</h3>
               <p className="font-sans text-vnv-gray mt-4">
                 Octune Vintage Archives<br />
-                Mumbai, MH 400050<br />
+                Aurobindapall Main Road, Siliguri<br />
                 India
               </p>
             </div>
@@ -60,8 +60,8 @@ export default function ContactPage() {
             <div>
               <h3 className="font-display text-xl font-bold uppercase tracking-widest mb-2 border-b border-vnv-black inline-block pb-1">DIRECT INQUIRIES</h3>
               <p className="font-sans text-vnv-gray mt-4">
-                info@octune.com<br />
-                +91 98765 43210
+                octunevintage@gmail.com<br />
+                +91 8250689552
               </p>
             </div>
 

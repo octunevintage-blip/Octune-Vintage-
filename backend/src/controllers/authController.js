@@ -1,27 +1,161 @@
 import asyncHandler from 'express-async-handler';
 import User from '../models/User.js';
 import Admin from '../models/Admin.js';
+import TempUser from '../models/TempUser.js';
+import { sendSMS } from '../utils/smsService.js';
+import sendEmail, { otpEmailTemplate } from '../utils/sendEmail.js';
 import { generateToken, setTokenCookie } from '../utils/generateToken.js';
+import bcrypt from 'bcryptjs';
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, phone, password } = req.body;
 
-  const userExists = await User.findOne({ email });
-  if (userExists) {
+  if (!name || !email || !phone || !password) {
     res.status(400);
-    throw new Error('User already exists');
+    throw new Error('All fields are required');
   }
 
-  const user = await User.create({ name, email, password });
-  if (user) {
-    const token = generateToken(user._id);
-    setTokenCookie(res, token, 'token');
-    res.status(201).json({ _id: user._id, name: user.name, email: user.email, token });
+  const emailExists = await User.findOne({ email });
+  if (emailExists) {
+    res.status(400);
+    throw new Error('Email is already registered');
+  }
+
+  const phoneExists = await User.findOne({ phone });
+  if (phoneExists) {
+    res.status(400);
+    throw new Error('Phone number is already registered');
+  }
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Hash password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Clean up any existing pending verification sessions for this email or phone
+  await TempUser.deleteMany({ $or: [{ email }, { phone }] });
+
+  // Create temporary user record
+  const tempUser = await TempUser.create({
+    name,
+    email,
+    phone,
+    password: hashedPassword,
+    otp,
+  });
+
+  if (tempUser) {
+    await sendSMS(phone, otp);
+    await sendEmail({
+      to: tempUser.email,
+      subject: 'Verify Your Octune Vintage Account',
+      html: otpEmailTemplate(otp),
+    });
+    res.status(200).json({
+      message: 'OTP sent to your email address',
+      email: tempUser.email,
+    });
   } else {
     res.status(400);
-    throw new Error('Invalid user data');
+    throw new Error('Failed to start registration process');
   }
 });
+
+export const verifyOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
+    res.status(400);
+    throw new Error('Email and OTP are required');
+  }
+
+  const tempUser = await TempUser.findOne({ email });
+  if (!tempUser) {
+    res.status(400);
+    throw new Error('OTP has expired or registration session not found');
+  }
+
+  tempUser.attempts += 1;
+  await tempUser.save();
+
+  if (tempUser.attempts > 5) {
+    await TempUser.deleteOne({ _id: tempUser._id });
+    res.status(400);
+    throw new Error('Too many incorrect attempts. Please sign up again.');
+  }
+
+  if (tempUser.otp !== otp) {
+    res.status(400);
+    throw new Error('Invalid OTP');
+  }
+
+  const emailExists = await User.findOne({ email: tempUser.email });
+  if (emailExists) {
+    await TempUser.deleteOne({ _id: tempUser._id });
+    res.status(400);
+    throw new Error('Email is already registered');
+  }
+
+  const phoneExists = await User.findOne({ phone: tempUser.phone });
+  if (phoneExists) {
+    await TempUser.deleteOne({ _id: tempUser._id });
+    res.status(400);
+    throw new Error('Phone number is already registered');
+  }
+
+  const user = await User.create({
+    name: tempUser.name,
+    email: tempUser.email,
+    phone: tempUser.phone,
+    password: tempUser.password, // already hashed
+  });
+
+  if (user) {
+    await TempUser.deleteOne({ _id: tempUser._id });
+    res.status(201).json({
+      success: true,
+      message: 'Registration verified successfully! Please log in to your account.',
+    });
+  } else {
+    res.status(400);
+    throw new Error('Failed to complete registration');
+  }
+});
+
+export const resendOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('Email is required');
+  }
+
+  const tempUser = await TempUser.findOne({ email });
+  if (!tempUser) {
+    res.status(400);
+    throw new Error('Registration session has expired. Please sign up again.');
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  tempUser.otp = otp;
+  tempUser.attempts = 0;
+  tempUser.createdAt = new Date();
+  await tempUser.save();
+
+  await sendSMS(tempUser.phone, otp);
+  await sendEmail({
+    to: tempUser.email,
+    subject: 'Verify Your Octune Vintage Account',
+    html: otpEmailTemplate(otp),
+  });
+
+  res.status(200).json({
+    message: 'OTP resent successfully',
+  });
+});
+
 
 export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;

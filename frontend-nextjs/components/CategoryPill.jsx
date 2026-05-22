@@ -8,7 +8,7 @@ export default function CategoryPill() {
   const currentCategory = searchParams.get('category') || 'All';
 
   return (
-    <div className="w-full flex justify-center py-8 relative z-40">
+    <div className="w-full flex justify-center pt-8 pb-3 relative z-40">
       <div className="flex items-center gap-1 bg-vnv-white/90 backdrop-blur-md border border-vnv-gray/30 p-2 rounded-full shadow-[0px_8px_24px_rgba(0,0,0,0.12)] overflow-x-auto max-w-[95vw] hide-scrollbar hover:-translate-y-1 transition-transform duration-300">
       <Link 
         href="/shop" 

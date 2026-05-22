@@ -1,16 +1,7 @@
-import Image from 'next/image';
-
-export const metadata = {
-  title: 'Our Story | Octune Vintage',
-  description: 'The origin of Octune Vintage. Curated 1-of-1 thrifted clothing.',
-};
-
 export default function AboutPage() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-20 max-w-7xl">
-      <h1 className="font-display text-4xl sm:text-5xl uppercase tracking-widest mb-12 text-center font-bold text-vnv-black">About Us</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-12 pt-8 pb-12 md:pt-10 md:pb-20 max-w-7xl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
         {/* Left Column - Image with VNV Style solid drop shadow */}
         <div className="lg:col-span-5 flex justify-center">
           <div className="relative w-full max-w-[420px] bg-vnv-light-gray border-4 border-vnv-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-500 hover:translate-x-1 hover:translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -24,6 +15,8 @@ export default function AboutPage() {
 
         {/* Right Column - Story text */}
         <div className="lg:col-span-7 space-y-6 text-vnv-dark-gray leading-relaxed text-sm sm:text-base font-sans">
+          <h1 className="font-display text-3xl sm:text-4xl uppercase tracking-tight mb-6 text-center font-bold text-vnv-black">About Us</h1>
+          
           <p className="text-xl sm:text-2xl italic text-vnv-black tracking-wide font-medium leading-snug border-l-4 border-vnv-black pl-4 py-2">
             "Our best picks of your favourite brands! That’s pretty much what Octune Vintage is all about!"
           </p>
@@ -36,7 +29,7 @@ export default function AboutPage() {
               Think vintage jackets, windbreakers, track tops, jerseys, T-shirts, shorts, pants, and honestly, anything cool we can get our hands on! We only stock one piece of each product. So when you add something to your cart, you know it’s gonna be one of a kind!
             </p>
 
-            <p className="text-lg sm:text-xl font-bold text-vnv-black uppercase tracking-widest pt-4">
+            <p className="text-lg sm:text-xl font-bold text-vnv-black uppercase tracking-tight pt-4">
               Now, who’s behind Octune?
             </p>
             

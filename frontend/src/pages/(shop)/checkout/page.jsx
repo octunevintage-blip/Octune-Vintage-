@@ -112,7 +112,7 @@ export default function CheckoutPage() {
   const handleCheckout = async (e) => {
     e.preventDefault();
     if (!agreeTerms) {
-      toast.error('Please accept the Terms & Conditions and Refund Policy to proceed.');
+      toast.error('Please accept the Terms & Conditions to proceed.');
       return;
     }
     setLoading(true);
@@ -185,10 +185,8 @@ export default function CheckoutPage() {
               <label htmlFor="agree-terms" className="text-xs text-ink/75 leading-relaxed cursor-pointer select-none">
                 I have read and agree to the website's{' '}
                 <a href="/terms" target="_blank" className="text-brick font-semibold underline hover:no-underline">Terms & Conditions</a>
-                ,{' '}
-                <a href="/shipping" target="_blank" className="text-brick font-semibold underline hover:no-underline">Shipping Policy</a>
-                , and{' '}
-                <a href="/refund" target="_blank" className="text-brick font-semibold underline hover:no-underline">Refund Policy</a>.
+                {' '}and{' '}
+                <a href="/shipping" target="_blank" className="text-brick font-semibold underline hover:no-underline">Shipping Policy</a>.
               </label>
             </div>
 

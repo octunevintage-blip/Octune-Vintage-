@@ -59,4 +59,16 @@ export const unsubscribeFooter = (token) => `
 </div>
 `;
 
+export const otpEmailTemplate = (otp) => `
+<div style="background-color: #F4EDE0; color: #1A1410; font-family: 'Times New Roman', serif; padding: 40px; border: 1px solid #DCD3C1; max-width: 600px; margin: 0 auto;">
+  <h1 style="color: #B5432A; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">Join the Community</h1>
+  <p style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333230;">Your Octune Vintage verification code is:</p>
+  <div style="background-color: #EFE6D5; padding: 20px; text-align: center; border-radius: 4px; margin: 25px 0;">
+    <span style="font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: bold; letter-spacing: 4px; color: #B5432A;">${otp}</span>
+  </div>
+  <p style="font-family: Arial, sans-serif; font-size: 14px; color: #6E6557;">This code is valid for 5 minutes. If you did not request this, please ignore this email.</p>
+  <p style="font-family: Arial, sans-serif; margin-top: 40px; font-style: italic; color: #1A1410;">— The Octune Vintage Crew</p>
+</div>
+`;
+
 export default sendEmail;

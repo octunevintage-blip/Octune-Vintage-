@@ -4,7 +4,7 @@ import slugify from 'slugify';
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, unique: true },
-  description: { type: String, required: true },
+  description: { type: String, default: "" },
   shortDescription: { type: String, maxLength: 200 },
   category: { 
     type: String, 

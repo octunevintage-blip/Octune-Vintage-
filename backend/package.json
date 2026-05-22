@@ -28,6 +28,7 @@
     "nodemailer": "^6.9.13",
     "razorpay": "^2.9.4",
     "slugify": "^1.6.6",
+    "twilio": "^6.0.2",
     "validator": "^13.12.0"
   },
   "devDependencies": {

@@ -80,7 +80,7 @@ export default function SignupPopup() {
           </div>
 
           <h3 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-black mb-2">
-            Join The Archive
+            Join The Community
           </h3>
           <p className="text-gray-500 text-sm font-sans leading-relaxed mb-2">
             Create your Octune Vintage account and be the first to know about exclusive drops and 1-of-1 finds.

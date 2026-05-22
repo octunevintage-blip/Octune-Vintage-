@@ -160,10 +160,6 @@ export default function NewProduct() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-widest text-ink/60 mb-2">Description *</label>
-              <textarea required name="description" value={formData.description} onChange={handleChange} rows={6} className="input bg-paper/50 resize-none"></textarea>
-            </div>
-            <div>
               <label className="block text-xs uppercase tracking-widest text-ink/60 mb-2">Short Description</label>
               <input type="text" name="shortDescription" value={formData.shortDescription} onChange={handleChange} maxLength={200} className="input bg-paper/50" />
             </div>

@@ -18,11 +18,6 @@ export default function AdminOrders() {
     url: 'https://www.indiapost.gov.in/_layouts/15/dop.tracking.ui/trackconsignment.aspx'
   });
 
-  const [refundOrder, setRefundOrder] = useState(null);
-  const [refundForm, setRefundForm] = useState({
-    paymentStatus: 'refunded',
-    notes: ''
-  });
 
   const fetchOrders = async () => {
     try {
@@ -59,12 +54,6 @@ export default function AdminOrders() {
         number: order.tracking?.number || '',
         url: order.tracking?.url || 'https://www.indiapost.gov.in/_layouts/15/dop.tracking.ui/trackconsignment.aspx'
       });
-    } else if (newStatus === 'refunded') {
-      setRefundOrder(order);
-      setRefundForm({
-        paymentStatus: 'refunded',
-        notes: order.notes || ''
-      });
     } else {
       submitStatusChange(order._id, newStatus);
     }
@@ -81,17 +70,6 @@ export default function AdminOrders() {
     setTrackingOrder(null);
   };
 
-  // Submit refund info modal
-  const handleSaveRefund = async (e) => {
-    e.preventDefault();
-    if (!refundOrder) return;
-
-    await submitStatusChange(refundOrder._id, 'refunded', {
-      paymentStatus: refundForm.paymentStatus,
-      notes: refundForm.notes
-    });
-    setRefundOrder(null);
-  };
 
   // Auto-fill India Post URL when tracking number is entered
   const handleTrackingNumberChange = (val) => {
@@ -129,7 +107,6 @@ export default function AdminOrders() {
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
-            <option value="refunded">Refunded</option>
           </select>
         </div>
       </div>
@@ -201,7 +178,6 @@ export default function AdminOrders() {
                     <option value="shipped">Shipped</option>
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
-                    <option value="refunded">Refunded</option>
                   </select>
                 </td>
                 <td className="p-4 text-right space-x-2 whitespace-nowrap">
@@ -212,15 +188,6 @@ export default function AdminOrders() {
                       title="Edit Tracking Info"
                     >
                       <Truck size={10} /> Edit Track
-                    </button>
-                  )}
-                  {order.payment.status === 'paid' && order.status !== 'refunded' && (
-                    <button
-                      onClick={() => handleStatusSelect(order, 'refunded')}
-                      className="inline-flex items-center gap-1 border border-orange-600 text-orange-600 px-2 py-1 text-[9px] uppercase tracking-widest hover:bg-orange-50 transition-colors"
-                      title="Process Refund"
-                    >
-                      <RefreshCw size={10} /> Refund
                     </button>
                   )}
                   <button 
@@ -314,82 +281,6 @@ export default function AdminOrders() {
         </div>
       )}
 
-      {/* REFUND MODAL */}
-      {refundOrder && (
-        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white border border-ink/20 shadow-2xl max-w-md w-full p-6 relative">
-            <button 
-              onClick={() => setRefundOrder(null)} 
-              className="absolute top-4 right-4 text-ink/40 hover:text-ink"
-            >
-              <X size={18} />
-            </button>
-            <div className="flex items-center gap-2 mb-4 text-orange-600">
-              <ShieldAlert size={20} />
-              <h3 className="font-serif text-lg uppercase tracking-wider">Process Refund</h3>
-            </div>
-            
-            <div className="bg-orange-50 border border-orange-200 p-3 mb-4 rounded-sm text-xs text-orange-800">
-              You are initiating a refund process for Order <strong>#{refundOrder.orderNumber}</strong>. Please ensure you have also refunded the amount in your payment gateway (e.g. Razorpay Dashboard).
-            </div>
-            
-            <div className="border border-ink/10 bg-paper/50 p-3 text-xs space-y-1.5 mb-4">
-              <div className="flex justify-between">
-                <span>Product:</span>
-                <span className="font-semibold truncate max-w-[200px]">{refundOrder.product?.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Customer Email:</span>
-                <span>{refundOrder.customer?.email}</span>
-              </div>
-              <div className="flex justify-between border-t border-ink/10 pt-1.5 font-bold">
-                <span>Total Paid Amount:</span>
-                <span>{formatINR(refundOrder.pricing?.total || 0)}</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveRefund} className="space-y-4">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-ink/65 mb-1">Payment Status</label>
-                <select
-                  value={refundForm.paymentStatus}
-                  onChange={(e) => setRefundForm(prev => ({ ...prev, paymentStatus: e.target.value }))}
-                  className="w-full bg-paper border border-ink/15 p-2 text-xs focus:outline-none focus:border-brick"
-                >
-                  <option value="refunded">Refunded (Full)</option>
-                  <option value="failed">Failed Payment</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-ink/65 mb-1">Refund Reference / Notes</label>
-                <textarea 
-                  value={refundForm.notes}
-                  onChange={(e) => setRefundForm(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="e.g. Razorpay Refund ID: ref_123456"
-                  className="w-full bg-paper border border-ink/15 p-2 text-xs h-20 focus:outline-none focus:border-brick"
-                  required
-                />
-              </div>
-              
-              <div className="flex justify-end gap-2 pt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setRefundOrder(null)}
-                  className="px-4 py-2 border border-ink/10 text-xs uppercase tracking-wider hover:bg-paper"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 bg-orange-600 text-white text-xs uppercase tracking-wider hover:bg-orange-700 font-semibold"
-                >
-                  Save Refund Details
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

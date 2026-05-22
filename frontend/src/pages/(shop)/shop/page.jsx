@@ -43,12 +43,12 @@ export default function Shop() {
         <CategoryPill />
       </Suspense>
 
-      <div className="container mx-auto px-4 md:px-8 py-12 flex-grow">
+      <div className="container mx-auto px-4 md:px-8 pt-4 pb-12 flex-grow">
         
         {/* VNV Style Header */}
         <header className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between border-b-4 border-vnv-black pb-6">
           <div>
-            <h1 className="font-display text-5xl md:text-6xl font-bold tracking-tight uppercase mb-2">
+            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase mb-2">
               {currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase()}
             </h1>
             <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">

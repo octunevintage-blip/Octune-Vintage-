@@ -21,6 +21,9 @@ frontend/.env.local
 frontend/.next/
 frontend/out/
 frontend/.vercel
+frontend-nextjs/.next/
+frontend-nextjs/out/
+frontend-nextjs/.vercel
 
 # ========================
 # Build Output
@@ -63,3 +66,5 @@ coverage/
 # ========================
 *.tgz
 .cache
+backend/scratch/
+scratch/
