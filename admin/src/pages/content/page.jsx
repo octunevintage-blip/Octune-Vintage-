@@ -683,6 +683,29 @@ export default function AdminContentPage() {
         </div>
       </section>
 
+      {/* TERMS & CONDITIONS SECTION */}
+      <section className="bg-white p-6 border border-paper-dark shadow-sm mt-8">
+        <h2 className="font-serif text-2xl tracking-widest mb-6">10. Terms & Conditions</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Content (HTML Supported)</label>
+            <p className="text-[11px] text-ink/50 mb-2">You can use basic HTML tags like &lt;p&gt;, &lt;br/&gt;, &lt;strong&gt;, &lt;h2&gt;, etc. to format your text.</p>
+            <textarea 
+              rows={20}
+              className="w-full p-4 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm leading-relaxed"
+              value={content.terms || ''}
+              onChange={(e) => {
+                setContent({
+                  ...content,
+                  terms: e.target.value
+                });
+              }}
+              placeholder="<section><p>Enter terms and conditions here...</p></section>"
+            />
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

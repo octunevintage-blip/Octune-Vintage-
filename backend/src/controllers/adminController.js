@@ -51,3 +51,64 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     recentSales
   });
 });
+
+import User from '../models/User.js';
+
+export const getCustomers = asyncHandler(async (req, res) => {
+  // Aggregate to get users along with their order counts
+  const customers = await User.aggregate([
+    {
+      $lookup: {
+        from: 'orders',
+        localField: '_id',
+        foreignField: 'user',
+        as: 'orders'
+      }
+    },
+    {
+      $project: {
+        name: 1,
+        email: 1,
+        phone: 1,
+        addresses: 1,
+        createdAt: 1,
+        totalOrders: { $size: '$orders' },
+        totalSpent: { $sum: '$orders.pricing.total' }
+      }
+    },
+    { $sort: { createdAt: -1 } }
+  ]);
+
+  res.json(customers);
+});
+
+export const globalSearch = asyncHandler(async (req, res) => {
+  const { q } = req.query;
+  if (!q) return res.json({ products: [], orders: [], customers: [] });
+
+  const regex = new RegExp(q, 'i');
+
+  const [products, orders, customers] = await Promise.all([
+    Product.find({ name: regex }).select('name slug status images').limit(5).lean(),
+    Order.find({
+      $or: [
+        { orderNumber: regex },
+        { 'shippingAddress.name': regex },
+        { 'customer.email': regex }
+      ]
+    }).select('orderNumber status customer pricing createdAt').limit(5).lean(),
+    User.find({
+      $or: [
+        { name: regex },
+        { email: regex },
+        { phone: regex }
+      ]
+    }).select('name email phone').limit(5).lean()
+  ]);
+
+  res.json({
+    products,
+    orders,
+    customers
+  });
+});

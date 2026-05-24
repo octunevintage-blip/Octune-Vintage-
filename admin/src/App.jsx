@@ -11,6 +11,7 @@ import AdminProductsNew from '@/pages/products/new/page';
 import AdminProductsEdit from '@/pages/products/[id]/edit/page';
 import AdminOrders from '@/pages/orders/page';
 import AdminInvoice from '@/pages/orders/invoice/[id]/page';
+import AdminCustomers from '@/pages/customers/page';
 import AdminContent from '@/pages/content/page';
 import AdminMarketing from '@/pages/marketing/page';
 
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/products/:id/edit" element={<AdminProductsEdit />} />
           <Route path="/orders" element={<AdminOrders />} />
           <Route path="/orders/invoice/:id" element={<AdminInvoice />} />
+          <Route path="/customers" element={<AdminCustomers />} />
           <Route path="/content" element={<AdminContent />} />
           <Route path="/marketing" element={<AdminMarketing />} />
         </Route>
