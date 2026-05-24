@@ -14,9 +14,9 @@ export const getProducts = asyncHandler(async (req, res) => {
   if (status) {
     query.status = status;
   } else if (includeUpcoming === 'true') {
-    query.status = { $in: ['available', 'sold', 'upcoming', 'out-of-stock'] };
+    query.status = { $in: ['available', 'reserved', 'sold', 'upcoming', 'out-of-stock'] };
   } else {
-    query.status = { $in: ['available', 'sold', 'out-of-stock'] };
+    query.status = { $in: ['available', 'reserved', 'sold', 'out-of-stock'] };
   }
 
   // Sort available items first, then by the specified criteria (default: newest first)
@@ -64,9 +64,9 @@ export const createProduct = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('At least one image is required');
   }
-  if (files.length > 4) {
+  if (files.length > 5) {
     res.status(400);
-    throw new Error('Maximum 4 images allowed per product');
+    throw new Error('Maximum 5 images allowed per product');
   }
 
   const uploadedImages = [];
@@ -102,9 +102,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
   const data = req.body.data ? JSON.parse(req.body.data) : req.body;
   const files = req.files || [];
 
-  if (product.images.length + files.length > 4) {
+  if (product.images.length + files.length > 5) {
     res.status(400);
-    throw new Error(`Cannot add ${files.length} image(s). Product already has ${product.images.length} image(s). Max 4 allowed.`);
+    throw new Error(`Cannot add ${files.length} image(s). Product already has ${product.images.length} image(s). Max 5 allowed.`);
   }
 
   for (const file of files) {

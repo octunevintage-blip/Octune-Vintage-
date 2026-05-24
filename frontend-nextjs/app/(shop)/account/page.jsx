@@ -14,6 +14,45 @@ import {
   ChevronDown, Mail, Phone, MapPin, Loader2, ArrowRight
 } from 'lucide-react';
 
+const INDIAN_STATES = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal"
+];
+
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'orders', label: 'Orders', icon: ShoppingBag },
@@ -58,17 +97,41 @@ export default function AccountPage() {
   const [copiedCode, setCopiedCode] = useState(null);
   const [openFaq, setOpenFaq] = useState(null);
   const [profileForm, setProfileForm] = useState({ name: '', email: '', phone: '' });
+  const [addressForm, setAddressForm] = useState({
+    line1: '',
+    line2: '',
+    city: '',
+    state: '',
+    pincode: '',
+  });
   const [saving, setSaving] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
   const [mobileTabOpen, setMobileTabOpen] = useState(false);
 
   useEffect(() => {
     if (!mounted) return;
-    if (!user) {
+    if (!user || !user.token) {
+      if (user) logout();
       openAuthModal('login');
       router.push('/');
       return;
     }
     setProfileForm({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
+    const defaultAddr = user.addresses?.[0] || {};
+    setAddressForm({
+      line1: defaultAddr.line1 || '',
+      line2: defaultAddr.line2 || '',
+      city: defaultAddr.city || '',
+      state: defaultAddr.state || '',
+      pincode: defaultAddr.pincode || '',
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab && TABS.some(t => t.id === tab)) {
+      setActiveTab(tab);
+    }
+
     fetchData();
   }, [mounted, user]);
 
@@ -115,11 +178,45 @@ export default function AccountPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await api.put('/auth/profile', profileForm);
+      const res = await api.put('/auth/profile', {
+        name: profileForm.name,
+        email: profileForm.email,
+        phone: profileForm.phone,
+        addresses: user.addresses || []
+      });
       setUser({ ...user, ...res.data });
       toast.success('Profile updated!');
     } catch (err) { toast.error(err.message || 'Update failed'); }
     setSaving(false);
+  };
+
+  const handleSaveAddress = async (e) => {
+    e.preventDefault();
+    setSavingAddress(true);
+    try {
+      const updatedAddresses = [
+        {
+          label: 'Default',
+          line1: addressForm.line1,
+          line2: addressForm.line2,
+          city: addressForm.city,
+          state: addressForm.state,
+          pincode: addressForm.pincode,
+          isDefault: true
+        }
+      ];
+      const res = await api.put('/auth/profile', {
+        name: profileForm.name,
+        email: profileForm.email,
+        phone: profileForm.phone,
+        addresses: updatedAddresses
+      });
+      setUser({ ...user, ...res.data });
+      toast.success('Delivery address saved successfully!');
+    } catch (err) {
+      toast.error(err.message || 'Failed to save address');
+    }
+    setSavingAddress(false);
   };
 
   if (!mounted || !user) return <div className="min-h-[60vh]" />;
@@ -446,12 +543,11 @@ export default function AccountPage() {
 
               {/* Profile */}
               {activeTab === 'profile' && (
-                <div>
-                  <div className="mb-4">
-                    <h3 className="font-display text-sm font-bold uppercase tracking-[0.15em]">Edit Profile</h3>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Edit Profile Form */}
                   <div className="border border-vnv-gray/20 bg-white p-6">
-                    <form onSubmit={handleSaveProfile} className="space-y-5 max-w-md">
+                    <h3 className="font-display text-sm font-bold uppercase tracking-[0.15em] mb-4">Edit Profile</h3>
+                    <form onSubmit={handleSaveProfile} className="space-y-5">
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">Full Name</label>
                         <div className="relative">
@@ -476,6 +572,55 @@ export default function AccountPage() {
                       <button type="submit" disabled={saving} className="btn btn-primary text-xs w-full sm:w-auto disabled:opacity-50">
                         {saving ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
                         {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Delivery Address Form */}
+                  <div className="border border-vnv-gray/20 bg-white p-6">
+                    <h3 className="font-display text-sm font-bold uppercase tracking-[0.15em] mb-4">Delivery Address</h3>
+                    <form onSubmit={handleSaveAddress} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">Address Line 1</label>
+                        <div className="relative">
+                          <MapPin size={16} className="absolute left-3 top-[17px] text-vnv-gray" />
+                          <input type="text" value={addressForm.line1} onChange={e => setAddressForm({...addressForm, line1: e.target.value})} className="input pl-10" placeholder="Street Address, P.O. Box, Company" required />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">Address Line 2 (Optional)</label>
+                        <div className="relative">
+                          <MapPin size={16} className="absolute left-3 top-[17px] text-vnv-gray" />
+                          <input type="text" value={addressForm.line2} onChange={e => setAddressForm({...addressForm, line2: e.target.value})} className="input pl-10" placeholder="Apartment, Suite, Unit, Building" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">City</label>
+                          <input type="text" value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} className="input" placeholder="City" required />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">State</label>
+                          <select 
+                            value={addressForm.state} 
+                            onChange={e => setAddressForm({...addressForm, state: e.target.value})} 
+                            className="input cursor-pointer"
+                            required
+                          >
+                            <option value="" disabled>Select State</option>
+                            {INDIAN_STATES.map(st => (
+                              <option key={st} value={st}>{st}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-[0.15em] text-vnv-gray mb-1.5">PIN Code</label>
+                        <input type="text" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} className="input" placeholder="6 Digit PIN Code" required />
+                      </div>
+                      <button type="submit" disabled={savingAddress} className="btn btn-primary text-xs w-full sm:w-auto disabled:opacity-50">
+                        {savingAddress ? <Loader2 size={14} className="animate-spin mr-2" /> : null}
+                        {savingAddress ? 'Saving...' : 'Save Address'}
                       </button>
                     </form>
                   </div>

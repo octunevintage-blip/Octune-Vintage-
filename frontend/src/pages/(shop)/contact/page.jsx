@@ -51,8 +51,8 @@ export default function ContactPage() {
             <div>
               <h3 className="font-display text-xl font-bold uppercase tracking-widest mb-2 border-b border-vnv-black inline-block pb-1">HQ / SHOWROOM</h3>
               <p className="font-sans text-vnv-gray mt-4">
-                Octune Vintage Archives<br />
-                Aurobindapall Main Road, Siliguri<br />
+             
+                 Siliguri, West Bengal, 734006<br />
                 India
               </p>
             </div>
@@ -60,16 +60,27 @@ export default function ContactPage() {
             <div>
               <h3 className="font-display text-xl font-bold uppercase tracking-widest mb-2 border-b border-vnv-black inline-block pb-1">DIRECT INQUIRIES</h3>
               <p className="font-sans text-vnv-gray mt-4">
-                octunevintage@gmail.com<br />
-                +91 8250689552
+                support@octunevintage.in<br />
+               
               </p>
             </div>
 
             <div className="bg-vnv-light-gray p-6 border border-vnv-gray/20">
               <h4 className="font-display text-lg uppercase font-bold tracking-widest mb-2">SOURCING REQUESTS</h4>
-              <p className="text-sm text-vnv-gray">
+              <p className="text-sm text-vnv-gray mb-5">
                 Looking for a specific grail? Include the brand, season, and sizing in your message and our sourcing team will check our private network.
               </p>
+              <div className="border-t border-vnv-gray/20 pt-4">
+                <p className="text-xs uppercase tracking-wider font-bold text-vnv-black mb-3">For any other queries:</p>
+                <a 
+                  href="https://www.instagram.com/octune_vintage2.0?igsh=MW4wamRmc283M211Ng%3D%3D&utm_source=qr" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center justify-center bg-vnv-black text-vnv-white hover:bg-vnv-gray font-display font-bold tracking-widest text-[11px] py-3.5 px-6 uppercase border border-vnv-black hover:border-vnv-gray transition-colors w-full"
+                >
+                  DM us on Instagram
+                </a>
+              </div>
             </div>
           </div>
 

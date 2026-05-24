@@ -65,6 +65,12 @@ const contentSchema = new mongoose.Schema({
     }],
     default: []
   },
+  upcomingBanner: {
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null },
+    title: { type: String, default: 'UPCOMING EXCLUSIVE DROP' },
+    subtitle: { type: String, default: 'Stay tuned! Dropping soon.' },
+    bannerImage: { type: String, default: '' }
+  },
   trendingProducts: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     default: []
@@ -91,6 +97,15 @@ const contentSchema = new mongoose.Schema({
         hotspots: []
       }
     ]
+  },
+  about: {
+    title: { type: String, default: 'About Us' },
+    quote: { type: String, default: '"Our best picks of your favourite brands! That’s pretty much what Octune Vintage is all about!"' },
+    description: { 
+      type: String, 
+      default: 'We’re a thrifted/second-hand clothing store from West Bengal, India, built around timeless fashion and sustainable shopping! At Octune, we curate pre-loved and vintage pieces that bring style, comfort, and a whole lot of personality to your wardrobe.\n\nThink vintage jackets, windbreakers, track tops, jerseys, T-shirts, shorts, pants, and honestly, anything cool we can get our hands on! We only stock one piece of each product. So when you add something to your cart, you know it’s gonna be one of a kind!\n\nNow, who’s behind Octune?\n\nMeet Rubai, the curator with all the right finds! He’s technically behind sourcing all these cool pieces that you guys fight over! He’s absolutely obsessed with anything retro; be it fashion, bikes or music! Every product is handpicked and checked carefully, because looking good is important, but quality matters just as much. We make sure each piece is sourced with authenticity checks and is in A1 condition.\n\nThen there’s Rupsa, the social media fairy! She’s the one who decides what goes into a drop and that all the displayed products are squeaky clean, sorted and ready to go! From managing the drops to making sure your parcel reaches you smoothly, she handles the behind-the-scenes chaos so your Octune experience feels seamless from start to finish.\n\nAlso let’s not forget our Minati didi! Our super sweet didi who sorts our inventory, irons the products and makes sure that what we display are up to the mark!\n\nAnd of course, we have Simba, our golden CEO. He may not pack orders or help the customers or handpick items or manage social media…wait a sec, why do we have him again? Oh.. he got the job with his absolute cuteness!'
+    },
+    image: { type: String, default: '/about_us_photo.png' }
   }
 }, { timestamps: true });
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Lock } from 'lucide-react';
 
-export default function AddToCartBtn({ product, isLocked }) {
+export default function AddToCartBtn({ product, isLocked, isReserved }) {
   const { setItem, item } = useCartStore();
   const { user } = useAuthStore();
   const { open } = useAuthModalStore();
@@ -26,6 +26,21 @@ export default function AddToCartBtn({ product, isLocked }) {
     }
     router.push('/cart');
   };
+
+  if (isReserved) {
+    return (
+      <motion.button
+        disabled
+        className="w-full flex items-center justify-center gap-3 bg-[#f4f4f4] text-[#999] cursor-not-allowed font-display uppercase font-bold tracking-[0.15em] py-4 text-xs border border-[#e0e0e0]"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <Lock size={14} />
+        RESERVED
+      </motion.button>
+    );
+  }
 
   if (isLocked) {
     return (

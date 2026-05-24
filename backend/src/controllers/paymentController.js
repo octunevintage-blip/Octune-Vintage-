@@ -3,11 +3,12 @@ import crypto from 'crypto';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import Coupon from '../models/Coupon.js';
+import User from '../models/User.js';
 import razorpay from '../config/razorpay.js';
 import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
 
 export const createPaymentOrder = asyncHandler(async (req, res) => {
-  const { productId, customer, shippingAddress, couponCode } = req.body;
+  const { productId, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
 
   const product = await Product.findById(productId);
   if (!product) {
@@ -54,33 +55,69 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     }
   }
 
-  const shipping = (subtotal - couponDiscount) >= 999 ? 0 : 99;
-  const total = subtotal - couponDiscount + shipping;
+  const isOnline = paymentMethod === 'razorpay';
+  const onlineDiscount = isOnline ? 30 : 0;
+  const totalDiscount = couponDiscount + onlineDiscount;
 
-  const amount = Math.round(total * 100);
-  if (amount < 100) {
-    res.status(400);
-    throw new Error('Amount must be at least 100 paise (₹1)');
-  }
+  const shipping = (subtotal - couponDiscount) >= 999 ? 0 : 99;
+  const total = Math.max(subtotal - totalDiscount + shipping, 0);
 
   const orderNumber = `OCT-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  let razorpayOrder;
-  try {
-    razorpayOrder = await razorpay.orders.create({
-      amount,
-      currency: 'INR',
-      receipt: orderNumber,
-      notes: { productId: product._id.toString() }
-    });
-  } catch (error) {
-    console.error('Razorpay Order Creation Error:', error);
-    if (error.statusCode === 401 || error.status === 401 || (error.message && error.message.includes('401'))) {
-      res.status(401);
-      throw new Error('Razorpay authentication failure. Please check API credentials.');
+  let razorpayOrder = null;
+  if (paymentMethod === 'razorpay') {
+    const amount = Math.round(total * 100);
+    if (amount < 100) {
+      res.status(400);
+      throw new Error('Amount must be at least 100 paise (₹1)');
     }
-    res.status(500);
-    throw new Error(error.description || error.message || 'Failed to create payment order with Razorpay');
+    try {
+      razorpayOrder = await razorpay.orders.create({
+        amount,
+        currency: 'INR',
+        receipt: orderNumber,
+        notes: { productId: product._id.toString() }
+      });
+    } catch (error) {
+      console.error('Razorpay Order Creation Error:', error);
+      if (error.statusCode === 401 || error.status === 401 || (error.message && error.message.includes('401'))) {
+        res.status(401);
+        throw new Error('Razorpay authentication failure. Please check API credentials.');
+      }
+      res.status(500);
+      throw new Error(error.description || error.message || 'Failed to create payment order with Razorpay');
+    }
+  }
+
+  // Auto-save address and phone to user profile if logged-in and has none saved yet
+  if (req.user) {
+    try {
+      const user = await User.findById(req.user._id);
+      if (user) {
+        let updated = false;
+        if (!user.phone && customer.phone) {
+          user.phone = customer.phone;
+          updated = true;
+        }
+        if ((!user.addresses || user.addresses.length === 0) && shippingAddress) {
+          user.addresses = [{
+            label: 'Default',
+            line1: shippingAddress.line1,
+            line2: shippingAddress.line2,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            pincode: shippingAddress.pincode,
+            isDefault: true
+          }];
+          updated = true;
+        }
+        if (updated) {
+          await user.save();
+        }
+      }
+    } catch (err) {
+      console.error('Failed to auto-save user details during checkout:', err);
+    }
   }
 
   const order = await Order.create({
@@ -96,14 +133,39 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
       price: product.price
     },
     shippingAddress,
-    pricing: { subtotal, shipping, discount: couponDiscount, total },
+    pricing: { subtotal, shipping, discount: totalDiscount, total },
     coupon: couponCode ? { code: couponCode, discount: couponDiscount } : undefined,
     payment: {
-      method: 'razorpay',
-      razorpayOrderId: razorpayOrder.id,
-      status: 'pending'
-    }
+      method: paymentMethod,
+      razorpayOrderId: razorpayOrder ? razorpayOrder.id : undefined,
+      status: paymentMethod === 'cod' ? 'pending' : 'pending'
+    },
+    status: paymentMethod === 'cod' ? 'confirmed' : 'pending'
   });
+
+  if (paymentMethod === 'cod') {
+    product.status = 'sold';
+    product.soldAt = new Date();
+    product.deleteAt = new Date(Date.now() + 168 * 60 * 60 * 1000); // 168 hours
+    product.soldTo = order._id;
+    product.reservedUntil = null;
+    product.reservedBy = null;
+    await product.save();
+
+    if (couponCode) {
+      await Coupon.findOneAndUpdate({ code: couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+    }
+
+    const html = orderConfirmationTemplate(order);
+    sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Confirmed`, html }).catch(console.error);
+
+    return res.json({
+      success: true,
+      orderId: order._id,
+      paymentMethod: 'cod',
+      breakdown: { subtotal, totalDiscount, shipping, total }
+    });
+  }
 
   res.json({
     orderId: order._id,
@@ -111,7 +173,8 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     amount: razorpayOrder.amount,
     currency: razorpayOrder.currency,
     keyId: process.env.RAZORPAY_KEY_ID,
-    breakdown: { subtotal, couponDiscount, shipping, total }
+    paymentMethod: 'razorpay',
+    breakdown: { subtotal, totalDiscount, shipping, total }
   });
 });
 

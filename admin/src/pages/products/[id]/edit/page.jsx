@@ -59,9 +59,9 @@ export default function EditProduct() {
   const handleImageChange = (e) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
-    const remaining = 4 - totalImages;
+    const remaining = 5 - totalImages;
     if (remaining <= 0) {
-      toast.error('Maximum 4 images allowed');
+      toast.error('Maximum 5 images allowed');
       return;
     }
     const toAdd = newFiles.slice(0, remaining);
@@ -200,9 +200,9 @@ export default function EditProduct() {
         <section className="pt-8 border-t border-ink/10">
           <div className="flex items-center justify-between mb-4">
             <label className="block text-xs uppercase tracking-widest text-ink/60">
-              Product Images <span className="text-ink/40">({totalImages}/4 max)</span>
+              Product Images <span className="text-ink/40">({totalImages}/5 max)</span>
             </label>
-            {totalImages < 4 && (
+            {totalImages < 5 && (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -260,7 +260,7 @@ export default function EditProduct() {
             ))}
 
             {/* Empty slot */}
-            {totalImages < 4 && (
+            {totalImages < 5 && (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -271,7 +271,7 @@ export default function EditProduct() {
               </button>
             )}
           </div>
-          <p className="text-[10px] text-ink/40 mt-2 uppercase tracking-widest">First image is the cover. Max 4 images. Red X deletes from cloud.</p>
+          <p className="text-[10px] text-ink/40 mt-2 uppercase tracking-widest">First image is the cover. Max 5 images. Red X deletes from cloud.</p>
         </section>
 
         {/* Size & Measurements */}

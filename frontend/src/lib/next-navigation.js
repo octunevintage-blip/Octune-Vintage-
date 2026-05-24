@@ -1,9 +1,10 @@
+import { useMemo } from 'react';
 import { useNavigate, useParams as useReactParams, useLocation, useSearchParams as useReactSearchParams } from 'react-router-dom';
 
 export function useRouter() {
   const navigate = useNavigate();
   const location = useLocation();
-  return {
+  return useMemo(() => ({
     push: (url) => navigate(url),
     replace: (url) => navigate(url, { replace: true }),
     back: () => navigate(-1),
@@ -11,7 +12,7 @@ export function useRouter() {
     refresh: () => window.location.reload(),
     prefetch: () => {},
     pathname: location.pathname,
-  };
+  }), [navigate, location.pathname]);
 }
 
 export function useParams() {

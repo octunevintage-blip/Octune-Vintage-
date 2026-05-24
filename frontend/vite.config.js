@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => {
   });
 
   return {
-    base: './',
+    base: '/',
     plugins: [react()],
     resolve: {
       alias: {
@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3000,
+      historyApiFallback: true,
+    },
+    preview: {
+      port: 3000,
+      historyApiFallback: true,
     },
   };
 });

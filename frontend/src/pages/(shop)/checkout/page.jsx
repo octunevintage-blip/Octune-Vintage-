@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCartStore, useAuthStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -9,6 +9,46 @@ import { formatINR } from '@/lib/utils';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useHasMounted } from '@/hooks/useHasMounted';
+import { ArrowLeft } from 'lucide-react';
+
+const INDIAN_STATES = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal"
+];
 
 export default function CheckoutPage() {
   const { item, clearCart } = useCartStore();
@@ -24,6 +64,10 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('razorpay');
+  const [savedAddress, setSavedAddress] = useState(null);
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
     if (mounted) {
@@ -32,9 +76,98 @@ export default function CheckoutPage() {
         toast.error('Please sign up or log in to checkout.');
       } else if (!item) {
         router.push('/shop');
+      } else if (!fetchedRef.current) {
+        fetchedRef.current = true;
+        // Fetch fresh user profile details from the database
+        api.get('/auth/me')
+          .then(res => {
+            const freshUser = res.data;
+            const defaultAddr = freshUser.addresses?.[0];
+            const hasAddress = defaultAddr && (defaultAddr.line1 || defaultAddr.city || defaultAddr.state || defaultAddr.pincode);
+            
+            const addressData = hasAddress ? {
+              line1: defaultAddr.line1 || '',
+              line2: defaultAddr.line2 || '',
+              city: defaultAddr.city || '',
+              state: defaultAddr.state || '',
+              pincode: defaultAddr.pincode || '',
+            } : {
+              line1: '',
+              line2: '',
+              city: '',
+              state: '',
+              pincode: '',
+            };
+
+            setFormData({
+              name: freshUser.name || '',
+              email: freshUser.email || '',
+              phone: freshUser.phone || '',
+              ...addressData
+            });
+
+            if (hasAddress) {
+              setSavedAddress(defaultAddr);
+              setUseSavedAddress(true);
+            }
+          })
+          .catch(err => {
+            console.error('Failed to fetch user profile:', err);
+            // Fallback to local storage user
+            const defaultAddr = user.addresses?.[0];
+            const hasAddress = defaultAddr && (defaultAddr.line1 || defaultAddr.city || defaultAddr.state || defaultAddr.pincode);
+            const addressData = hasAddress ? {
+              line1: defaultAddr.line1 || '',
+              line2: defaultAddr.line2 || '',
+              city: defaultAddr.city || '',
+              state: defaultAddr.state || '',
+              pincode: defaultAddr.pincode || '',
+            } : {
+              line1: '',
+              line2: '',
+              city: '',
+              state: '',
+              pincode: '',
+            };
+
+            setFormData({
+              name: user.name || '',
+              email: user.email || '',
+              phone: user.phone || '',
+              ...addressData
+            });
+
+            if (hasAddress) {
+              setSavedAddress(defaultAddr);
+              setUseSavedAddress(true);
+            }
+          });
       }
     }
   }, [item, user, router, mounted]);
+
+  const handleToggleSavedAddress = (checked) => {
+    setUseSavedAddress(checked);
+    if (checked && savedAddress) {
+      setFormData(prev => ({
+        ...prev,
+        line1: savedAddress.line1 || '',
+        line2: savedAddress.line2 || '',
+        city: savedAddress.city || '',
+        state: savedAddress.state || '',
+        pincode: savedAddress.pincode || '',
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        pincode: '',
+      }));
+    }
+  };
 
   // Don't render until client-side so zustand localStorage is ready
   if (!mounted) return null;
@@ -42,9 +175,14 @@ export default function CheckoutPage() {
 
   const subtotal = item.price;
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
-  const total = subtotal - discount + shipping;
+  const codTotal = subtotal - discount + shipping;
+  const onlineTotal = Math.max(subtotal - discount - 30 + shipping, 0);
+  const total = paymentMethod === 'razorpay' ? onlineTotal : codTotal;
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleApplyCoupon = async (e) => {
     e.preventDefault();
@@ -124,9 +262,16 @@ export default function CheckoutPage() {
           line1: formData.line1, line2: formData.line2,
           city: formData.city, state: formData.state, pincode: formData.pincode
         },
-        couponCode: discount > 0 ? couponCode : undefined
+        couponCode: discount > 0 ? couponCode : undefined,
+        paymentMethod: paymentMethod
       });
-      initPayment(res.data);
+      
+      if (paymentMethod === 'cod') {
+        clearCart();
+        router.push(`/order-success/${res.data.orderId}`);
+      } else {
+        initPayment(res.data);
+      }
     } catch (error) {
       toast.error(error.message || 'Failed to initialize checkout');
     } finally {
@@ -138,39 +283,74 @@ export default function CheckoutPage() {
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="container mx-auto px-6 lg:px-12 py-12">
-        <h1 className="font-serif text-3xl md:text-4xl uppercase tracking-widest mb-12 text-center border-b border-ink/10 pb-6">Secure Checkout</h1>
+        <button 
+          type="button"
+          onClick={() => router.back()} 
+          className="group flex items-center space-x-2 text-ink/60 hover:text-ink transition-colors mb-6 text-xs uppercase tracking-widest font-semibold"
+        >
+          <ArrowLeft size={14} className="transform group-hover:-translate-x-1 transition-transform" />
+          <span>Back</span>
+        </button>
+        <h1 className="font-display text-3xl md:text-4xl uppercase tracking-widest mb-12 text-center border-b border-ink/10 pb-6">Secure Checkout</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
           <form onSubmit={handleCheckout} className="space-y-10 order-2 lg:order-1">
             
             {/* Contact Info */}
             <section>
-              <h2 className="font-serif text-xl uppercase tracking-widest mb-6">Contact Information</h2>
+              <h2 className="font-display text-xl uppercase tracking-widest mb-6">Contact Information</h2>
               <div className="space-y-4">
-                <input required type="email" name="email" placeholder="Email Address" onChange={handleChange} className="input" />
+                <input required type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} className="input" />
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="text" name="name" placeholder="Full Name" onChange={handleChange} className="input" />
-                  <input required type="tel" name="phone" placeholder="Phone Number" onChange={handleChange} className="input" />
+                  <input required type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} className="input" />
+                  <input required type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="input" />
                 </div>
               </div>
             </section>
 
             {/* Shipping Info */}
             <section>
-              <h2 className="font-serif text-xl uppercase tracking-widest mb-6">Shipping Address</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h2 className="font-display text-xl uppercase tracking-widest">Shipping Address</h2>
+                {savedAddress && (
+                  <label className="flex items-center space-x-2 text-xs font-semibold text-ink/75 cursor-pointer select-none">
+                    <input 
+                      type="checkbox" 
+                      checked={useSavedAddress} 
+                      onChange={(e) => handleToggleSavedAddress(e.target.checked)} 
+                      className="accent-brick h-4 w-4 cursor-pointer"
+                    />
+                    <span>Use Saved Profile Address</span>
+                  </label>
+                )}
+              </div>
               <div className="space-y-4">
-                <input required type="text" name="line1" placeholder="Address Line 1" onChange={handleChange} className="input" />
-                <input type="text" name="line2" placeholder="Apartment, suite, etc. (optional)" onChange={handleChange} className="input" />
+                <input required type="text" name="line1" placeholder="Address Line 1" value={formData.line1} onChange={handleChange} className="input" disabled={useSavedAddress} />
+                <input type="text" name="line2" placeholder="Apartment, suite, etc. (optional)" value={formData.line2} onChange={handleChange} className="input" disabled={useSavedAddress} />
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="text" name="city" placeholder="City" onChange={handleChange} className="input" />
-                  <input required type="text" name="state" placeholder="State" onChange={handleChange} className="input" />
+                  <input required type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="input" disabled={useSavedAddress} />
+                  <select 
+                    required 
+                    name="state" 
+                    value={formData.state} 
+                    onChange={handleChange} 
+                    className="input cursor-pointer"
+                    disabled={useSavedAddress}
+                  >
+                    <option value="" disabled>Select State</option>
+                    {INDIAN_STATES.map(st => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <input required type="text" name="pincode" placeholder="PIN Code" onChange={handleChange} className="input" />
+                  <input required type="text" name="pincode" placeholder="PIN Code" value={formData.pincode} onChange={handleChange} className="input" disabled={useSavedAddress} />
                   <input disabled type="text" value="India" className="input text-ink/50 bg-ink/5" />
                 </div>
               </div>
             </section>
+
+
 
             {/* Terms and Conditions Checkbox */}
             <div className="flex items-start space-x-3 bg-paper p-4 border border-ink/10 rounded-sm">
@@ -190,7 +370,7 @@ export default function CheckoutPage() {
               </label>
             </div>
 
-            <button type="submit" disabled={loading} className="btn btn-primary w-full shadow-lg py-5 text-lg">
+            <button type="submit" disabled={loading} className="btn btn-primary w-full shadow-lg py-5 text-base uppercase tracking-widest font-semibold">
               {loading ? 'Processing...' : `Pay ${formatINR(total)} securely`}
             </button>
             <p className="text-center text-xs text-ink/40 flex items-center justify-center space-x-2">
@@ -201,14 +381,14 @@ export default function CheckoutPage() {
           {/* Order Summary Sidebar */}
           <div className="order-1 lg:order-2">
             <div className="bg-paper p-8 border border-ink/5 shadow-sm sticky top-24">
-              <h2 className="font-serif text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Item</h2>
+              <h2 className="font-display text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Item</h2>
               
               <div className="flex items-center space-x-6 mb-8 border-b border-ink/10 pb-8">
                 <div className="relative w-20 h-28 bg-white flex-shrink-0 border border-ink/10 p-1 shadow-sm">
                   <Image src={item.images?.[0]?.url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg mb-1">{item.name}</h3>
+                  <h3 className="font-display text-lg mb-1">{item.name}</h3>
                   <p className="text-xs uppercase tracking-widest text-ink/50 mb-2">{item.size} {item.color?.name ? `| ${item.color.name}` : ''}</p>
                   <p className="font-medium">{formatINR(item.price)}</p>
                 </div>
@@ -236,13 +416,19 @@ export default function CheckoutPage() {
                     <span>-{formatINR(discount)}</span>
                   </div>
                 )}
+                {paymentMethod === 'razorpay' && (
+                  <div className="flex justify-between text-emerald-800 font-medium">
+                    <span>UPI/Online Discount</span>
+                    <span>-₹30</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-ink/60">Shipping</span>
                   <span>{shipping === 0 ? 'FREE' : formatINR(shipping)}</span>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center font-serif text-3xl">
+              <div className="flex justify-between items-center font-display text-3xl">
                 <span>Total</span>
                 <span>{formatINR(total)}</span>
               </div>

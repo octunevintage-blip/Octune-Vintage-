@@ -6,6 +6,7 @@ export default function ProductCard({ product, variant = 'default' }) {
   const isSold = product.status === 'sold';
   const isOutOfStock = product.status === 'out-of-stock';
   const isLocked = product.isLocked; // Backend will set this to true if dropAt > now
+  const isReserved = product.status === 'reserved' && product.reservedUntil && new Date(product.reservedUntil) > new Date();
   
   if (variant === 'trending') {
     return (
@@ -34,12 +35,17 @@ export default function ProductCard({ product, variant = 'default' }) {
                 OUT OF STOCK
               </span>
             )}
+            {isReserved && (
+              <span className="bg-brick text-vnv-white text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm">
+                RESERVED
+              </span>
+            )}
             {isLocked && (
               <span className="bg-vnv-gray text-vnv-white text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm">
                 UPCOMING
               </span>
             )}
-            {!isSold && !isOutOfStock && !isLocked && (
+            {!isSold && !isOutOfStock && !isLocked && !isReserved && (
               <span className="bg-vnv-white text-vnv-black text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm border border-vnv-black/10">
                 1-OF-1
               </span>
@@ -109,12 +115,17 @@ export default function ProductCard({ product, variant = 'default' }) {
               OUT OF STOCK
             </span>
           )}
+          {isReserved && (
+            <span className="bg-brick text-vnv-white text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm">
+              RESERVED
+            </span>
+          )}
           {isLocked && (
             <span className="bg-vnv-gray text-vnv-white text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm">
               UPCOMING
             </span>
           )}
-          {!isSold && !isOutOfStock && !isLocked && (
+          {!isSold && !isOutOfStock && !isLocked && !isReserved && (
             <span className="bg-vnv-white text-vnv-black text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm border border-vnv-black/10">
               1-OF-1
             </span>

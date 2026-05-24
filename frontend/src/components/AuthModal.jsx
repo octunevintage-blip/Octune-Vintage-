@@ -59,9 +59,9 @@ export default function AuthModal() {
         phone: signupData.phone,
         password: signupData.password,
       });
-      setIsOtpSent(true);
-      setResendCountdown(60);
-      toast.success(res.data.message || 'OTP sent to your email address.');
+      toast.success(res.data.message || 'Registration successful! Please log in.');
+      setSignupData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+      setTab('login');
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Signup failed');
     } finally {

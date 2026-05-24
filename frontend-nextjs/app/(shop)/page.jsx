@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '@/lib/api';
+import { formatINR } from '@/lib/utils';
 import ProductCard from '@/components/ProductCard';
 import HeroSlider from '@/components/HeroSlider';
 import HomeClient from '@/components/HomeClient';
@@ -119,6 +120,67 @@ export default async function Home() {
       )}
       {/* Full Width Auto-Scrolling Hero Banners */}
       <HeroSlider banners={heroBanners} />
+
+      {/* Upcoming Product Advertisement Banner */}
+      {siteContent?.upcomingBanner?.product && (
+        <section className="border-y border-ink/10 bg-paper py-10 md:py-16">
+          <div className="container mx-auto px-4 md:px-8">
+            <Link 
+              href={`/product/${siteContent.upcomingBanner.product.slug || siteContent.upcomingBanner.product._id}`}
+              className="group block bg-white border border-ink/10 overflow-hidden hover:border-brick transition-all duration-500 shadow-md"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                {/* Text Content */}
+                <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <span className="bg-brick text-cream text-[10px] font-bold px-2.5 py-1 tracking-[0.2em] uppercase">
+                      {siteContent.upcomingBanner.title || 'UPCOMING DROP'}
+                    </span>
+                    {siteContent.upcomingBanner.product.dropAt && (
+                      <span className="text-[10px] text-ink/50 tracking-wider font-semibold uppercase font-sans">
+                        Drop Date: {new Date(siteContent.upcomingBanner.product.dropAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h3 className="font-display text-2xl md:text-3xl lg:text-4xl font-bold uppercase tracking-wide leading-tight text-ink group-hover:text-brick transition-colors">
+                      {siteContent.upcomingBanner.product.name}
+                    </h3>
+                    <p className="font-sans text-sm md:text-base text-ink/75 leading-relaxed">
+                      {siteContent.upcomingBanner.subtitle || 'Stay tuned! This exclusive 1-of-1 archive piece is launching soon.'}
+                    </p>
+                  </div>
+                  
+                  <div className="pt-4 flex flex-wrap items-center gap-4 text-xs font-semibold uppercase tracking-widest text-ink">
+                    <span>Size: <strong className="font-bold text-sm text-brick">{siteContent.upcomingBanner.product.size}</strong></span>
+                    <span className="h-4 w-px bg-ink/20"></span>
+                    <span>Price: <strong className="font-bold text-sm text-brick">{formatINR(siteContent.upcomingBanner.product.price)}</strong></span>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <span className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-brick border-b border-brick pb-1 group-hover:border-brick-dark group-hover:text-brick-dark transition-colors">
+                      <span>Preview Item</span>
+                      <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Image Section */}
+                <div className="relative h-[250px] md:h-auto min-h-[300px] md:min-h-[400px] bg-paper-dark overflow-hidden">
+                  <Image 
+                    src={siteContent.upcomingBanner.bannerImage || siteContent.upcomingBanner.product.images?.[0]?.url || '/placeholder.jpg'} 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                    alt={siteContent.upcomingBanner.product.name} 
+                  />
+                  <div className="absolute inset-0 bg-ink/5 group-hover:bg-transparent transition-colors duration-500"></div>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* What's Trending / Recent Finds Carousel */}
       <section className="mt-16 md:mt-24 container mx-auto px-4 md:px-8">

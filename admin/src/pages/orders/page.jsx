@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
 import toast from 'react-hot-toast';
-import { Eye, ShieldAlert, Truck, RefreshCw, X, Receipt, CheckCircle, HelpCircle } from 'lucide-react';
+import { Eye, ShieldAlert, Truck, RefreshCw, X, Receipt, CheckCircle, HelpCircle, MapPin, Phone } from 'lucide-react';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -17,6 +17,7 @@ export default function AdminOrders() {
     number: '',
     url: 'https://www.indiapost.gov.in/_layouts/15/dop.tracking.ui/trackconsignment.aspx'
   });
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
 
 
@@ -183,6 +184,12 @@ export default function AdminOrders() {
                   </select>
                 </td>
                 <td className="p-4 text-right space-x-2 whitespace-nowrap">
+                  <button 
+                    onClick={() => setSelectedOrder(order)}
+                    className="border border-ink/20 text-ink/75 hover:bg-paper px-2.5 py-1 text-[9px] uppercase tracking-widest"
+                  >
+                    View
+                  </button>
                   {order.status === 'shipped' && (
                     <button
                       onClick={() => handleStatusSelect(order, 'shipped')}
@@ -279,6 +286,101 @@ export default function AdminOrders() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ORDER DETAILS MODAL */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-ink/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white border border-ink/20 shadow-2xl max-w-xl w-full p-6 md:p-8 relative max-h-[90vh] overflow-y-auto rounded-none">
+            <button 
+              onClick={() => setSelectedOrder(null)} 
+              className="absolute top-4 right-4 text-ink/40 hover:text-ink"
+            >
+              <X size={18} />
+            </button>
+            
+            <div className="bg-emerald-50 border border-emerald-100 p-4 mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-emerald-800">
+                <CheckCircle size={18} className="text-emerald-600" />
+                <span className="font-semibold text-sm uppercase tracking-wider">Order confirmed</span>
+              </div>
+              {selectedOrder.pricing.discount > 0 && (
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                  Saved {formatINR(selectedOrder.pricing.discount)} 🎉
+                </span>
+              )}
+            </div>
+
+            {/* Delivery details */}
+            <div className="border-t border-ink/10 py-4">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-ink/50 mb-3 flex items-center gap-1.5">
+                <MapPin size={13} /> Deliver to {selectedOrder.customer.name}
+              </h3>
+              <div className="text-xs text-ink/80 leading-relaxed font-sans">
+                {selectedOrder.shippingAddress?.line1}
+                {selectedOrder.shippingAddress?.line2 ? `, ${selectedOrder.shippingAddress.line2}` : ''}
+                <br />
+                {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} - {selectedOrder.shippingAddress?.pincode}
+                <br />
+                {selectedOrder.shippingAddress?.country || 'India'}
+              </div>
+              <div className="text-xs text-ink/80 mt-2 flex items-center gap-1">
+                <Phone size={12} className="text-ink/60" />
+                <span>Contact Number - <strong className="text-ink font-bold">{selectedOrder.customer.phone}</strong></span>
+              </div>
+            </div>
+
+            {/* Product details */}
+            <div className="border-t border-ink/10 py-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-ink/50">1 Product</h3>
+                <span className="text-[10px] uppercase font-bold text-brick tracking-widest">Track Order</span>
+              </div>
+              <div className="flex gap-4 bg-paper p-3 border border-ink/5">
+                {selectedOrder.product?.image && (
+                  <div className="relative w-16 h-20 bg-white border border-ink/10 p-0.5 shadow-sm shrink-0">
+                    <img src={selectedOrder.product.image} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                  <div>
+                    <h4 className="text-xs font-bold truncate">{selectedOrder.product?.name}</h4>
+                    <p className="text-[10px] text-ink/50 mt-1 uppercase tracking-wider">Size: {selectedOrder.product?.size} • Qty: 1</p>
+                  </div>
+                  <p className="text-[10px] text-ink/40">Delivery by: 5-7 Business Days</p>
+                </div>
+                <div className="text-right py-0.5">
+                  <p className="text-xs font-bold">{formatINR(selectedOrder.product?.price || 0)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Info */}
+            <div className="border-t border-ink/10 pt-4 pb-6 flex justify-between items-center text-xs">
+              <span className="text-ink/60 uppercase tracking-widest text-[10px] font-bold">
+                Payment: {selectedOrder.payment?.method === 'cod' ? 'Cash on Delivery' : 'Prepaid (Razorpay)'}
+              </span>
+              <span className="font-bold text-sm font-sans">{formatINR(selectedOrder.pricing.total)}</span>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-ink/10 pt-4">
+              <button 
+                onClick={() => {
+                  window.open(`/orders/invoice/${selectedOrder._id}`, '_blank');
+                }}
+                className="px-4 py-2 border border-ink/10 text-xs uppercase tracking-wider hover:bg-paper"
+              >
+                Print Invoice
+              </button>
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="px-4 py-2 bg-ink text-cream text-xs uppercase tracking-wider hover:bg-ink/80"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

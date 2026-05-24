@@ -8,6 +8,7 @@ import { Upload, Plus, Trash2, Save } from 'lucide-react';
 export default function AdminContentPage() {
   const [content, setContent] = useState(null);
   const [products, setProducts] = useState([]);
+  const [upcomingProducts, setUpcomingProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -18,12 +19,31 @@ export default function AdminContentPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [resContent, resProducts] = await Promise.all([
+      const [resContent, resProducts, resUpcoming] = await Promise.all([
         api.get('/content'),
-        api.get('/products?limit=100') // fetch available products
+        api.get('/products?limit=100'), // fetch available products
+        api.get('/products?status=upcoming&limit=100') // fetch upcoming products
       ]);
-      setContent(resContent.data);
+      const contentData = resContent.data || {};
+      if (!contentData.about) {
+        contentData.about = {
+          title: 'About Us',
+          quote: '',
+          description: '',
+          image: ''
+        };
+      }
+      if (!contentData.upcomingBanner) {
+        contentData.upcomingBanner = {
+          product: null,
+          title: 'UPCOMING EXCLUSIVE DROP',
+          subtitle: 'Stay tuned! Dropping soon.',
+          bannerImage: ''
+        };
+      }
+      setContent(contentData);
       setProducts(resProducts.data.products);
+      setUpcomingProducts(resUpcoming.data.products || []);
     } catch (error) {
       toast.error('Failed to load data');
     } finally {
@@ -57,10 +77,17 @@ export default function AdminContentPage() {
         heroBanners: content.heroBanners || [],
         splitBanners: content.splitBanners,
         customBanners: content.customBanners || [],
+        upcomingBanner: {
+          product: content.upcomingBanner?.product?._id || content.upcomingBanner?.product || null,
+          title: content.upcomingBanner?.title || '',
+          subtitle: content.upcomingBanner?.subtitle || '',
+          bannerImage: content.upcomingBanner?.bannerImage || ''
+        },
         trendingProducts: (content.trendingProducts || []).map(p => p._id || p),
         newArrivals: (content.newArrivals || []).map(p => p._id || p),
         vintageClassics: (content.vintageClassics || []).map(p => p._id || p),
-        archivePicks: (content.archivePicks || []).map(p => p._id || p)
+        archivePicks: (content.archivePicks || []).map(p => p._id || p),
+        about: content.about
       };
 
       await api.put('/content', payload);
@@ -216,12 +243,132 @@ export default function AdminContentPage() {
         </div>
       </section>
 
+      {/* UPCOMING PRODUCT ADVERTISEMENT BANNER SECTION */}
+      <section className="bg-white p-6 border border-paper-dark shadow-sm">
+        <h2 className="font-serif text-2xl tracking-widest mb-6">2. Upcoming Product Advertisement Banner</h2>
+        <p className="text-sm text-ink/70 mb-6">Customize the advertisement banner for an upcoming product that will be displayed below the hero section on the homepage.</p>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Select Upcoming Product</label>
+              <select 
+                className="w-full p-3 border border-paper-dark bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.upcomingBanner?.product?._id || content.upcomingBanner?.product || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    upcomingBanner: {
+                      ...content.upcomingBanner,
+                      product: e.target.value || null
+                    }
+                  });
+                }}
+              >
+                <option value="">-- No Banner Featured --</option>
+                {upcomingProducts.map(p => (
+                  <option key={p._id} value={p._id}>{p.name} - {p.size}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Banner Title</label>
+              <input 
+                type="text" 
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.upcomingBanner?.title || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    upcomingBanner: {
+                      ...content.upcomingBanner,
+                      title: e.target.value
+                    }
+                  });
+                }}
+                placeholder="UPCOMING EXCLUSIVE DROP"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Banner Subtitle / Description</label>
+              <input 
+                type="text" 
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.upcomingBanner?.subtitle || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    upcomingBanner: {
+                      ...content.upcomingBanner,
+                      subtitle: e.target.value
+                    }
+                  });
+                }}
+                placeholder="Stay tuned! Dropping soon."
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Banner Custom Image (Optional)</label>
+            <p className="text-[11px] text-ink/50 mb-2">If left blank, it will automatically use the first image of the selected upcoming product.</p>
+            
+            {content.upcomingBanner?.bannerImage ? (
+              <div className="relative w-full aspect-[21/9] bg-white mb-2 border border-paper-dark">
+                <Image src={content.upcomingBanner.bannerImage} fill className="object-cover" alt="Banner Image" />
+              </div>
+            ) : (
+              content.upcomingBanner?.product && (
+                <div className="relative w-full aspect-[21/9] bg-white mb-2 border border-paper-dark flex flex-col items-center justify-center text-ink/40">
+                  <p className="text-xs uppercase tracking-widest">Will fall back to product image</p>
+                </div>
+              )
+            )}
+            
+            <div className="flex gap-2">
+              <label className="bg-white border border-paper-dark px-3 py-2 cursor-pointer hover:bg-paper-dark flex items-center justify-center gap-2 text-xs uppercase tracking-widest flex-1">
+                <Upload size={14} /> Upload Custom Image
+                <input type="file" className="hidden" onChange={(e) => handleUpload(e, url => {
+                  setContent({
+                    ...content,
+                    upcomingBanner: {
+                      ...content.upcomingBanner,
+                      bannerImage: url
+                    }
+                  });
+                })} />
+              </label>
+              
+              {content.upcomingBanner?.bannerImage && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setContent({
+                      ...content,
+                      upcomingBanner: {
+                        ...content.upcomingBanner,
+                        bannerImage: ''
+                      }
+                    });
+                  }}
+                  className="border border-red-200 text-red-500 hover:bg-red-50 px-3 uppercase tracking-widest text-xs"
+                >
+                  Clear Image
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PRODUCT CAROUSEL SECTIONS */}
       {sections.map((sec, secIdx) => {
         const secProducts = content[sec.key] || [];
         return (
           <section key={sec.key} className="bg-white p-6 border border-paper-dark shadow-sm">
-            <h2 className="font-serif text-2xl tracking-widest mb-6">{secIdx + 2}. "{sec.title}" Carousel</h2>
+            <h2 className="font-serif text-2xl tracking-widest mb-6">{secIdx + 3}. "{sec.title}" Carousel</h2>
             <p className="text-sm text-ink/70 mb-4">{sec.subtitle} Add them in the order you want them to appear.</p>
             
             <div className="space-y-4">
@@ -293,7 +440,7 @@ export default function AdminContentPage() {
 
       {/* SPLIT BANNERS SECTION */}
       <section className="bg-white p-6 border border-paper-dark shadow-sm">
-        <h2 className="font-serif text-2xl tracking-widest mb-6">6. Split Banners</h2>
+        <h2 className="font-serif text-2xl tracking-widest mb-6">7. Split Banners</h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {content.splitBanners.map((banner, index) => (
             <div key={index} className="border border-paper-dark p-4 bg-paper/50">
@@ -352,7 +499,7 @@ export default function AdminContentPage() {
       {/* CUSTOM BANNERS SECTION */}
       <section className="bg-white p-6 border border-paper-dark shadow-sm">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-serif text-2xl tracking-widest">7. Custom Banners</h2>
+          <h2 className="font-serif text-2xl tracking-widest">8. Custom Banners</h2>
           <button 
             onClick={() => {
               setContent({
@@ -464,6 +611,75 @@ export default function AdminContentPage() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ABOUT US SECTION */}
+      <section className="bg-white p-6 border border-paper-dark shadow-sm mt-8">
+        <h2 className="font-serif text-2xl tracking-widest mb-6">9. About Us Content</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Page Title</label>
+              <input 
+                type="text" 
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.about?.title || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    about: { ...content.about, title: e.target.value }
+                  });
+                }}
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Italic Quote</label>
+              <textarea 
+                rows={2}
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.about?.quote || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    about: { ...content.about, quote: e.target.value }
+                  });
+                }}
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Story Description (Markdown / Line breaks allowed)</label>
+              <textarea 
+                rows={8}
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                value={content.about?.description || ''}
+                onChange={(e) => {
+                  setContent({
+                    ...content,
+                    about: { ...content.about, description: e.target.value }
+                  });
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">About Us Photo</label>
+            {content.about?.image && (
+              <div className="relative w-full max-w-[300px] aspect-[3/4] bg-white mb-2 border border-paper-dark">
+                <Image src={content.about.image} fill className="object-cover" alt="About Us" />
+              </div>
+            )}
+            <label className="bg-white border border-paper-dark px-3 py-2 cursor-pointer hover:bg-paper-dark flex items-center justify-center gap-2 text-xs uppercase tracking-widest w-full max-w-[300px]">
+              <Upload size={14} /> {content.about?.image ? 'Replace Image' : 'Upload Image'}
+              <input type="file" className="hidden" onChange={(e) => handleUpload(e, url => {
+                setContent({
+                  ...content,
+                  about: { ...content.about, image: url }
+                });
+              })} />
+            </label>
+          </div>
         </div>
       </section>
 

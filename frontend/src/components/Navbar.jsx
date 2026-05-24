@@ -1,10 +1,10 @@
 'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle } from 'lucide-react';
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
 
 const NAV_LINKS = [
@@ -21,9 +21,79 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const mounted = useHasMounted();
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Sync search query with URL parameter
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setSearchQuery(params.get('search') || '');
+    }
+  }, [pathname]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setShowSearch(false);
+    } else {
+      router.push('/shop');
+      setShowSearch(false);
+    }
+  };
+
+  const handleMobileSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsOpen(false);
+    } else {
+      router.push('/shop');
+      setIsOpen(false);
+    }
+  };
 
   return (
     <>
+      {/* Search Overlay */}
+      <div
+        className={`fixed top-0 left-0 w-full bg-vnv-white border-b border-vnv-gray/20 z-[60] h-20 transition-all duration-300 transform ${
+          showSearch ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="container mx-auto px-4 h-full flex items-center justify-between">
+          <form onSubmit={handleSearchSubmit} className="flex-1 flex items-center max-w-3xl mx-auto relative">
+            <Search size={20} strokeWidth={1.5} className="absolute left-0 text-vnv-gray" />
+            <input
+              type="text"
+              placeholder="SEARCH THE ARCHIVES..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-transparent pl-8 pr-12 py-2 border-b border-vnv-black/10 focus:border-vnv-black text-sm uppercase tracking-wider font-display focus:outline-none placeholder-vnv-gray/50"
+              autoFocus={showSearch}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-0 text-vnv-gray hover:text-vnv-black text-xs font-bold tracking-widest uppercase"
+              >
+                Clear
+              </button>
+            )}
+          </form>
+          <button
+            onClick={() => setShowSearch(false)}
+            className="p-2 text-vnv-gray hover:text-vnv-black font-display font-bold text-xs uppercase tracking-widest ml-4"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
       <nav className="fixed w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm">
         {/* Top Info Bar — Scrolling Marquee on Mobile, Static on Desktop */}
         
@@ -70,7 +140,10 @@ export default function Navbar() {
 
           {/* Right Icons */}
           <div className="flex items-center justify-end space-x-4 lg:space-x-6 lg:w-1/4">
-            <button className="hidden md:block hover:text-vnv-gray transition-colors">
+            <button 
+              onClick={() => setShowSearch(true)} 
+              className="hidden md:block hover:text-vnv-gray transition-colors"
+            >
               <Search size={20} strokeWidth={1.5} />
             </button>
 
@@ -130,6 +203,20 @@ export default function Navbar() {
             <button onClick={() => setIsOpen(false)} className="p-2">
               <X size={24} strokeWidth={1.5} />
             </button>
+          </div>
+
+          {/* Mobile Search */}
+          <div className="px-4 py-3 border-b border-vnv-gray/20">
+            <form onSubmit={handleMobileSearchSubmit} className="relative flex items-center">
+              <Search size={18} strokeWidth={1.5} className="absolute left-3 text-vnv-gray" />
+              <input
+                type="text"
+                placeholder="SEARCH..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-vnv-light-gray pl-10 pr-4 py-2.5 text-xs uppercase tracking-wider font-display border border-transparent focus:border-vnv-black focus:outline-none rounded-sm"
+              />
+            </form>
           </div>
 
           {/* Mobile User Section */}

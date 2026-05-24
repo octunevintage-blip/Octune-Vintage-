@@ -27,39 +27,26 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new Error('Phone number is already registered');
   }
 
-  // Generate 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
   // Hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // Clean up any existing pending verification sessions for this email or phone
-  await TempUser.deleteMany({ $or: [{ email }, { phone }] });
-
-  // Create temporary user record
-  const tempUser = await TempUser.create({
+  // Create user directly
+  const user = await User.create({
     name,
     email,
     phone,
     password: hashedPassword,
-    otp,
   });
 
-  if (tempUser) {
-    await sendSMS(phone, otp);
-    await sendEmail({
-      to: tempUser.email,
-      subject: 'Verify Your Octune Vintage Account',
-      html: otpEmailTemplate(otp),
-    });
-    res.status(200).json({
-      message: 'OTP sent to your email address',
-      email: tempUser.email,
+  if (user) {
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please log in to your account.',
     });
   } else {
     res.status(400);
-    throw new Error('Failed to start registration process');
+    throw new Error('Failed to complete registration');
   }
 });
 

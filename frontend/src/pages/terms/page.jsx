@@ -3,7 +3,7 @@ export const metadata = { title: 'Terms of Service | Octune Vintage' };
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-6 lg:px-12 py-20 max-w-4xl">
-      <h1 className="font-serif text-4xl uppercase tracking-widest mb-12 border-b border-ink/10 pb-6">Terms & Conditions</h1>
+      <h1 className="font-display text-4xl uppercase tracking-widest mb-12 border-b border-ink/10 pb-6">Terms & Conditions</h1>
       <div className="space-y-8 text-sm text-ink/80 leading-relaxed">
         <section>
          
@@ -13,30 +13,30 @@ export default function TermsPage() {
            <p>This website is an independent thrift and resale platform. References to third-party brand names, logos, labels, product names, and trademarks are made solely for the purpose of accurately identifying genuine pre-owned products. All such trademarks and intellectual property belong to their respective owners. We do not claim ownership of any third-party marks and are not affiliated with, authorised by, endorsed by, sponsored by, or officially associated with any brand displayed or mentioned on this website.</p>
         </section>
         <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">1. Product Information</h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">1. Product Information</h2>
           <p>Octune Vintage deals in thrifted, pre-loved, and vintage clothing. Most products are one-of-a-kind and available in limited quantities, usually only one piece per item. As these are pre-loved pieces, minor signs of wear, fading, or natural ageing may be present. We make every effort to mention noticeable flaws, defects, or imperfections in the product description along with images.</p>
         </section>
         <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">2. Authenticity & Quality</h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">2. Authenticity & Quality</h2>
           <p>Every product is handpicked, checked, cleaned, and quality-inspected before being listed or shipped. We aim to ensure that each item meets our standards of authenticity, quality, and wearability.</p>
         </section>
          <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">3. Sizing</h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">3. Sizing</h2>
           <p>Vintage and thrifted clothing sizes may differ from modern sizing standards. Customers are advised to check the measurements provided before placing an order. Octune Vintage will not be responsible for size-related issues if measurements have been mentioned clearly.</p>
         </section>
          <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">4. Orders & Payments </h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">4. Orders & Payments </h2>
           <p>Once an order is placed successfully, customers will receive an order confirmation. Orders are processed only after successful payment. Octune Vintage reserves the right to cancel any order due to product unavailability, payment issues, incorrect pricing, or any other unforeseen reason.</p>
         </section>
         
          <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">5.Shipping & Delivery</h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">5.Shipping & Delivery</h2>
           <p>We offer free shipping all across India. Orders will be packed and dispatched within 3 working days. Delivery timelines may vary depending on location, courier service, weather conditions, public holidays, or other external factors. Standard shipping may take around 5-8 working days depending on transit speed and delivery location. 
 Octune Vintage is not responsible for delays caused by courier partners once the order has been dispatched. But post shipping support; in case of delays are available; such as help with tracking and raising complaints with the courier team.
 </p>
         </section>
          <section>
-          <h2 className="font-serif text-xl uppercase tracking-widest mb-4">6. Returns & Exchanges </h2>
+          <h2 className="font-display text-xl uppercase tracking-widest mb-4">6. Returns & Exchanges </h2>
           <p>
 Since our products are thrifted and mostly one-of-a-kind pieces, returns and exchanges are not accepted. Exceptions will only be made if the customer receives the wrong item or an item with significant damage that was not mentioned in the product listing.
 </p>
@@ -63,7 +63,7 @@ Requests that do not meet these requirements may not be eligible for review, ret
         </section>
 
         <section>
-  <h2 className="font-serif text-xl uppercase tracking-widest mb-4">
+  <h2 className="font-display text-xl uppercase tracking-widest mb-4">
     5. Colors & Images
   </h2>
   <p>
@@ -74,7 +74,7 @@ Requests that do not meet these requirements may not be eligible for review, ret
 </section>
 
 <section>
-  <h2 className="font-serif text-xl uppercase tracking-widest mb-4">
+  <h2 className="font-display text-xl uppercase tracking-widest mb-4">
     6. Pricing
   </h2>
   <p>
@@ -85,7 +85,7 @@ Requests that do not meet these requirements may not be eligible for review, ret
 </section>
 
 <section>
-  <h2 className="font-serif text-xl uppercase tracking-widest mb-4">
+  <h2 className="font-display text-xl uppercase tracking-widest mb-4">
     7. Customer Responsibility
   </h2>
   <p>
@@ -97,7 +97,7 @@ Requests that do not meet these requirements may not be eligible for review, ret
 </section>
 
 <section>
-  <h2 className="font-serif text-xl uppercase tracking-widest mb-4">
+  <h2 className="font-display text-xl uppercase tracking-widest mb-4">
     8. Website Use
   </h2>
   <p>
@@ -109,7 +109,7 @@ Requests that do not meet these requirements may not be eligible for review, ret
 </section>
 
 <section>
-  <h2 className="font-serif text-xl uppercase tracking-widest mb-4">
+  <h2 className="font-display text-xl uppercase tracking-widest mb-4">
     9. Contact
   </h2>
   <p>

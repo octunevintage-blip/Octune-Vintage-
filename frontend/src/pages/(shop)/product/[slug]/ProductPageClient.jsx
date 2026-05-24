@@ -67,6 +67,9 @@ export default function ProductPageClient({
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
+  const isReserved = product.status === 'reserved' && product.reservedUntil && new Date(product.reservedUntil) > new Date();
+  const isReservedByOther = isReserved && (!user || String(product.reservedBy) !== String(user?._id));
+
   useEffect(() => {
     async function checkWishlist() {
       if (!user) {
@@ -286,7 +289,7 @@ export default function ProductPageClient({
               transition={{ delay: 0.4, duration: 0.5 }}
             >
               <div className="flex-grow">
-                <AddToCartBtn product={product} isLocked={isLocked || isSold} />
+                <AddToCartBtn product={product} isLocked={isLocked || isSold} isReserved={isReservedByOther} />
               </div>
               <button
                 onClick={toggleWishlist}

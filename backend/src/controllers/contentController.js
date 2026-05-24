@@ -4,6 +4,7 @@ export const getContent = async (req, res) => {
   try {
     let content = await Content.findOne()
       .populate('looks.hotspots.product')
+      .populate('upcomingBanner.product')
       .populate('trendingProducts')
       .populate('newArrivals')
       .populate('vintageClassics')
@@ -29,10 +30,12 @@ export const updateContent = async (req, res) => {
       splitBanners, 
       looks, 
       customBanners, 
+      upcomingBanner,
       trendingProducts,
       newArrivals,
       vintageClassics,
-      archivePicks
+      archivePicks,
+      about
     } = req.body;
 
     let content = await Content.findOne();
@@ -45,16 +48,19 @@ export const updateContent = async (req, res) => {
     if (splitBanners) content.splitBanners = splitBanners;
     if (looks) content.looks = looks;
     if (customBanners) content.customBanners = customBanners;
+    if (upcomingBanner !== undefined) content.upcomingBanner = upcomingBanner;
     if (trendingProducts) content.trendingProducts = trendingProducts;
     if (newArrivals) content.newArrivals = newArrivals;
     if (vintageClassics) content.vintageClassics = vintageClassics;
     if (archivePicks) content.archivePicks = archivePicks;
+    if (about) content.about = about;
 
     await content.save();
     
     // Return populated content
     const updatedContent = await Content.findById(content._id)
       .populate('looks.hotspots.product')
+      .populate('upcomingBanner.product')
       .populate('trendingProducts')
       .populate('newArrivals')
       .populate('vintageClassics')
