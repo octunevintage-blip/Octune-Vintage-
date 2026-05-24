@@ -68,3 +68,11 @@ coverage/
 .cache
 backend/scratch/
 scratch/
+
+# ========================
+# Hostinger Deploy Zips (large files - upload manually)
+# ========================
+*.zip
+dist-hostinger.zip
+frontend/dist.zip
+admin/dist.zip

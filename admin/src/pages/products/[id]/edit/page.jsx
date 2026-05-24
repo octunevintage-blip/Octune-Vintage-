@@ -39,7 +39,10 @@ export default function EditProduct() {
           status: prod.status || 'available',
           chest: prod.measurements?.chest || '', length: prod.measurements?.length || '', shoulder: prod.measurements?.shoulder || '',
           sleeve: prod.measurements?.sleeve || '', waist: prod.measurements?.waist || '', inseam: prod.measurements?.inseam || '',
-          dropAt: prod.dropAt ? new Date(prod.dropAt).toISOString().slice(0, 16) : ''
+          dropAt: prod.dropAt ? (function(iso) {
+            const d = new Date(iso);
+            return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+          })(prod.dropAt) : ''
         });
         setExistingImages(prod.images || []);
       } catch (error) {
@@ -341,8 +344,16 @@ export default function EditProduct() {
 
         <section className="pt-8 border-t border-ink/10">
           <div>
-            <label className="block text-xs uppercase tracking-widest text-ink/60 mb-2">Schedule Drop</label>
-            <input type="datetime-local" name="dropAt" value={formData.dropAt} onChange={handleChange} className="input bg-paper/50 max-w-md" />
+            <label className="block text-xs uppercase tracking-widest text-ink/60 mb-2">Schedule Drop (Leave empty for instant live)</label>
+            <div className="flex items-center gap-4">
+              <input type="datetime-local" name="dropAt" value={formData.dropAt} onChange={handleChange} className="input bg-paper/50 max-w-md" />
+              {formData.dropAt && (
+                <button type="button" onClick={() => setFormData({...formData, dropAt: ''})} className="text-xs text-red-500 font-bold uppercase tracking-widest hover:underline">
+                  Clear Time
+                </button>
+              )}
+            </div>
+            <p className="text-xs text-ink/50 mt-2">If set in the future, product will be marked as "upcoming" and locked from purchase until this time.</p>
           </div>
         </section>
 

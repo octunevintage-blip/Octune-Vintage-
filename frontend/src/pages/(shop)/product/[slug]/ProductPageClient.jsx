@@ -323,7 +323,7 @@ export default function ProductPageClient({
             >
               <span className="flex items-center gap-1.5">
                 <Shield size={11} />
-                Authenticity Guaranteed
+               Quality Assured
               </span>
               <span className="w-px h-3 bg-black/10" />
               <span className="flex items-center gap-1.5">
