@@ -407,9 +407,14 @@ export default function AccountPage() {
                             </div>
                           </div>
                           {order.tracking?.url && (
-                            <a href={order.tracking.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline">
+                            <a href={order.tracking.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline mr-4">
                               Track Order <ExternalLink size={10} />
                             </a>
+                          )}
+                          {order.status === 'delivered' && (
+                            <Link href={`/account/invoice/${order._id}`} target="_blank" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline">
+                              Download Invoice <ExternalLink size={10} />
+                            </Link>
                           )}
                         </div>
                       ))}

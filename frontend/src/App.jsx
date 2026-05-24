@@ -19,6 +19,7 @@ import About from '@/pages/about/page';
 import Privacy from '@/pages/privacy/page';
 import Terms from '@/pages/terms/page';
 import Shipping from '@/pages/shipping/page';
+import CustomerInvoice from '@/pages/(shop)/account/invoice/[id]/page';
 
 // Shop Layout Wrapper with global Navbar and Footer
 function ShopLayout() {
@@ -54,6 +55,9 @@ export default function App() {
     <Router>
       <ScrollToTop />
       <Routes>
+        {/* Printable standalone routes */}
+        <Route path="/account/invoice/:id" element={<CustomerInvoice />} />
+        
         {/* Main Customer facing Shop Routes */}
         <Route element={<ShopLayout />}>
           <Route path="/" element={<Home />} />

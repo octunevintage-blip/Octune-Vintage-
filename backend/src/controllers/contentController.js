@@ -35,7 +35,6 @@ export const updateContent = async (req, res) => {
       newArrivals,
       vintageClassics,
       archivePicks,
-      archivePicks,
       about,
       terms
     } = req.body;
