@@ -82,11 +82,8 @@ export default function SignupPopup() {
           <h3 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-black mb-2">
             Join The Community
           </h3>
-          <p className="text-gray-500 text-sm font-sans leading-relaxed mb-2">
-            Create your Octune Vintage account and be the first to know about exclusive drops and 1-of-1 finds.
-          </p>
-          <p className="text-black font-bold text-sm font-sans tracking-wide mb-6">
-            Get early access to every new drop.
+          <p className="text-black font-semibold text-sm font-sans leading-relaxed mb-6">
+            Create your Octune Vintage account and get 5% discount and free shipping on all orders.
           </p>
 
           {/* CTA */}
