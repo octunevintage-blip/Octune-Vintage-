@@ -5,13 +5,22 @@ import ProductCard from '@/components/ProductCard';
 import CategoryPill from '@/components/CategoryPill';
 
 export default function Shop() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const currentCategory = searchParams.get('category') || 'All';
   const currentSort = searchParams.get('sort') || 'newest';
+  const currentPage = parseInt(searchParams.get('page')) || 1;
+
+  const handlePageChange = (newPage) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', newPage);
+    setSearchParams(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     async function loadProducts() {
@@ -21,6 +30,7 @@ export default function Shop() {
         const res = await api.get(`/products?${query}`);
         setProducts(res.data.products || []);
         setTotal(res.data.total || 0);
+        setTotalPages(res.data.pages || 1);
       } catch (error) {
         console.error('Failed to fetch products:', error);
       } finally {
@@ -85,17 +95,41 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* Grid - VNV uses stark grids with clear margins */}
         {loading ? (
           <div className="py-40 text-center bg-vnv-light-gray border border-vnv-gray/20">
             <h2 className="font-display text-2xl uppercase tracking-widest animate-pulse">LOADING ARCHIVES...</h2>
           </div>
         ) : products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-6 md:gap-y-16">
-            {products.map(product => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-12 md:gap-x-6 md:gap-y-16">
+              {products.map(product => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-16 space-x-6">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-6 py-2 border border-vnv-black text-xs font-bold uppercase tracking-widest hover:bg-vnv-black hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-vnv-black disabled:cursor-not-allowed"
+                >
+                  Prev
+                </button>
+                <span className="font-mono text-sm uppercase tracking-widest">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-6 py-2 border border-vnv-black text-xs font-bold uppercase tracking-widest hover:bg-vnv-black hover:text-white transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-vnv-black disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="py-40 text-center bg-vnv-light-gray border border-vnv-gray/20">
             <h2 className="font-display text-4xl uppercase font-bold tracking-tight mb-2">NO ITEMS FOUND</h2>
