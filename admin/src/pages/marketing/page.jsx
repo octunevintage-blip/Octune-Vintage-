@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
-import { Trash2, Plus, Percent } from 'lucide-react';
+import { Trash2, Plus, Percent, Send } from 'lucide-react';
 
 export default function MarketingDashboard() {
   const [coupons, setCoupons] = useState([]);
@@ -18,6 +18,15 @@ export default function MarketingDashboard() {
     validFrom: new Date().toISOString().split('T')[0],
     validTo: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
   });
+
+  const [customForm, setCustomForm] = useState({
+    email: '',
+    phone: '',
+    type: 'flat',
+    value: '',
+    reason: ''
+  });
+  const [sendingCustom, setSendingCustom] = useState(false);
 
   const fetchCoupons = async () => {
     try {
@@ -54,6 +63,21 @@ export default function MarketingDashboard() {
       fetchCoupons();
     } catch (error) {
       toast.error('Failed to delete coupon');
+    }
+  };
+
+  const handleSendCustom = async (e) => {
+    e.preventDefault();
+    setSendingCustom(true);
+    try {
+      await api.post('/marketing/personalized-coupon', customForm);
+      toast.success('Custom coupon generated and sent successfully');
+      setCustomForm({ email: '', phone: '', type: 'flat', value: '', reason: '' });
+      fetchCoupons(); // Refresh to show new coupon
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send custom coupon');
+    } finally {
+      setSendingCustom(false);
     }
   };
 
@@ -146,8 +170,84 @@ export default function MarketingDashboard() {
           </form>
         </div>
 
+        {/* Custom Apology / Issue Coupon Form */}
+        <div className="bg-white p-6 border border-ink/10 shadow-sm h-fit lg:col-span-2">
+          <h2 className="font-serif text-xl tracking-widest mb-2 flex items-center gap-2">
+            <Send size={20} className="text-blue-600" /> Send Personalized Coupon
+          </h2>
+          <p className="text-xs text-ink/60 mb-6 tracking-widest uppercase">Target a specific customer via Email & WhatsApp</p>
+          <form onSubmit={handleSendCustom} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Customer Email *</label>
+                <input 
+                  type="email" 
+                  required
+                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  value={customForm.email}
+                  onChange={(e) => setCustomForm({...customForm, email: e.target.value})}
+                  placeholder="customer@email.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">WhatsApp Number</label>
+                <input 
+                  type="tel" 
+                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  value={customForm.phone}
+                  onChange={(e) => setCustomForm({...customForm, phone: e.target.value})}
+                  placeholder="+91..."
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Discount Type</label>
+                <select 
+                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  value={customForm.type}
+                  onChange={(e) => setCustomForm({...customForm, type: e.target.value})}
+                >
+                  <option value="flat">Flat Amount ₹</option>
+                  <option value="percent">Percentage %</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Value *</label>
+                <input 
+                  type="number" 
+                  required min="1"
+                  className="w-full p-2 border border-ink/20 bg-paper font-mono text-sm focus:outline-none focus:border-blue-600"
+                  value={customForm.value}
+                  onChange={(e) => setCustomForm({...customForm, value: e.target.value})}
+                  placeholder={customForm.type === 'flat' ? "500" : "20"}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Reason / Apology Message (Optional)</label>
+              <textarea 
+                className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600 h-20"
+                value={customForm.reason}
+                onChange={(e) => setCustomForm({...customForm, reason: e.target.value})}
+                placeholder="e.g. your recent order was delayed..."
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={sendingCustom}
+              className="w-full bg-blue-600 text-white py-3 uppercase tracking-widest text-xs font-bold hover:bg-blue-700 mt-4 transition-colors disabled:opacity-50"
+            >
+              {sendingCustom ? 'Generating & Sending...' : 'Generate & Send Coupon'}
+            </button>
+          </form>
+        </div>
+
         {/* Active Coupons List */}
-        <div className="lg:col-span-2 bg-white p-6 border border-ink/10 shadow-sm">
+        <div className="lg:col-span-3 bg-white p-6 border border-ink/10 shadow-sm">
           <h2 className="font-serif text-xl tracking-widest mb-6 flex items-center gap-2">
             <Percent size={20} className="text-brick" /> Active Campaigns
           </h2>

@@ -145,6 +145,36 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   res.json({ message: 'Product removed' });
 });
 
+// @desc    Add user to waitlist
+// @route   POST /api/products/:id/waitlist
+// @access  Public
+export const addToWaitlist = asyncHandler(async (req, res) => {
+  const { email, phone } = req.body;
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+
+  if (product.status === 'available') {
+    res.status(400);
+    throw new Error('Product is already available. You can buy it now.');
+  }
+
+  // Check if email already in waitlist
+  const alreadyExists = product.waitlist?.find(w => w.email === email);
+  if (alreadyExists) {
+    return res.status(200).json({ message: 'You are already on the waitlist for this item.' });
+  }
+
+  product.waitlist.push({ email, phone });
+  await product.save();
+
+  res.status(201).json({ message: 'Added to waitlist successfully. We will notify you when it is back in stock.' });
+});
+
+
 export const deleteProductImage = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
   if (!product) {

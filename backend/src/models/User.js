@@ -15,7 +15,9 @@ const userSchema = new mongoose.Schema({
     pincode: String,
     isDefault: Boolean
   }],
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
+  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
 }, {
   timestamps: true
 });

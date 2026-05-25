@@ -32,6 +32,8 @@ export default function NewProduct() {
     shoulder: '',
     sleeve: '',
     waist: '',
+    thighWidth: '',
+    bottomWidth: '',
     inseam: '',
     dropAt: ''
   });
@@ -89,7 +91,8 @@ export default function NewProduct() {
       condition: formData.condition,
       measurements: {
         chest: formData.chest, length: formData.length, shoulder: formData.shoulder,
-        sleeve: formData.sleeve, waist: formData.waist, inseam: formData.inseam
+        sleeve: formData.sleeve, waist: formData.waist, thighWidth: formData.thighWidth,
+        bottomWidth: formData.bottomWidth, inseam: formData.inseam
       },
       dropAt: formData.dropAt ? new Date(formData.dropAt).toISOString() : null
     };
@@ -276,6 +279,8 @@ export default function NewProduct() {
               { name: 'shoulder', label: 'Shoulder' },
               { name: 'sleeve', label: 'Sleeve' },
               { name: 'waist', label: 'Waist' },
+              { name: 'thighWidth', label: 'Thigh Width' },
+              { name: 'bottomWidth', label: 'Bottom Width' },
               { name: 'inseam', label: 'Inseam' },
             ].map(({ name, label }) => (
               <div key={name} className="flex items-center gap-2">

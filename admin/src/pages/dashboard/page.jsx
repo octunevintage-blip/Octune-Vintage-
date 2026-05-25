@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
-import { Package, ShoppingBag, Banknote, Clock, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { Package, ShoppingBag, Banknote, Clock, CheckCircle, AlertCircle, TrendingUp, Download } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import * as XLSX from 'xlsx';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -36,9 +37,68 @@ export default function AdminDashboard() {
     { title: 'Orders Month', value: stats.ordersMonth, icon: TrendingUp },
   ];
 
+  const downloadExcel = () => {
+    if (!stats) return;
+
+    // Create a new Workbook
+    const wb = XLSX.utils.book_new();
+
+    // 1. Dashboard Summary Sheet
+    const summaryData = [
+      ['Metric', 'Value'],
+      ['Total Revenue (₹)', stats.totalRevenue],
+      ['Orders Today', stats.ordersToday],
+      ['Orders This Month', stats.ordersMonth],
+      ['Pending Orders', stats.pendingOrders],
+      ['Available Inventory', stats.available],
+      ['Sold Pieces', stats.sold]
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    wsSummary['!cols'] = [{ wch: 22 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    // 2. Recent Orders Sheet
+    if (stats.recentOrders && stats.recentOrders.length > 0) {
+      const ordersData = stats.recentOrders.map(o => ({
+        'Order Number': o.orderNumber,
+        'Customer Name': o.customer?.name || 'N/A',
+        'Amount (₹)': o.pricing?.total || 0,
+        'Status': o.status.toUpperCase(),
+        'Date': new Date(o.createdAt).toLocaleDateString()
+      }));
+      const wsOrders = XLSX.utils.json_to_sheet(ordersData);
+      wsOrders['!cols'] = [{ wch: 15 }, { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 15 }];
+      XLSX.utils.book_append_sheet(wb, wsOrders, 'Recent Orders');
+    }
+
+    // 3. Recently Sold Items Sheet
+    if (stats.recentSales && stats.recentSales.length > 0) {
+      const salesData = stats.recentSales.map(p => ({
+        'Product Name': p.name,
+        'Status': p.status.toUpperCase(),
+        'Date Archived': new Date(p.updatedAt).toLocaleDateString()
+      }));
+      const wsSales = XLSX.utils.json_to_sheet(salesData);
+      wsSales['!cols'] = [{ wch: 35 }, { wch: 15 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, wsSales, 'Recently Sold');
+    }
+
+    // Trigger Excel Download
+    XLSX.writeFile(wb, `Octune_Vintage_Dashboard_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div>
-      <h1 className="font-serif text-3xl uppercase tracking-widest mb-10 pb-4 border-b border-ink/10">Dashboard Overview</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 pb-4 border-b border-ink/10 gap-4">
+        <h1 className="font-serif text-3xl uppercase tracking-widest">Dashboard Overview</h1>
+        <button 
+          onClick={downloadExcel}
+          className="flex items-center gap-2 bg-ink text-cream px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-ink/80 transition-colors"
+        >
+          <Download size={14} />
+          Export to Excel
+        </button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {statCards.map((stat, i) => {

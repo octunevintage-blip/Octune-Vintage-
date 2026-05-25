@@ -45,7 +45,7 @@ export default function CustomerInvoice() {
         {/* Header */}
         <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
           <div>
-            <h1 className="font-serif tracking-[0.25em] text-2xl uppercase font-bold text-black mb-2">Octune Vintage</h1>
+            <img src="/logo.png" alt="Octune Vintage" className="h-10 md:h-14 w-auto object-contain mb-2" />
             <p className="text-sm text-gray-500 uppercase tracking-widest">Premium 1-of-1 Archive</p>
           </div>
           <div className="text-right">

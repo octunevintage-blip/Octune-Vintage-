@@ -11,6 +11,7 @@ import connectDB from './config/db.js';
 
 // Utils
 import { startCronJobs } from './utils/cronJobs.js';
+import { startInventoryCron } from './jobs/inventoryCron.js';
 
 // Middleware
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
@@ -36,6 +37,9 @@ dotenv.config();
 
 // Connect MongoDB
 connectDB();
+
+// Start Background Jobs
+startInventoryCron();
 
 const app = express();
 

@@ -23,6 +23,8 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   res.json({ orders, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 });
 
+import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
+
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, tracking, notes, paymentStatus } = req.body;
   const order = await Order.findById(req.params.id);
@@ -35,7 +37,20 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   order.status = status;
   
   if (tracking) {
+    const isNewTracking = !order.tracking || order.tracking.number !== tracking.number;
     order.tracking = tracking;
+
+    if (isNewTracking && order.customer.phone) {
+      sendWhatsAppMessage({
+        to: order.customer.phone,
+        type: 'tracking_update',
+        data: {
+          customerName: order.customer.name.split(' ')[0],
+          orderNumber: order.orderNumber,
+          trackingId: tracking.number
+        }
+      });
+    }
   }
   
   if (notes) {

@@ -40,6 +40,8 @@ const productSchema = new mongoose.Schema({
     shoulder: String,
     sleeve: String,
     waist: String,
+    thighWidth: String,
+    bottomWidth: String,
     inseam: String
   },
   status: {
@@ -60,7 +62,12 @@ const productSchema = new mongoose.Schema({
     metaDescription: String
   },
   views: { type: Number, default: 0 },
-  isFeatured: { type: Boolean, default: false }
+  isFeatured: { type: Boolean, default: false },
+  waitlist: [{
+    email: { type: String, required: true },
+    phone: { type: String },
+    addedAt: { type: Date, default: Date.now }
+  }]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

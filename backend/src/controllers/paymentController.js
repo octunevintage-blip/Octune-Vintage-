@@ -6,6 +6,7 @@ import Coupon from '../models/Coupon.js';
 import User from '../models/User.js';
 import razorpay from '../config/razorpay.js';
 import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
+import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
 
 export const createPaymentOrder = asyncHandler(async (req, res) => {
   const { productId, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
@@ -28,7 +29,7 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
   }
 
   product.status = 'reserved';
-  product.reservedUntil = new Date(Date.now() + 10 * 60 * 1000); // 10 mins lock
+  product.reservedUntil = new Date(Date.now() + 5 * 60 * 1000); // 5 mins lock
   if (req.user) product.reservedBy = req.user._id;
   await product.save();
 
@@ -159,6 +160,15 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     const html = orderConfirmationTemplate(order);
     sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Confirmed`, html }).catch(console.error);
 
+    sendWhatsAppMessage({
+      to: order.customer.phone,
+      type: 'order_confirmation',
+      data: {
+        customerName: order.customer.name.split(' ')[0],
+        orderNumber: order.orderNumber
+      }
+    });
+
     return res.json({
       success: true,
       orderId: order._id,
@@ -227,6 +237,15 @@ export const verifyPayment = asyncHandler(async (req, res) => {
 
   const html = orderConfirmationTemplate(order);
   sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Confirmed`, html }).catch(console.error);
+
+  sendWhatsAppMessage({
+    to: order.customer.phone,
+    type: 'order_confirmation',
+    data: {
+      customerName: order.customer.name.split(' ')[0],
+      orderNumber: order.orderNumber
+    }
+  });
 
   res.json({ success: true, orderId: order._id, orderNumber: order.orderNumber });
 });

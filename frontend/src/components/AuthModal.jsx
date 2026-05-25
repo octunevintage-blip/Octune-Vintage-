@@ -16,6 +16,8 @@ export default function AuthModal() {
   const [signupData, setSignupData] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   // Login fields
   const [loginData, setLoginData] = useState({ email: '', password: '' });
+  // Forgot Password fields
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
 
   // OTP states
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -129,6 +131,25 @@ export default function AuthModal() {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!forgotPasswordEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/forgot-password', { email: forgotPasswordEmail });
+      toast.success(res.data.message || 'Reset link sent successfully!');
+      setForgotPasswordEmail('');
+      setTab('login');
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to send reset link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
@@ -151,11 +172,13 @@ export default function AuthModal() {
         <div className="px-8 pt-8 pb-0">
           <div className="text-center mb-6">
             <h2 className="font-display text-2xl font-bold uppercase tracking-[0.15em] text-black">
-              {isOtpSent ? 'Verify Email' : tab === 'signup' ? 'Create Account' : 'Welcome Back'}
+              {isOtpSent ? 'Verify Email' : tab === 'forgot-password' ? 'Reset Password' : tab === 'signup' ? 'Create Account' : 'Welcome Back'}
             </h2>
             <p className="text-gray-500 text-sm mt-2 font-sans tracking-wide">
               {isOtpSent
                 ? `Enter 6-digit OTP sent to ${signupData.email}`
+                : tab === 'forgot-password'
+                ? 'Enter your email to receive a reset link'
                 : tab === 'signup'
                 ? 'Join the community. Get exclusive access.'
                 : 'Sign in to your Octune Vintage account'}
@@ -163,7 +186,7 @@ export default function AuthModal() {
           </div>
 
           {/* Tab Switcher */}
-          {!isOtpSent && (
+          {!isOtpSent && tab !== 'forgot-password' && (
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => setTab('signup')}
@@ -336,6 +359,35 @@ export default function AuthModal() {
                 </button>
               </form>
             )
+          ) : tab === 'forgot-password' ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="relative">
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  required
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:border-black focus:bg-white transition-all"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-900 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+              >
+                {loading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <>
+                    Send Reset Link
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+            </form>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
               {/* Email */}
@@ -371,6 +423,16 @@ export default function AuthModal() {
                 </button>
               </div>
 
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setTab('forgot-password')}
+                  className="text-xs text-gray-500 hover:text-black hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
@@ -391,13 +453,20 @@ export default function AuthModal() {
 
         {/* Footer */}
         {!isOtpSent && (
-          <div className="px-8 pb-8">
+          <div className="px-8 pb-8 mt-6">
             <div className="text-center text-xs text-gray-400 font-sans">
               {tab === 'signup' ? (
                 <p>
                   Already have an account?{' '}
                   <button onClick={() => setTab('login')} className="text-black font-semibold underline underline-offset-2 hover:no-underline">
                     Sign In
+                  </button>
+                </p>
+              ) : tab === 'forgot-password' ? (
+                <p>
+                  Remember your password?{' '}
+                  <button onClick={() => setTab('login')} className="text-black font-semibold underline underline-offset-2 hover:no-underline">
+                    Back to Login
                   </button>
                 </p>
               ) : (

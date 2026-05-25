@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import SignupPopupWrapper from '@/components/SignupPopupWrapper';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
 // Shop/Frontend Pages
 import Home from '@/pages/(shop)/page';
@@ -20,16 +21,18 @@ import Privacy from '@/pages/privacy/page';
 import Terms from '@/pages/terms/page';
 import Shipping from '@/pages/shipping/page';
 import CustomerInvoice from '@/pages/(shop)/account/invoice/[id]/page';
+import ResetPassword from '@/pages/(shop)/reset-password/[token]/page';
 
 // Shop Layout Wrapper with global Navbar and Footer
 function ShopLayout() {
   return (
-    <div className="flex flex-col min-h-screen bg-vnv-white text-vnv-black font-sans">
+    <div className="flex flex-col min-h-screen bg-vnv-white text-vnv-black font-sans pb-24 md:pb-0">
       <Navbar />
       <main className="pt-16 md:pt-20 flex-grow min-h-[80vh]">
         <Outlet />
       </main>
       <Footer />
+      <MobileBottomNav />
       <AuthModal />
       <SignupPopupWrapper />
       <Toaster position="top-center" />
@@ -68,6 +71,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/order-success/:id" element={<OrderSuccess />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />

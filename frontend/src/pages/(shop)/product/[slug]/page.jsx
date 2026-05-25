@@ -57,6 +57,8 @@ export default function ProductDetail() {
     shoulder: 'Shoulder',
     sleeve: 'Sleeve',
     waist: 'Waist',
+    thighWidth: 'Thigh Width',
+    bottomWidth: 'Bottom Width',
     inseam: 'Inseam',
   };
   const hasMeasurements = product.measurements && Object.values(product.measurements).some(Boolean);

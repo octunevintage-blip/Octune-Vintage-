@@ -20,7 +20,7 @@ export default function EditProduct() {
     name: '', description: '', shortDescription: '', category: CATEGORIES[0],
     brand: '', era: '', size: '', colorName: '', colorHex: '#000000',
     price: '', mrp: '', material: '', condition: 'Used', status: 'available',
-    chest: '', length: '', shoulder: '', sleeve: '', waist: '', inseam: '', dropAt: ''
+    chest: '', length: '', shoulder: '', sleeve: '', waist: '', thighWidth: '', bottomWidth: '', inseam: '', dropAt: ''
   });
 
   useEffect(() => {
@@ -38,7 +38,8 @@ export default function EditProduct() {
           price: prod.price || '', mrp: prod.mrp || '', material: prod.material || '', condition: prod.condition || 'Used',
           status: prod.status || 'available',
           chest: prod.measurements?.chest || '', length: prod.measurements?.length || '', shoulder: prod.measurements?.shoulder || '',
-          sleeve: prod.measurements?.sleeve || '', waist: prod.measurements?.waist || '', inseam: prod.measurements?.inseam || '',
+          sleeve: prod.measurements?.sleeve || '', waist: prod.measurements?.waist || '', thighWidth: prod.measurements?.thighWidth || '',
+          bottomWidth: prod.measurements?.bottomWidth || '', inseam: prod.measurements?.inseam || '',
           dropAt: prod.dropAt ? (function(iso) {
             const d = new Date(iso);
             return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -110,7 +111,8 @@ export default function EditProduct() {
       material: formData.material, condition: formData.condition, status: formData.status,
       measurements: {
         chest: formData.chest, length: formData.length, shoulder: formData.shoulder,
-        sleeve: formData.sleeve, waist: formData.waist, inseam: formData.inseam
+        sleeve: formData.sleeve, waist: formData.waist, thighWidth: formData.thighWidth,
+        bottomWidth: formData.bottomWidth, inseam: formData.inseam
       },
       dropAt: formData.dropAt ? new Date(formData.dropAt).toISOString() : null
     };
@@ -325,6 +327,8 @@ export default function EditProduct() {
               { name: 'shoulder', label: 'Shoulder' },
               { name: 'sleeve', label: 'Sleeve' },
               { name: 'waist', label: 'Waist' },
+              { name: 'thighWidth', label: 'Thigh Width' },
+              { name: 'bottomWidth', label: 'Bottom Width' },
               { name: 'inseam', label: 'Inseam' },
             ].map(({ name, label }) => (
               <div key={name} className="flex items-center gap-2">
