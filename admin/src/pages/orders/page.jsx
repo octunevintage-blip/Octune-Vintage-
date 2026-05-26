@@ -144,8 +144,22 @@ export default function AdminOrders() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="font-medium max-w-[180px] truncate">{order.product?.name || 'Product'}</div>
-                  <div className="text-[11px] text-ink/50 mt-0.5">Size: {order.product?.size}</div>
+                  {order.products && order.products.length > 0 ? (
+                    <>
+                      <div className="font-medium max-w-[180px] truncate">
+                        {order.products[0].name}
+                        {order.products.length > 1 && ` (+${order.products.length - 1} more)`}
+                      </div>
+                      <div className="text-[11px] text-ink/50 mt-0.5">
+                        Sizes: {order.products.map(p => p.size).join(', ')}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="font-medium max-w-[180px] truncate">{order.product?.name || 'Product'}</div>
+                      <div className="text-[11px] text-ink/50 mt-0.5">Size: {order.product?.size}</div>
+                    </>
+                  )}
                 </td>
                 <td className="p-4 font-serif font-semibold">{formatINR(order.pricing.total)}</td>
                 <td className="p-4">
@@ -335,25 +349,31 @@ export default function AdminOrders() {
             {/* Product details */}
             <div className="border-t border-ink/10 py-4">
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-ink/50">1 Product</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-ink/50">
+                  {selectedOrder.products && selectedOrder.products.length > 0 ? selectedOrder.products.length : 1} {selectedOrder.products && selectedOrder.products.length > 1 ? 'Products' : 'Product'}
+                </h3>
                 <span className="text-[10px] uppercase font-bold text-brick tracking-widest">Track Order</span>
               </div>
-              <div className="flex gap-4 bg-paper p-3 border border-ink/5">
-                {selectedOrder.product?.image && (
-                  <div className="relative w-16 h-20 bg-white border border-ink/10 p-0.5 shadow-sm shrink-0">
-                    <img src={selectedOrder.product.image} alt="" className="w-full h-full object-cover" />
+              <div className="space-y-3">
+                {(selectedOrder.products && selectedOrder.products.length > 0 ? selectedOrder.products : [selectedOrder.product]).map((prod, index) => (
+                  <div key={prod?.productId || index} className="flex gap-4 bg-paper p-3 border border-ink/5">
+                    {prod?.image && (
+                      <div className="relative w-16 h-20 bg-white border border-ink/10 p-0.5 shadow-sm shrink-0">
+                        <img src={prod.image} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                      <div>
+                        <h4 className="text-xs font-bold truncate">{prod?.name}</h4>
+                        <p className="text-[10px] text-ink/50 mt-1 uppercase tracking-wider font-semibold">Size: {prod?.size} • Qty: 1</p>
+                      </div>
+                      <p className="text-[10px] text-ink/40">Delivery by: 5-7 Business Days</p>
+                    </div>
+                    <div className="text-right py-0.5">
+                      <p className="text-xs font-bold">{formatINR(prod?.price || 0)}</p>
+                    </div>
                   </div>
-                )}
-                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                  <div>
-                    <h4 className="text-xs font-bold truncate">{selectedOrder.product?.name}</h4>
-                    <p className="text-[10px] text-ink/50 mt-1 uppercase tracking-wider">Size: {selectedOrder.product?.size} • Qty: 1</p>
-                  </div>
-                  <p className="text-[10px] text-ink/40">Delivery by: 5-7 Business Days</p>
-                </div>
-                <div className="text-right py-0.5">
-                  <p className="text-xs font-bold">{formatINR(selectedOrder.product?.price || 0)}</p>
-                </div>
+                ))}
               </div>
             </div>
 

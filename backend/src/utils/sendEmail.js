@@ -44,8 +44,11 @@ const sendEmail = async ({ to, subject, html }) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      connectionTimeout: 5000, // 5 seconds timeout to prevent hanging
-      socketTimeout: 5000,
+      tls: {
+        rejectUnauthorized: false
+      },
+      connectionTimeout: 15000, // 15 seconds timeout
+      socketTimeout: 15000,
     });
 
     const mailOptions = {

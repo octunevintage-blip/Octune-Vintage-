@@ -15,7 +15,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
-  const { item } = useCartStore();
+  const { items } = useCartStore();
   const { user } = useAuthStore();
   const { open: openAuthModal } = useAuthModalStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -189,9 +189,9 @@ export default function Navbar() {
 
             <Link href="/cart" className="flex items-center hover:text-vnv-gray transition-colors relative">
               <ShoppingBag size={20} strokeWidth={1.5} />
-              {mounted && item && (
+              {mounted && items && items.length > 0 && (
                 <span className="absolute -top-1 -right-2 bg-vnv-black text-vnv-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-sans">
-                  1
+                  {items.length}
                 </span>
               )}
             </Link>

@@ -3,10 +3,23 @@ import { persist } from 'zustand/middleware';
 
 export const useCartStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
+      items: [],
       item: null,
-      setItem: (product) => set({ item: product }),
-      clearCart: () => set({ item: null }),
+      addItem: (product) => {
+        const items = get().items || [];
+        const exists = items.some((i) => i._id === product._id);
+        if (!exists) {
+          const newItems = [...items, product];
+          set({ items: newItems, item: newItems[0] });
+        }
+      },
+      removeItem: (productId) => {
+        const newItems = (get().items || []).filter((i) => i._id !== productId);
+        set({ items: newItems, item: newItems[0] || null });
+      },
+      setItem: (product) => set({ items: product ? [product] : [], item: product }),
+      clearCart: () => set({ items: [], item: null }),
     }),
     {
       name: 'octune-cart',

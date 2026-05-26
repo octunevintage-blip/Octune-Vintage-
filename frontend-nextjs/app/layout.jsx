@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import SignupPopupWrapper from '@/components/SignupPopupWrapper';
+import CookieConsent from '@/components/CookieConsent';
 
 const openSans = Open_Sans({ subsets: ['latin'], variable: '--font-open-sans' });
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
         <Footer />
         <AuthModal />
         <SignupPopupWrapper />
+        <CookieConsent />
         <Toaster position="top-center" />
       </body>
     </html>

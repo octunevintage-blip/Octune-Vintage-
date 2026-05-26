@@ -80,35 +80,38 @@ export default async function OrderSuccessPage({ params }) {
             </div>
           </div>
         </div>
-
         {/* Product details */}
         <div className="p-6 md:p-8 border-b border-vnv-gray/15">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xs font-bold uppercase tracking-[0.15em] text-vnv-gray flex items-center gap-2">
-              <ShoppingBag size={14} className="text-vnv-black" /> 1 Product
+              <ShoppingBag size={14} className="text-vnv-black" /> {order.products && order.products.length > 0 ? order.products.length : 1} {order.products && order.products.length > 1 ? 'Products' : 'Product'}
             </h2>
-            <span className="text-[10px] font-bold text-brick uppercase tracking-wider bg-brick/10 px-2 py-0.5">1-of-1 Item</span>
+            <span className="text-[10px] font-bold text-brick uppercase tracking-wider bg-brick/10 px-2 py-0.5">Vintage Pieces</span>
           </div>
           
-          <div className="flex gap-4 md:gap-6 bg-vnv-light-gray/25 p-4 border border-vnv-gray/10">
-            {order.product?.image && (
-              <div className="relative w-20 h-24 bg-white border border-vnv-gray/20 shadow-sm shrink-0">
-                <Image src={order.product.image} alt={order.product.name} fill className="object-cover" />
+          <div className="space-y-4">
+            {(order.products && order.products.length > 0 ? order.products : [order.product]).map((prod, index) => (
+              <div key={prod.productId || index} className="flex gap-4 md:gap-6 bg-vnv-light-gray/25 p-4 border border-vnv-gray/10">
+                {prod?.image && (
+                  <div className="relative w-20 h-24 bg-white border border-vnv-gray/20 shadow-sm shrink-0">
+                    <Image src={prod.image} alt={prod.name} fill className="object-cover" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                  <div>
+                    <h3 className="font-display text-sm md:text-base font-bold truncate text-vnv-black">{prod?.name}</h3>
+                    <p className="text-xs text-vnv-gray mt-1 font-semibold">Size: {prod?.size} • Qty: 1</p>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <Calendar size={12} className="text-vnv-gray shrink-0" />
+                    <span className="text-xs text-vnv-gray">Delivery by <strong className="text-vnv-black font-bold">{deliveryDateStr}</strong></span>
+                  </div>
+                </div>
+                <div className="text-right py-1">
+                  <p className="text-sm font-bold text-vnv-black">{formatINR(prod?.price || 0)}</p>
+                </div>
               </div>
-            )}
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-              <div>
-                <h3 className="font-display text-sm md:text-base font-bold truncate text-vnv-black">{order.product?.name}</h3>
-                <p className="text-xs text-vnv-gray mt-1">Size: {order.product?.size} • Qty: 1</p>
-              </div>
-              <div className="mt-3 flex items-center gap-2">
-                <Calendar size={12} className="text-vnv-gray shrink-0" />
-                <span className="text-xs text-vnv-gray">Delivery by <strong className="text-vnv-black font-bold">{deliveryDateStr}</strong></span>
-              </div>
-            </div>
-            <div className="text-right py-1">
-              <p className="text-sm font-bold text-vnv-black">{formatINR(order.product?.price || 0)}</p>
-            </div>
+            ))}
           </div>
         </div>
 

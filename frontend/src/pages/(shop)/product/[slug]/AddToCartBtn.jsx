@@ -8,7 +8,7 @@ import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AddToCartBtn({ product, isLocked, isReserved }) {
-  const { setItem, item } = useCartStore();
+  const { addItem, items } = useCartStore();
   const { user } = useAuthStore();
   const { open } = useAuthModalStore();
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
       open('signup');
       return;
     }
-    setItem(product);
+    addItem(product);
     router.push('/cart');
   };
 
@@ -124,7 +124,9 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
     );
   }
 
-  if (item?._id === product._id) {
+  const isAlreadyInCart = (items || []).some(i => i._id === product._id);
+
+  if (isAlreadyInCart) {
     return (
       <motion.button
         onClick={handleCheckoutRedirect}

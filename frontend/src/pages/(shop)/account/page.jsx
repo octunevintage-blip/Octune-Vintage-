@@ -343,24 +343,34 @@ export default function AccountPage() {
                       </div>
                     ) : (
                       <div className="divide-y divide-vnv-gray/10">
-                        {orders.slice(0, 3).map(order => (
-                          <div key={order._id} className="px-5 py-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3 min-w-0">
-                              {order.product?.image && (
-                                <div className="w-12 h-12 bg-vnv-light-gray shrink-0 relative overflow-hidden">
-                                  <Image src={order.product.image} alt="" fill className="object-cover" />
+                        {orders.slice(0, 3).map(order => {
+                          const hasProducts = order.products && order.products.length > 0;
+                          const displayProducts = hasProducts ? order.products : [order.product];
+                          return (
+                            <div key={order._id} className="px-5 py-4 flex items-center justify-between">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="flex -space-x-4 shrink-0">
+                                  {displayProducts.slice(0, 3).map((p, idx) => (
+                                    p?.image && (
+                                      <div key={idx} className="w-12 h-12 rounded-full border-2 border-white bg-vnv-light-gray relative overflow-hidden shadow-sm shrink-0">
+                                        <Image src={p.image} alt="" fill className="object-cover" />
+                                      </div>
+                                    )
+                                  ))}
                                 </div>
-                              )}
-                              <div className="min-w-0">
-                                <p className="text-sm font-semibold truncate">{order.product?.name || 'Product'}</p>
-                                <p className="text-[10px] text-vnv-gray uppercase tracking-wider">#{order.orderNumber}</p>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold truncate">
+                                    {hasProducts ? order.products.map(p => p.name).join(', ') : order.product?.name || 'Product'}
+                                  </p>
+                                  <p className="text-[10px] text-vnv-gray uppercase tracking-wider">#{order.orderNumber}</p>
+                                </div>
                               </div>
+                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm ${STATUS_COLORS[order.status] || 'bg-gray-100'}`}>
+                                {order.status}
+                              </span>
                             </div>
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-sm ${STATUS_COLORS[order.status] || 'bg-gray-100'}`}>
-                              {order.status}
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -395,16 +405,20 @@ export default function AccountPage() {
                               <span className="text-sm font-bold">{formatINR(order.pricing?.total || 0)}</span>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            {order.product?.image && (
-                              <div className="w-16 h-16 bg-vnv-light-gray shrink-0 relative overflow-hidden">
-                                <Image src={order.product.image} alt="" fill className="object-cover" />
+                          <div className="space-y-3">
+                            {(order.products && order.products.length > 0 ? order.products : [order.product]).map((prod, index) => (
+                              <div key={prod?.productId || index} className="flex items-center gap-3">
+                                {prod?.image && (
+                                  <div className="w-16 h-16 bg-vnv-light-gray shrink-0 relative overflow-hidden">
+                                    <Image src={prod.image} alt="" fill className="object-cover" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold">{prod?.name}</p>
+                                  <p className="text-xs text-vnv-gray font-semibold">Size: {prod?.size} {prod?.color ? `• ${prod.color}` : ''}</p>
+                                </div>
                               </div>
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold">{order.product?.name}</p>
-                              <p className="text-xs text-vnv-gray">Size: {order.product?.size} • {order.product?.color}</p>
-                            </div>
+                            ))}
                           </div>
                           {order.tracking?.url && (
                             <a href={order.tracking.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline mr-4">

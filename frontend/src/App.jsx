@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import SignupPopupWrapper from '@/components/SignupPopupWrapper';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import CookieConsent from '@/components/CookieConsent';
 
 // Shop/Frontend Pages
 import Home from '@/pages/(shop)/page';
@@ -35,6 +36,7 @@ function ShopLayout() {
       <MobileBottomNav />
       <AuthModal />
       <SignupPopupWrapper />
+      <CookieConsent />
       <Toaster position="top-center" />
     </div>
   );

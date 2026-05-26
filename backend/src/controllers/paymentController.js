@@ -9,31 +9,49 @@ import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
 import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
 
 export const createPaymentOrder = asyncHandler(async (req, res) => {
-  const { productId, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
+  const { productId, productIds, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
 
-  const product = await Product.findById(productId);
-  if (!product) {
+  let ids = [];
+  if (Array.isArray(productIds)) {
+    ids = productIds;
+  } else if (productId) {
+    ids = [productId];
+  }
+
+  if (ids.length === 0) {
+    res.status(400);
+    throw new Error('No products specified');
+  }
+
+  const products = await Product.find({ _id: { $in: ids } });
+  if (products.length !== ids.length) {
     res.status(404);
-    throw new Error('Product not found');
+    throw new Error('One or more products not found');
   }
 
-  if (product.status === 'sold' || product.status === 'upcoming') {
-    res.status(400);
-    throw new Error('Product is not available');
+  // Check availability for all products first
+  for (const product of products) {
+    if (product.status === 'sold' || product.status === 'upcoming') {
+      res.status(400);
+      throw new Error(`Product "${product.name}" is not available`);
+    }
+
+    if (product.status === 'reserved' && product.reservedUntil > new Date() && 
+        String(product.reservedBy) !== String(req.user?._id)) {
+      res.status(400);
+      throw new Error(`Product "${product.name}" is currently reserved by another user`);
+    }
   }
 
-  if (product.status === 'reserved' && product.reservedUntil > new Date() && 
-      String(product.reservedBy) !== String(req.user?._id)) {
-    res.status(400);
-    throw new Error('Product is currently reserved by another user');
+  // Reserve all products
+  for (const product of products) {
+    product.status = 'reserved';
+    product.reservedUntil = new Date(Date.now() + 5 * 60 * 1000); // 5 mins lock
+    if (req.user) product.reservedBy = req.user._id;
+    await product.save();
   }
 
-  product.status = 'reserved';
-  product.reservedUntil = new Date(Date.now() + 5 * 60 * 1000); // 5 mins lock
-  if (req.user) product.reservedBy = req.user._id;
-  await product.save();
-
-  let subtotal = product.price;
+  let subtotal = products.reduce((acc, curr) => acc + curr.price, 0);
   let couponDiscount = 0;
 
   if (couponCode) {
@@ -77,7 +95,7 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
         amount,
         currency: 'INR',
         receipt: orderNumber,
-        notes: { productId: product._id.toString() }
+        notes: { productIds: ids.join(',') }
       });
     } catch (error) {
       console.error('Razorpay Order Creation Error:', error);
@@ -126,13 +144,21 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     customer,
     user: req.user?._id || null,
     product: {
-      productId: product._id,
-      name: product.name,
-      image: product.images?.[0]?.url || '',
-      size: product.size,
-      color: product.color?.name || '',
-      price: product.price
+      productId: products[0]._id,
+      name: products[0].name,
+      image: products[0].images?.[0]?.url || '',
+      size: products[0].size,
+      color: products[0].color?.name || '',
+      price: products[0].price
     },
+    products: products.map(p => ({
+      productId: p._id,
+      name: p.name,
+      image: p.images?.[0]?.url || '',
+      size: p.size,
+      color: p.color?.name || '',
+      price: p.price
+    })),
     shippingAddress,
     pricing: { subtotal, shipping, discount: totalDiscount, total },
     coupon: couponCode ? { code: couponCode, discount: couponDiscount } : undefined,
@@ -145,13 +171,20 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
   });
 
   if (paymentMethod === 'cod') {
-    product.status = 'sold';
-    product.soldAt = new Date();
-    product.deleteAt = new Date(Date.now() + 168 * 60 * 60 * 1000); // 168 hours
-    product.soldTo = order._id;
-    product.reservedUntil = null;
-    product.reservedBy = null;
-    await product.save();
+    const productIds = products.map(p => p._id);
+    await Product.updateMany(
+      { _id: { $in: productIds } },
+      {
+        $set: {
+          status: 'sold',
+          soldAt: new Date(),
+          deleteAt: new Date(Date.now() + 168 * 60 * 60 * 1000), // 168 hours
+          soldTo: order._id,
+          reservedUntil: null,
+          reservedBy: null
+        }
+      }
+    );
 
     if (couponCode) {
       await Coupon.findOneAndUpdate({ code: couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
@@ -220,16 +253,23 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   order.status = 'confirmed';
   await order.save();
 
-  const product = await Product.findById(order.product.productId);
-  if (product) {
-    product.status = 'sold';
-    product.soldAt = new Date();
-    product.deleteAt = new Date(Date.now() + 168 * 60 * 60 * 1000); // 168 hours
-    product.soldTo = order._id;
-    product.reservedUntil = null;
-    product.reservedBy = null;
-    await product.save();
-  }
+  const productIds = order.products && order.products.length > 0 
+    ? order.products.map(p => p.productId) 
+    : [order.product.productId];
+
+  await Product.updateMany(
+    { _id: { $in: productIds } },
+    {
+      $set: {
+        status: 'sold',
+        soldAt: new Date(),
+        deleteAt: new Date(Date.now() + 168 * 60 * 60 * 1000), // 168 hours
+        soldTo: order._id,
+        reservedUntil: null,
+        reservedBy: null
+      }
+    }
+  );
 
   if (order.coupon?.code) {
     await Coupon.findOneAndUpdate({ code: order.coupon.code }, { $inc: { usedCount: 1 } });

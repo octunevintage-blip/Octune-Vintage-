@@ -5,11 +5,11 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Lock } from 'lucide-react';
 
 export default function AddToCartBtn({ product, isLocked }) {
-  const { setItem, item } = useCartStore();
+  const { addItem, items } = useCartStore();
   const router = useRouter();
 
   const handleAdd = () => {
-    setItem(product);
+    addItem(product);
     router.push('/cart');
   };
 
@@ -28,7 +28,9 @@ export default function AddToCartBtn({ product, isLocked }) {
     );
   }
 
-  if (item?._id === product._id) {
+  const isAlreadyInCart = (items || []).some(i => i._id === product._id);
+
+  if (isAlreadyInCart) {
     return (
       <motion.button
         onClick={() => router.push('/cart')}

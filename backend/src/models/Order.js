@@ -9,13 +9,21 @@ const orderSchema = new mongoose.Schema({
   },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   product: {
-    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     name: String,
     image: String,
     size: String,
     color: String,
     price: Number
   },
+  products: [{
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    name: String,
+    image: String,
+    size: String,
+    color: String,
+    price: Number
+  }],
   shippingAddress: {
     line1: { type: String, required: true },
     line2: String,

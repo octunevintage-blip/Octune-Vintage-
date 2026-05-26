@@ -51,7 +51,7 @@ const INDIAN_STATES = [
 ];
 
 export default function CheckoutPage() {
-  const { item, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const { user } = useAuthStore();
   const router = useRouter();
   const mounted = useHasMounted();
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
       if (!user) {
         router.push('/shop');
         toast.error('Please sign up or log in to checkout.');
-      } else if (!item) {
+      } else if (!items || items.length === 0) {
         router.push('/shop');
       } else if (!fetchedRef.current) {
         fetchedRef.current = true;
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
           });
       }
     }
-  }, [item, user, router, mounted]);
+  }, [items, user, router, mounted]);
 
   const handleToggleSavedAddress = (checked) => {
     setUseSavedAddress(checked);
@@ -171,9 +171,9 @@ export default function CheckoutPage() {
 
   // Don't render until client-side so zustand localStorage is ready
   if (!mounted) return null;
-  if (!user || !item) return null;
+  if (!user || !items || items.length === 0) return null;
 
-  const subtotal = item.price;
+  const subtotal = items.reduce((acc, curr) => acc + curr.price, 0);
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
   const codTotal = subtotal - discount + shipping;
   const onlineTotal = Math.max(subtotal - discount - 30 + shipping, 0);
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const res = await api.post('/payment/create-order', {
-        productId: item._id,
+        productIds: items.map(i => i._id),
         customer: { name: formData.name, email: formData.email, phone: formData.phone },
         shippingAddress: {
           line1: formData.line1, line2: formData.line2,
@@ -381,17 +381,21 @@ export default function CheckoutPage() {
           {/* Order Summary Sidebar */}
           <div className="order-1 lg:order-2">
             <div className="bg-paper p-8 border border-ink/5 shadow-sm sticky top-24">
-              <h2 className="font-display text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Item</h2>
+              <h2 className="font-display text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Items ({items.length})</h2>
               
-              <div className="flex items-center space-x-6 mb-8 border-b border-ink/10 pb-8">
-                <div className="relative w-20 h-28 bg-white flex-shrink-0 border border-ink/10 p-1 shadow-sm">
-                  <Image src={item.images?.[0]?.url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
-                </div>
-                <div>
-                  <h3 className="font-display text-lg mb-1">{item.name}</h3>
-                  <p className="text-xs uppercase tracking-widest text-ink/50 mb-2">{item.size} {item.color?.name ? `| ${item.color.name}` : ''}</p>
-                  <p className="font-medium">{formatINR(item.price)}</p>
-                </div>
+              <div className="max-h-[320px] overflow-y-auto space-y-6 mb-8 border-b border-ink/10 pb-8 pr-2">
+                {items.map((item) => (
+                  <div key={item._id} className="flex items-center space-x-6">
+                    <div className="relative w-16 h-20 bg-white flex-shrink-0 border border-ink/10 p-1 shadow-sm">
+                      <Image src={item.images?.[0]?.url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="font-display text-sm mb-1 truncate">{item.name}</h3>
+                      <p className="text-[10px] uppercase tracking-widest text-ink/50 mb-1">{item.size} {item.color?.name ? `| ${item.color.name}` : ''}</p>
+                      <p className="font-medium text-sm">{formatINR(item.price)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <form onSubmit={handleApplyCoupon} className="flex mb-8">
