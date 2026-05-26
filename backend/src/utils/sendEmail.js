@@ -35,6 +35,32 @@ export const backInStockEmailTemplate = (product, productUrl) => `
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
+    if (process.env.RESEND_API_KEY) {
+      console.log('Sending email to %s via Resend HTTP API...', to);
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM || 'Octune Vintage <support@octunevintage.in>',
+          to,
+          subject,
+          html
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send email via Resend');
+      }
+
+      console.log('Message sent via Resend successfully. ID: %s', data.id);
+      return data;
+    }
+
+    console.log('Sending email to %s via SMTP...', to);
     const smtpPort = parseInt(process.env.SMTP_PORT, 10) || 587;
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -59,7 +85,7 @@ const sendEmail = async ({ to, subject, html }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Message sent: %s', info.messageId);
+    console.log('Message sent via SMTP: %s', info.messageId);
     return info;
   } catch (error) {
     console.error(`Error sending email to ${to}:`, error);
