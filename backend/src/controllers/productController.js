@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Product from '../models/Product.js';
 import Drop from '../models/Drop.js';
-import cloudinary from '../config/cloudinary.js';
+import { uploadImage, deleteImage } from '../utils/storage.js';
 import slugify from 'slugify';
 
 export const getProducts = asyncHandler(async (req, res) => {
@@ -71,10 +71,8 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   const uploadedImages = [];
   for (const file of files) {
-    const b64 = Buffer.from(file.buffer).toString('base64');
-    const dataURI = `data:${file.mimetype};base64,${b64}`;
-    const result = await cloudinary.uploader.upload(dataURI, { folder: 'octune-vintage/products' });
-    uploadedImages.push({ url: result.secure_url, publicId: result.public_id });
+    const result = await uploadImage(file.buffer, file.mimetype, 'octune-vintage/products');
+    uploadedImages.push({ url: result.url, publicId: result.publicId });
   }
 
   const status = (data.dropAt && new Date(data.dropAt) > new Date()) ? 'upcoming' : 'available';
@@ -108,10 +106,8 @@ export const updateProduct = asyncHandler(async (req, res) => {
   }
 
   for (const file of files) {
-    const b64 = Buffer.from(file.buffer).toString('base64');
-    const dataURI = `data:${file.mimetype};base64,${b64}`;
-    const result = await cloudinary.uploader.upload(dataURI, { folder: 'octune-vintage/products' });
-    product.images.push({ url: result.secure_url, publicId: result.public_id });
+    const result = await uploadImage(file.buffer, file.mimetype, 'octune-vintage/products');
+    product.images.push({ url: result.url, publicId: result.publicId });
   }
 
   Object.assign(product, data);
@@ -134,7 +130,11 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   }
 
   for (const img of product.images) {
-    await cloudinary.uploader.destroy(img.publicId);
+    try {
+      await deleteImage(img.publicId);
+    } catch (err) {
+      console.error(`Failed to delete image ${img.publicId}:`, err);
+    }
   }
 
   if (product.dropId) {
@@ -189,7 +189,11 @@ export const deleteProductImage = asyncHandler(async (req, res) => {
     throw new Error('Cannot delete the last image');
   }
 
-  await cloudinary.uploader.destroy(publicId);
+  try {
+    await deleteImage(publicId);
+  } catch (err) {
+    console.error(`Failed to delete image ${publicId}:`, err);
+  }
   product.images = product.images.filter(img => img.publicId !== publicId);
   await product.save();
 

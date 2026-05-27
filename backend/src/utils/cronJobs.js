@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import Product from '../models/Product.js';
 import Drop from '../models/Drop.js';
 import Subscriber from '../models/Subscriber.js';
-import cloudinary from '../config/cloudinary.js';
+import { deleteImage } from './storage.js';
 import sendEmail, { dropLiveTemplate } from './sendEmail.js';
 
 export const startCronJobs = () => {
@@ -18,7 +18,11 @@ export const startCronJobs = () => {
         console.log(`Cron (Hourly): Found ${expiredProducts.length} expired sold/out-of-stock products to archive/delete.`);
         for (const product of expiredProducts) {
           for (const img of product.images) {
-            await cloudinary.uploader.destroy(img.publicId);
+            try {
+              await deleteImage(img.publicId);
+            } catch (err) {
+              console.error(`Cron: Failed to delete image ${img.publicId}:`, err);
+            }
           }
           await Product.findByIdAndDelete(product._id);
         }

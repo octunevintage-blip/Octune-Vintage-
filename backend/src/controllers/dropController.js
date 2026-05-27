@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Drop from '../models/Drop.js';
 import Product from '../models/Product.js';
 import Subscriber from '../models/Subscriber.js';
-import cloudinary from '../config/cloudinary.js';
+import { uploadImage, deleteImage } from '../utils/storage.js';
 import sendEmail, { dropScheduledTemplate } from '../utils/sendEmail.js';
 
 export const listDrops = asyncHandler(async (req, res) => {
@@ -32,10 +32,8 @@ export const createDrop = asyncHandler(async (req, res) => {
   let coverImage = {};
 
   if (req.file) {
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-    const result = await cloudinary.uploader.upload(dataURI, { folder: 'octune-vintage/drops' });
-    coverImage = { url: result.secure_url, publicId: result.public_id };
+    const result = await uploadImage(req.file.buffer, req.file.mimetype, 'octune-vintage/drops');
+    coverImage = { url: result.url, publicId: result.publicId };
   }
 
   const drop = await Drop.create({
@@ -81,7 +79,11 @@ export const deleteDrop = asyncHandler(async (req, res) => {
   }
 
   if (drop.coverImage?.publicId) {
-    await cloudinary.uploader.destroy(drop.coverImage.publicId);
+    try {
+      await deleteImage(drop.coverImage.publicId);
+    } catch (err) {
+      console.error('Failed to delete cover image:', err);
+    }
   }
 
   await Product.updateMany(
