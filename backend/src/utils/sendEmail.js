@@ -35,6 +35,10 @@ export const backInStockEmailTemplate = (product, productUrl) => `
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
+    let fromEmail = process.env.EMAIL_FROM || 'Octune Vintage <support@octunevintage.in>';
+    // Strip surrounding double/single quotes if present
+    fromEmail = fromEmail.replace(/^["']|["']$/g, '').trim();
+
     if (process.env.RESEND_API_KEY) {
       console.log('Sending email to %s via Resend HTTP API...', to);
       const response = await fetch('https://api.resend.com/emails', {
@@ -44,7 +48,7 @@ const sendEmail = async ({ to, subject, html }) => {
           'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
         },
         body: JSON.stringify({
-          from: process.env.EMAIL_FROM || 'Octune Vintage <support@octunevintage.in>',
+          from: fromEmail,
           to,
           subject,
           html
@@ -78,7 +82,7 @@ const sendEmail = async ({ to, subject, html }) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_FROM || '"Octune Vintage" <hello@octunevintage.com>',
+      from: fromEmail,
       to,
       subject,
       html,
