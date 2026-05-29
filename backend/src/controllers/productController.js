@@ -9,7 +9,14 @@ export const getProducts = asyncHandler(async (req, res) => {
   const query = {};
 
   if (category) query.category = category;
-  if (search) query.name = { $regex: search, $options: 'i' };
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { category: { $regex: search, $options: 'i' } },
+      { brand: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
   
   if (status) {
     query.status = status;
