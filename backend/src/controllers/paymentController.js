@@ -74,9 +74,7 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     }
   }
 
-  const isOnline = paymentMethod === 'razorpay';
-  const onlineDiscount = isOnline ? 30 : 0;
-  const totalDiscount = couponDiscount + onlineDiscount;
+  const totalDiscount = couponDiscount;
 
   const shipping = (subtotal - couponDiscount) >= 999 ? 0 : 99;
   const total = Math.max(subtotal - totalDiscount + shipping, 0);

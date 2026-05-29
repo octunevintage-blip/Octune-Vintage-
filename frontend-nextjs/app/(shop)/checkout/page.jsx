@@ -175,9 +175,7 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((acc, curr) => acc + curr.price, 0);
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
-  const codTotal = subtotal - discount + shipping;
-  const onlineTotal = Math.max(subtotal - discount - 30 + shipping, 0);
-  const total = paymentMethod === 'razorpay' ? onlineTotal : codTotal;
+  const total = Math.max(subtotal - discount + shipping, 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -416,12 +414,6 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-brick">
                     <span>Discount</span>
                     <span>-{formatINR(discount)}</span>
-                  </div>
-                )}
-                {paymentMethod === 'razorpay' && (
-                  <div className="flex justify-between text-emerald-800 font-medium">
-                    <span>UPI/Online Discount</span>
-                    <span>-₹30</span>
                   </div>
                 )}
                 <div className="flex justify-between">
