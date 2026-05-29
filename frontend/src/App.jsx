@@ -29,7 +29,7 @@ function ShopLayout() {
   return (
     <div className="flex flex-col min-h-screen bg-vnv-white text-vnv-black font-sans pb-24 md:pb-0">
       <Navbar />
-      <main className="pt-16 md:pt-20 flex-grow min-h-[80vh]">
+      <main className="pt-28 md:pt-20 flex-grow min-h-[80vh]">
         <Outlet />
       </main>
       <Footer />

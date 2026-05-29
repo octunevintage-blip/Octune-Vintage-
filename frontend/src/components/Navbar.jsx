@@ -187,6 +187,28 @@ export default function Navbar() {
             </Link>
           </div>
         </div>
+        {/* Mobile Search Bar below Nav Icons */}
+        <div className="lg:hidden px-4 pb-3 pt-1 border-t border-vnv-gray/10 bg-vnv-white">
+          <form onSubmit={handleMobileSearchSubmit} className="relative flex items-center">
+            <Search size={18} strokeWidth={1.5} className="absolute left-3 text-vnv-gray" />
+            <input
+              type="text"
+              placeholder="SEARCH THE ARCHIVES..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-vnv-light-gray pl-10 pr-12 py-2 text-xs uppercase tracking-wider font-display border border-transparent focus:border-vnv-black focus:outline-none rounded-md shadow-inner"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 text-vnv-gray hover:text-vnv-black text-[10px] font-bold tracking-widest uppercase"
+              >
+                Clear
+              </button>
+            )}
+          </form>
+        </div>
       </nav>
 
       {/* Mobile Sidebar Overlay */}
@@ -205,19 +227,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Mobile Search */}
-          <div className="px-4 py-3 border-b border-vnv-gray/20">
-            <form onSubmit={handleMobileSearchSubmit} className="relative flex items-center">
-              <Search size={18} strokeWidth={1.5} className="absolute left-3 text-vnv-gray" />
-              <input
-                type="text"
-                placeholder="SEARCH..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-vnv-light-gray pl-10 pr-4 py-2.5 text-xs uppercase tracking-wider font-display border border-transparent focus:border-vnv-black focus:outline-none rounded-sm"
-              />
-            </form>
-          </div>
+
 
           {/* Mobile User Section */}
           {mounted && (

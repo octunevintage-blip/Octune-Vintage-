@@ -14,6 +14,7 @@ export default function Shop() {
   const currentCategory = searchParams.get('category') || 'All';
   const currentSort = searchParams.get('sort') || 'newest';
   const currentPage = parseInt(searchParams.get('page')) || 1;
+  const currentSearch = searchParams.get('search') || '';
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams);
@@ -59,11 +60,28 @@ export default function Shop() {
         <header className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between border-b-4 border-vnv-black pb-6">
           <div>
             <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase mb-2">
-              {currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase()}
+              {currentSearch 
+                ? `Search: "${currentSearch.toUpperCase()}"` 
+                : (currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase())
+              }
             </h1>
-            <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">
-              {total} {total === 1 ? 'ITEM' : 'ITEMS'}
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
+              <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">
+                {total} {total === 1 ? 'ITEM' : 'ITEMS'} FOUND
+              </p>
+              {currentSearch && (
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete('search');
+                    setSearchParams(params);
+                  }}
+                  className="text-xs text-brick hover:underline font-bold uppercase tracking-wider"
+                >
+                  (Clear Search)
+                </button>
+              )}
+            </div>
           </div>
         </header>
 

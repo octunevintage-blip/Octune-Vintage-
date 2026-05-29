@@ -21,6 +21,11 @@ export default async function Shop({ searchParams }) {
   const { products, total } = await getProducts(searchParams);
   const currentCategory = searchParams.category || 'All';
   const currentSort = searchParams.sort || 'newest';
+  const currentSearch = searchParams.search || '';
+
+  const cleanParams = new URLSearchParams(searchParams);
+  cleanParams.delete('search');
+  const clearLink = `/shop?${cleanParams.toString()}`;
 
   return (
     <div className="bg-vnv-white text-vnv-black min-h-screen flex flex-col">
@@ -34,11 +39,24 @@ export default async function Shop({ searchParams }) {
         <header className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between border-b-4 border-vnv-black pb-6">
           <div>
             <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight uppercase mb-2">
-              {currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase()}
+              {currentSearch 
+                ? `Search: "${currentSearch.toUpperCase()}"` 
+                : (currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase())
+              }
             </h1>
-            <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">
-              {total} {total === 1 ? 'ITEM' : 'ITEMS'}
-            </p>
+            <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
+              <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">
+                {total} {total === 1 ? 'ITEM' : 'ITEMS'} FOUND
+              </p>
+              {currentSearch && (
+                <Link
+                  href={clearLink}
+                  className="text-xs text-brick hover:underline font-bold uppercase tracking-wider"
+                >
+                  (Clear Search)
+                </Link>
+              )}
+            </div>
           </div>
         </header>
 
