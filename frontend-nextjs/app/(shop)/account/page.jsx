@@ -74,9 +74,9 @@ const STATUS_COLORS = {
   failed: 'bg-red-100 text-red-800',
 };
 
-const FAQ_ITEMS = [
+const DEFAULT_FAQS = [
   { q: 'How do I track my order?', a: 'Once your order is shipped, you will receive a tracking link via email. You can also check the tracking status in the Orders section of your account.' },
-  { q: 'What is your return policy?', a: 'We accept returns within 7 days of delivery. Items must be unworn, unwashed, and in original condition with tags attached. Contact us to initiate a return.' },
+  { q: 'What is your return/refund policy?', a: 'Since our products are thrifted and mostly one-of-a-kind pieces, returns and exchanges are not accepted. Exceptions will only be made if the customer receives the wrong item or an item with significant damage that was not mentioned in the product listing.' },
   { q: 'How long does shipping take?', a: 'Domestic orders are typically delivered within 5-7 business days. We ship via trusted courier partners with full tracking.' },
   { q: 'Are your products authentic?', a: 'Yes! Every piece is 100% authentic vintage. We source globally and verify authenticity before listing. Each item is a unique 1-of-1 find.' },
   { q: 'Can I cancel my order?', a: 'Orders can be cancelled within 2 hours of placement, provided they haven\'t been shipped yet. Contact our support team for assistance.' },
@@ -93,6 +93,7 @@ export default function AccountPage() {
   const [orders, setOrders] = useState([]);
   const [coupons, setCoupons] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [faqs, setFaqs] = useState(DEFAULT_FAQS);
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState(null);
   const [openFaq, setOpenFaq] = useState(null);
@@ -138,14 +139,18 @@ export default function AccountPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [ordersRes, couponsRes, wishlistRes] = await Promise.allSettled([
+      const [ordersRes, couponsRes, wishlistRes, contentRes] = await Promise.allSettled([
         api.get('/orders/my-orders'),
         api.get('/coupons/active'),
         api.get('/wishlist'),
+        api.get('/content'),
       ]);
       if (ordersRes.status === 'fulfilled') setOrders(ordersRes.value.data);
       if (couponsRes.status === 'fulfilled') setCoupons(couponsRes.value.data);
       if (wishlistRes.status === 'fulfilled') setWishlist(wishlistRes.value.data);
+      if (contentRes.status === 'fulfilled' && contentRes.value.data?.faqs?.length > 0) {
+        setFaqs(contentRes.value.data.faqs);
+      }
     } catch (err) { console.error(err); }
     setLoading(false);
   };
@@ -509,7 +514,7 @@ export default function AccountPage() {
                     <p className="text-xs text-vnv-gray mt-1">Find answers to common questions</p>
                   </div>
                   <div className="border border-vnv-gray/20 bg-white divide-y divide-vnv-gray/10">
-                    {FAQ_ITEMS.map((faq, i) => (
+                    {faqs.map((faq, i) => (
                       <div key={i}>
                         <button
                           onClick={() => setOpenFaq(openFaq === i ? null : i)}

@@ -36,7 +36,8 @@ export const updateContent = async (req, res) => {
       vintageClassics,
       archivePicks,
       about,
-      terms
+      terms,
+      faqs
     } = req.body;
 
     let content = await Content.findOne();
@@ -56,6 +57,7 @@ export const updateContent = async (req, res) => {
     if (archivePicks) content.archivePicks = archivePicks;
     if (about) content.about = about;
     if (terms !== undefined) content.terms = terms;
+    if (faqs !== undefined) content.faqs = faqs;
 
     await content.save();
     

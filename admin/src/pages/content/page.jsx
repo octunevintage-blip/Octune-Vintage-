@@ -41,6 +41,9 @@ export default function AdminContentPage() {
           bannerImage: ''
         };
       }
+      if (!contentData.faqs) {
+        contentData.faqs = [];
+      }
       setContent(contentData);
       setProducts(resProducts.data.products);
       setUpcomingProducts(resUpcoming.data.products || []);
@@ -86,8 +89,9 @@ export default function AdminContentPage() {
         trendingProducts: (content.trendingProducts || []).map(p => p._id || p),
         newArrivals: (content.newArrivals || []).map(p => p._id || p),
         vintageClassics: (content.vintageClassics || []).map(p => p._id || p),
-        archivePicks: (content.archivePicks || []).map(p => p._id || p),
-        about: content.about
+        about: content.about,
+        terms: content.terms,
+        faqs: content.faqs || []
       };
 
       await api.put('/content', payload);
@@ -703,6 +707,79 @@ export default function AdminContentPage() {
               placeholder="<section><p>Enter terms and conditions here...</p></section>"
             />
           </div>
+        </div>
+      </section>
+
+      {/* HELP CENTRE FAQ SECTION */}
+      <section className="bg-white p-6 border border-paper-dark shadow-sm mt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-serif text-2xl tracking-widest">11. Help Centre FAQs</h2>
+          <button 
+            onClick={() => {
+              setContent({
+                ...content, 
+                faqs: [...(content.faqs || []), { q: '', a: '' }]
+              });
+            }}
+            className="text-brick border border-brick px-3 py-1 flex items-center gap-1 text-xs uppercase tracking-widest hover:bg-brick hover:text-cream"
+          >
+            <Plus size={14} /> Add FAQ
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {(content.faqs || []).length === 0 && (
+            <p className="text-sm text-ink/50 uppercase tracking-widest py-4">No FAQs added yet. Custom FAQs will fall back to defaults on the customer site.</p>
+          )}
+
+          {(content.faqs || []).map((faq, index) => (
+            <div key={index} className="border border-paper-dark bg-paper p-4 relative">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="font-bold uppercase tracking-widest text-xs text-ink/75">FAQ #{index + 1}</h3>
+                <button 
+                  onClick={() => {
+                    const newFaqs = [...content.faqs];
+                    newFaqs.splice(index, 1);
+                    setContent({...content, faqs: newFaqs});
+                  }}
+                  className="text-red-500 hover:text-red-700 p-1"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest mb-1 text-ink/60">Question</label>
+                  <input 
+                    type="text" 
+                    className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                    value={faq.q || ''}
+                    onChange={(e) => {
+                      const newFaqs = [...content.faqs];
+                      newFaqs[index].q = e.target.value;
+                      setContent({...content, faqs: newFaqs});
+                    }}
+                    placeholder="e.g., What is your refund policy?"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest mb-1 text-ink/60">Answer</label>
+                  <textarea 
+                    rows={3}
+                    className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                    value={faq.a || ''}
+                    onChange={(e) => {
+                      const newFaqs = [...content.faqs];
+                      newFaqs[index].a = e.target.value;
+                      setContent({...content, faqs: newFaqs});
+                    }}
+                    placeholder="e.g., Since our products are thrifted, we do not accept returns..."
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

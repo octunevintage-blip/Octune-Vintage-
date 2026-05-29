@@ -207,6 +207,17 @@ export default function ProductPageClient({
               )}
             </motion.div>
 
+            {product.shortDescription && (
+              <motion.p
+                className="text-xs text-black/60 tracking-wider mb-4 italic leading-relaxed uppercase"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.32, duration: 0.5 }}
+              >
+                {product.shortDescription}
+              </motion.p>
+            )}
+
             {/* Quick Attribute Pills */}
             <motion.div
               className="flex flex-wrap gap-2 mb-4"
@@ -334,6 +345,19 @@ export default function ProductPageClient({
 
             {/* ─── Expandable Detail Sections ─── */}
             <div className="mt-8 space-y-0">
+
+              {product.description && (
+                <DetailSection
+                  title="Description"
+                  icon={Info}
+                  defaultOpen={true}
+                  delay={0.58}
+                >
+                  <p className="text-xs text-black/70 leading-relaxed uppercase tracking-wider whitespace-pre-line font-medium">
+                    {product.description}
+                  </p>
+                </DetailSection>
+              )}
 
               {/* Product Details */}
               <DetailSection

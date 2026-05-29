@@ -122,6 +122,20 @@ const contentSchema = new mongoose.Schema({
 <section><h2 class="font-display text-xl uppercase tracking-widest mb-4 mt-8">9. Customer Responsibility</h2><p>Customers are responsible for providing accurate shipping details, contact information, and confirming the correct size before placing an order. Octune Vintage will not be responsible for failed deliveries caused by incorrect or incomplete addresses or invalid phone numbers.</p></section>
 <section><h2 class="font-display text-xl uppercase tracking-widest mb-4 mt-8">10. Website Use</h2><p>All content on this website, including images, text, branding, logos, and product descriptions, is the property of Octune Vintage and may not be copied, reused, distributed, or reproduced without prior written permission.</p></section>
 <section><h2 class="font-display text-xl uppercase tracking-widest mb-4 mt-8">11. Contact</h2><p>For any order-related concerns, questions, or support, customers may contact Octune Vintage at:<br/><strong>Email:</strong> octunevintage@gmail.com</p></section>`
+  },
+  faqs: {
+    type: [{
+      q: { type: String, required: true },
+      a: { type: String, required: true }
+    }],
+    default: [
+      { q: 'How do I track my order?', a: 'Once your order is shipped, you will receive a tracking link via email. You can also check the tracking status in the Orders section of your account.' },
+      { q: 'What is your return/refund policy?', a: 'Since our products are thrifted and mostly one-of-a-kind pieces, returns and exchanges are not accepted. Exceptions will only be made if the customer receives the wrong item or an item with significant damage that was not mentioned in the product listing.' },
+      { q: 'How long does shipping take?', a: 'Domestic orders are typically delivered within 5-7 business days. We ship via trusted courier partners with full tracking.' },
+      { q: 'Are your products authentic?', a: 'Yes! Every piece is 100% authentic vintage. We source globally and verify authenticity before listing. Each item is a unique 1-of-1 find.' },
+      { q: 'Can I cancel my order?', a: 'Orders can be cancelled within 2 hours of placement, provided they haven\'t been shipped yet. Contact our support team for assistance.' },
+      { q: 'Do you offer international shipping?', a: 'Currently, we ship within India only. International shipping will be available soon. Stay tuned!' }
+    ]
   }
 }, { timestamps: true });
 
