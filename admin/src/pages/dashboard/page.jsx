@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
 import { Package, ShoppingBag, Banknote, Clock, CheckCircle, AlertCircle, TrendingUp, Download } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
 export default function AdminDashboard() {
@@ -122,7 +121,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 border border-ink/10 shadow-sm">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-ink/10">
             <h2 className="font-serif text-xl tracking-widest">Recent Orders</h2>
-            <Link href="/orders" className="text-xs uppercase tracking-widest text-brick hover:underline">View All</Link>
+            <Link to="/orders" className="text-xs uppercase tracking-widest text-brick hover:underline">View All</Link>
           </div>
           {stats.recentOrders && stats.recentOrders.length > 0 ? (
             <div className="space-y-4">
@@ -154,7 +153,7 @@ export default function AdminDashboard() {
         <div className="bg-white p-6 border border-ink/10 shadow-sm">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-ink/10">
             <h2 className="font-serif text-xl tracking-widest">Recently Archived (Sold)</h2>
-            <Link href="/products" className="text-xs uppercase tracking-widest text-brick hover:underline">Inventory</Link>
+            <Link to="/products" className="text-xs uppercase tracking-widest text-brick hover:underline">Inventory</Link>
           </div>
           {stats.recentSales && stats.recentSales.length > 0 ? (
             <div className="space-y-4">
@@ -162,7 +161,7 @@ export default function AdminDashboard() {
                 <div key={product._id} className="flex items-center gap-4 p-3 border border-ink/5 bg-paper/30">
                   <div className="relative w-12 h-16 bg-cream">
                     {product.images && product.images[0] && (
-                      <Image src={product.images[0].url} fill className="object-cover" alt={product.name} />
+                      <img src={product.images[0].url} className="w-full h-full object-cover" alt={product.name} />
                     )}
                   </div>
                   <div className="flex-1">

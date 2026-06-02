@@ -1,20 +1,17 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/lib/store';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
+import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { LogOut, Menu, X, LayoutDashboard, ShoppingBag, Package, Users, Percent, FileText } from 'lucide-react';
 import api from '@/lib/api';
 import { useHasMounted } from '@/hooks/useHasMounted';
-import { Outlet, useLocation } from 'react-router-dom';
 
 function GlobalSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState({ products: [], orders: [], customers: [] });
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -48,7 +45,7 @@ function GlobalSearch() {
   const hasResults = results.products.length > 0 || results.orders.length > 0 || results.customers.length > 0;
 
   return (
-    <div ref={wrapperRef} className="relative hidden md:block w-64 ml-4">
+    <div ref={wrapperRef} className="relative hidden md:block flex-1 max-w-md lg:w-96 ml-4 lg:ml-0">
       <input
         type="text"
         placeholder="Search orders, products, customers..."
@@ -58,7 +55,7 @@ function GlobalSearch() {
         className="w-full lg:w-96 bg-paper border border-ink/15 px-4 py-2 text-xs focus:outline-none focus:border-brick font-sans rounded-full"
       />
       {isOpen && (
-        <div className="absolute top-full mt-1 w-[400px] right-0 bg-white border border-ink/10 shadow-2xl z-[100] max-h-[80vh] overflow-y-auto">
+        <div className="absolute top-full mt-1 w-[400px] left-0 bg-white border border-ink/10 shadow-2xl z-[100] max-h-[80vh] overflow-y-auto">
           {!hasResults ? (
             <div className="p-4 text-xs text-ink/50 uppercase tracking-widest text-center">No results found</div>
           ) : (
@@ -69,7 +66,7 @@ function GlobalSearch() {
                   {results.orders.map(order => (
                     <div 
                       key={order._id}
-                      onClick={() => { setIsOpen(false); router.push('/orders'); }}
+                      onClick={() => { setIsOpen(false); navigate('/orders'); }}
                       className="px-3 py-2 hover:bg-cream/50 cursor-pointer border-b border-ink/5 last:border-0"
                     >
                       <div className="text-xs font-bold font-serif">{order.orderNumber}</div>
@@ -84,7 +81,7 @@ function GlobalSearch() {
                   {results.products.map(product => (
                     <div 
                       key={product._id}
-                      onClick={() => { setIsOpen(false); router.push(`/products/${product._id}/edit`); }}
+                      onClick={() => { setIsOpen(false); navigate(`/products/${product._id}/edit`); }}
                       className="px-3 py-2 hover:bg-cream/50 cursor-pointer border-b border-ink/5 last:border-0"
                     >
                       <div className="text-xs font-bold">{product.name}</div>
@@ -99,7 +96,7 @@ function GlobalSearch() {
                   {results.customers.map(customer => (
                     <div 
                       key={customer._id}
-                      onClick={() => { setIsOpen(false); router.push('/customers'); }}
+                      onClick={() => { setIsOpen(false); navigate('/customers'); }}
                       className="px-3 py-2 hover:bg-cream/50 cursor-pointer border-b border-ink/5 last:border-0"
                     >
                       <div className="text-xs font-bold">{customer.name}</div>
@@ -118,8 +115,8 @@ function GlobalSearch() {
 
 export default function AdminLayout({ children }) {
   const { admin, logout } = useAuthStore();
-  const pathname = usePathname();
-  const router = useRouter();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const mounted = useHasMounted();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -138,7 +135,7 @@ export default function AdminLayout({ children }) {
     if (admin) {
       logout();
     }
-    router.push('/login');
+    navigate('/login');
     return null;
   }
 
@@ -149,7 +146,7 @@ export default function AdminLayout({ children }) {
       console.error('API logout failed, clearing state locally:', error);
     } finally {
       logout();
-      router.push('/login');
+      navigate('/login');
     }
   };
 
@@ -176,12 +173,10 @@ export default function AdminLayout({ children }) {
       <aside className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-ink/10 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Logo Area */}
         <div className="h-20 flex items-center justify-between px-6 border-b border-ink/10">
-          <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
-            <Image
+          <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
+            <img
               src="/logo.png?v=2"
               alt="Octune Vintage"
-              width={120}
-              height={48}
               className="h-10 w-auto object-contain"
             />
           </Link>
@@ -197,7 +192,7 @@ export default function AdminLayout({ children }) {
             return (
               <Link
                 key={href}
-                href={href}
+                to={href}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group"
                 style={{
                   color: isActive ? '#c0392b' : 'rgba(15,15,15,0.6)',
@@ -228,7 +223,7 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen max-w-full overflow-hidden">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen min-w-0">
         {/* Top Header */}
         <header className="bg-white h-20 sticky top-0 z-30 border-b border-ink/10 flex items-center justify-between px-4 lg:px-8 shadow-[0_2px_16px_rgba(0,0,0,0.02)]">
           <div className="flex items-center">

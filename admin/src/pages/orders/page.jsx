@@ -3,12 +3,15 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
 import toast from 'react-hot-toast';
-import { Eye, ShieldAlert, Truck, RefreshCw, X, Receipt, CheckCircle, HelpCircle, MapPin, Phone } from 'lucide-react';
+import { Eye, ShieldAlert, Truck, RefreshCw, X, Receipt, CheckCircle, HelpCircle, MapPin, Phone, ExternalLink } from 'lucide-react';
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalOrders, setTotalOrders] = useState(0);
 
   // Modal States
   const [trackingOrder, setTrackingOrder] = useState(null);
@@ -21,10 +24,14 @@ export default function AdminOrders() {
 
 
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (page = 1) => {
     try {
-      const res = await api.get('/orders?limit=100');
+      setLoading(true);
+      const res = await api.get(`/orders?page=${page}&limit=20${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`);
       setOrders(res.data.orders);
+      setTotalPages(res.data.pages);
+      setTotalOrders(res.data.total);
+      setCurrentPage(res.data.page);
     } catch (error) {
       toast.error('Failed to load orders');
     } finally {
@@ -33,8 +40,8 @@ export default function AdminOrders() {
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    fetchOrders(currentPage);
+  }, [currentPage, statusFilter]);
 
   // Direct submit for normal statuses
   const submitStatusChange = async (id, status, extraData = {}) => {
@@ -87,9 +94,7 @@ export default function AdminOrders() {
 
   if (loading) return <div className="text-center py-20 uppercase tracking-widest text-sm text-ink/50">Loading Orders...</div>;
 
-  const filteredOrders = statusFilter === 'all' 
-    ? orders 
-    : orders.filter(order => order.status === statusFilter);
+  const filteredOrders = orders;
 
   return (
     <div>
@@ -97,6 +102,12 @@ export default function AdminOrders() {
         <h1 className="font-serif text-3xl uppercase tracking-widest">Order Ledger</h1>
         
         <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => window.location.href = '/products'}
+            className="text-xs uppercase tracking-widest text-brick hover:underline"
+          >
+            View Sold Items
+          </button>
           <label className="text-xs uppercase tracking-widest text-ink/60">Filter Status:</label>
           <select 
             value={statusFilter} 
@@ -114,7 +125,7 @@ export default function AdminOrders() {
         </div>
       </div>
       
-      <div className="bg-white border border-ink/10 shadow-sm overflow-hidden text-sm">
+      <div className="bg-white border border-ink/10 shadow-sm overflow-x-auto text-sm">
         <table className="w-full text-left">
           <thead className="bg-paper uppercase tracking-widest text-xs text-ink/60 border-b border-ink/10">
             <tr>
@@ -230,6 +241,27 @@ export default function AdminOrders() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            className="px-4 py-2 border border-ink/20 text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-paper"
+          >
+            Previous
+          </button>
+          <span className="text-xs font-mono">Page {currentPage} of {totalPages}</span>
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            className="px-4 py-2 border border-ink/20 text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-paper"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* TRACKING MODAL */}
       {trackingOrder && (
@@ -352,7 +384,18 @@ export default function AdminOrders() {
                 <h3 className="text-xs font-bold uppercase tracking-widest text-ink/50">
                   {selectedOrder.products && selectedOrder.products.length > 0 ? selectedOrder.products.length : 1} {selectedOrder.products && selectedOrder.products.length > 1 ? 'Products' : 'Product'}
                 </h3>
-                <span className="text-[10px] uppercase font-bold text-brick tracking-widest">Track Order</span>
+                {selectedOrder.tracking?.url ? (
+                  <a 
+                    href={selectedOrder.tracking.number && selectedOrder.tracking.url.includes('indiapost.gov.in') ? `https://parcelsapp.com/en/tracking/${selectedOrder.tracking.number}` : selectedOrder.tracking.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-[10px] uppercase font-bold text-brick tracking-widest hover:underline flex items-center gap-1"
+                  >
+                    Track Order <ExternalLink size={10} />
+                  </a>
+                ) : (
+                  <span className="text-[10px] uppercase font-bold text-brick tracking-widest">Track Order</span>
+                )}
               </div>
               <div className="space-y-3">
                 {(selectedOrder.products && selectedOrder.products.length > 0 ? selectedOrder.products : [selectedOrder.product]).map((prod, index) => (

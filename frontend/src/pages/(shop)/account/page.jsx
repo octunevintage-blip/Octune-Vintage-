@@ -425,11 +425,34 @@ export default function AccountPage() {
                               </div>
                             ))}
                           </div>
-                          {order.tracking?.url && (
-                            <a href={order.tracking.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline mr-4">
+                          {order.tracking?.number ? (
+                            <div className="mt-4 p-3 bg-vnv-light-gray flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-vnv-gray/20">
+                              <div>
+                                <p className="text-[10px] uppercase tracking-widest text-vnv-gray mb-1">Tracking Number ({order.tracking.provider || 'India Post'})</p>
+                                <p className="text-sm font-mono font-bold text-black tracking-wider">{order.tracking.number}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(order.tracking.number);
+                                    toast.success('Tracking number copied!');
+                                  }}
+                                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-vnv-gray/20 text-[10px] font-bold uppercase tracking-widest hover:bg-vnv-gray/5 transition-colors"
+                                >
+                                  <Copy size={12} /> Copy
+                                </button>
+                                {order.tracking.url && (
+                                  <a href={order.tracking.number && order.tracking.url.includes('indiapost.gov.in') ? `https://parcelsapp.com/en/tracking/${order.tracking.number}` : order.tracking.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-2 bg-vnv-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-vnv-black/80 transition-colors">
+                                    Track <ExternalLink size={12} />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ) : order.tracking?.url ? (
+                            <a href={order.tracking.number && order.tracking.url.includes('indiapost.gov.in') ? `https://parcelsapp.com/en/tracking/${order.tracking.number}` : order.tracking.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline mr-4">
                               Track Order <ExternalLink size={10} />
                             </a>
-                          )}
+                          ) : null}
                           {order.status === 'delivered' && (
                             <Link href={`/account/invoice/${order._id}`} target="_blank" className="inline-flex items-center gap-1 mt-3 text-[10px] font-bold uppercase tracking-[0.15em] text-black hover:underline">
                               Download Invoice <ExternalLink size={10} />

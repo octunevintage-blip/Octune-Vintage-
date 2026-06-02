@@ -23,6 +23,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response && error.response.status === 401) {
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+    }
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
     throw new Error(message);
   }

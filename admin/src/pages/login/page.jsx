@@ -1,8 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/lib/store';
-import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -12,11 +11,11 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   
   const { setAdmin, admin } = useAuthStore();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (admin && admin.token) router.push('/dashboard');
-  }, [admin, router]);
+    if (admin && admin.token) navigate('/dashboard');
+  }, [admin, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +24,7 @@ export default function AdminLogin() {
       const res = await api.post('/auth/admin/login', { email, password });
       setAdmin(res.data);
       toast.success('Welcome back');
-      router.push('/dashboard');
+      navigate('/dashboard');
     } catch (error) {
       toast.error(error.message || 'Invalid credentials');
     } finally {
@@ -37,11 +36,9 @@ export default function AdminLogin() {
     <div className="flex flex-col items-center justify-center min-h-screen px-6">
       <div className="w-full max-w-md bg-white p-10 border border-ink/10 shadow-xl">
         <div className="flex flex-col items-center mb-10">
-          <Image
+          <img
             src="/logo.png?v=2"
             alt="Octune Vintage"
-            width={160}
-            height={64}
             className="h-16 w-auto object-contain mb-4"
           />
           <p className="text-ink/60 text-sm uppercase tracking-widest">Authorized Personnel Only</p>

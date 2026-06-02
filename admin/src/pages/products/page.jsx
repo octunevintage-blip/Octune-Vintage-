@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
 import toast from 'react-hot-toast';
@@ -10,11 +9,18 @@ import { Edit, Trash2, Plus } from 'lucide-react';
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = 1) => {
     try {
-      const res = await api.get('/products?limit=100&includeUpcoming=true');
+      setLoading(true);
+      const res = await api.get(`/products?page=${page}&limit=24&includeUpcoming=true`);
       setProducts(res.data.products);
+      setTotalPages(res.data.pages);
+      setTotalProducts(res.data.total);
+      setCurrentPage(res.data.page);
     } catch (error) {
       toast.error('Failed to load products');
     } finally {
@@ -23,8 +29,8 @@ export default function AdminProducts() {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts(currentPage);
+  }, [currentPage]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product and its images?')) return;
@@ -58,12 +64,12 @@ export default function AdminProducts() {
     <div>
       <div className="flex justify-between items-center mb-10 pb-4 border-b border-ink/10">
         <h1 className="font-serif text-3xl uppercase tracking-widest">Inventory</h1>
-        <Link href="/products/new" className="btn btn-primary flex items-center shadow-md">
+        <Link to="/products/new" className="btn btn-primary flex items-center shadow-md">
           <Plus size={16} className="mr-2" /> Add Piece
         </Link>
       </div>
       
-      <div className="bg-white border border-ink/10 shadow-sm overflow-hidden text-sm">
+      <div className="bg-white border border-ink/10 shadow-sm overflow-x-auto text-sm">
         <table className="w-full text-left">
           <thead className="bg-paper uppercase tracking-widest text-xs text-ink/60 border-b border-ink/10">
             <tr>
@@ -79,7 +85,7 @@ export default function AdminProducts() {
               <tr key={product._id} className="hover:bg-cream/50 transition-colors">
                 <td className="p-4 flex items-center space-x-4">
                   <div className="relative w-12 h-16 bg-paper border border-ink/10">
-                    <Image src={product.images?.[0]?.url || '/placeholder.jpg'} alt={product.name} fill className="object-cover" />
+                    <img src={product.images?.[0]?.url || '/placeholder.jpg'} alt={product.name} className="w-full h-full object-cover" />
                   </div>
                   <span className="font-serif text-base">{product.name}</span>
                 </td>
@@ -106,7 +112,7 @@ export default function AdminProducts() {
                 <td className="p-4 font-medium">{formatINR(product.price)}</td>
                 <td className="p-4 text-right">
                   <div className="flex justify-end space-x-3">
-                    <Link href={`/products/${product._id}/edit`} className="text-ink/50 hover:text-ink transition-colors">
+                    <Link to={`/products/${product._id}/edit`} className="text-ink/50 hover:text-ink transition-colors">
                       <Edit size={18} strokeWidth={1.5} />
                     </Link>
                     <button onClick={() => handleDelete(product._id)} className="text-ink/50 hover:text-brick transition-colors">
@@ -124,6 +130,27 @@ export default function AdminProducts() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button 
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            className="px-4 py-2 border border-ink/20 text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-paper"
+          >
+            Previous
+          </button>
+          <span className="text-xs font-mono">Page {currentPage} of {totalPages}</span>
+          <button 
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            className="px-4 py-2 border border-ink/20 text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-paper"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
