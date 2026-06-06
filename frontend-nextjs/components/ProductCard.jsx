@@ -39,9 +39,9 @@ export default function ProductCard({ product, variant = 'default' }) {
                 UPCOMING
               </span>
             )}
-            {!isSold && !isOutOfStock && !isLocked && (
+            {!isSold && !isOutOfStock && !isLocked && product.size && (
               <span className="bg-vnv-white text-vnv-black text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm border border-vnv-black/10">
-                1-OF-1
+                SIZE: {product.size}
               </span>
             )}
           </div>
@@ -96,9 +96,9 @@ export default function ProductCard({ product, variant = 'default' }) {
               UPCOMING
             </span>
           )}
-          {!isSold && !isOutOfStock && !isLocked && (
+          {!isSold && !isOutOfStock && !isLocked && product.size && (
             <span className="bg-vnv-white text-vnv-black text-[10px] font-display uppercase tracking-widest px-3 py-1 shadow-sm border border-vnv-black/10">
-              1-OF-1
+              SIZE: {product.size}
             </span>
           )}
         </div>

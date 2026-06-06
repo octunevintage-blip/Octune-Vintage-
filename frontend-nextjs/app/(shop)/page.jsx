@@ -118,6 +118,27 @@ export default async function Home() {
           </div>
         </div>
       )}
+
+      {/* Announcement Marquee Bar */}
+      {siteContent?.announcement?.isActive && siteContent?.announcement?.text && (
+        <div className="marquee-outer bg-[#B5432A] text-white border-b border-[#B5432A]/20" style={{ padding: '8px 0' }}>
+          <div className="marquee-track">
+            {/* Repeat the text a few times to ensure a smooth infinite scroll */}
+            {[...Array(6)].map((_, i) => (
+              <span key={i} className="mx-8 font-sans uppercase tracking-[0.15em] text-xs font-bold whitespace-nowrap">
+                {siteContent.announcement.text}
+              </span>
+            ))}
+          </div>
+          <div className="marquee-track" aria-hidden="true">
+            {[...Array(6)].map((_, i) => (
+              <span key={i} className="mx-8 font-sans uppercase tracking-[0.15em] text-xs font-bold whitespace-nowrap">
+                {siteContent.announcement.text}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Full Width Auto-Scrolling Hero Banners */}
       <HeroSlider banners={heroBanners} />
 

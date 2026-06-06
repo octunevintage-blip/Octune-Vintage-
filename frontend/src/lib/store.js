@@ -6,6 +6,9 @@ export const useCartStore = create(
     (set, get) => ({
       items: [],
       item: null,
+      buyNowItem: null,
+      setBuyNowItem: (product) => set({ buyNowItem: product }),
+      clearBuyNowItem: () => set({ buyNowItem: null }),
       addItem: (product) => {
         const items = get().items || [];
         const exists = items.some((i) => i._id === product._id);

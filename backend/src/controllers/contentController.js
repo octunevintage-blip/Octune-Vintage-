@@ -24,42 +24,51 @@ export const getContent = async (req, res) => {
 
 export const updateContent = async (req, res) => {
   try {
-    const { 
-      hero, 
-      heroBanners, 
-      splitBanners, 
-      looks, 
-      customBanners, 
-      upcomingBanner,
-      trendingProducts,
-      newArrivals,
-      vintageClassics,
-      archivePicks,
-      about,
-      terms,
-      faqs
-    } = req.body;
-
-    let content = await Content.findOne();
-    if (!content) {
-      content = new Content();
-    }
-
-    if (hero) content.hero = hero;
-    if (heroBanners) content.heroBanners = heroBanners;
-    if (splitBanners) content.splitBanners = splitBanners;
-    if (looks) content.looks = looks;
-    if (customBanners) content.customBanners = customBanners;
-    if (upcomingBanner !== undefined) content.upcomingBanner = upcomingBanner;
-    if (trendingProducts) content.trendingProducts = trendingProducts;
-    if (newArrivals) content.newArrivals = newArrivals;
-    if (vintageClassics) content.vintageClassics = vintageClassics;
-    if (archivePicks) content.archivePicks = archivePicks;
-    if (about) content.about = about;
-    if (terms !== undefined) content.terms = terms;
-    if (faqs !== undefined) content.faqs = faqs;
-
-    await content.save();
+      const { 
+        hero, 
+        heroBanners, 
+        splitBanners, 
+        looks, 
+        customBanners, 
+        upcomingBanner,
+        trendingProducts,
+        newArrivals,
+        vintageClassics,
+        archivePicks,
+        about,
+        terms,
+        faqs,
+        announcement,
+        nextDrop,
+        ourPeoples
+      } = req.body;
+  
+      let content = await Content.findOne();
+      if (!content) {
+        content = new Content();
+      }
+  
+      if (hero) content.hero = hero;
+      if (heroBanners) content.heroBanners = heroBanners;
+      if (splitBanners) content.splitBanners = splitBanners;
+      if (looks) content.looks = looks;
+      if (customBanners) content.customBanners = customBanners;
+      if (upcomingBanner !== undefined) content.upcomingBanner = upcomingBanner;
+      if (trendingProducts) content.trendingProducts = trendingProducts;
+      if (newArrivals) content.newArrivals = newArrivals;
+      if (vintageClassics) content.vintageClassics = vintageClassics;
+      if (archivePicks) content.archivePicks = archivePicks;
+      if (about) content.about = about;
+      if (terms !== undefined) content.terms = terms;
+      if (faqs !== undefined) content.faqs = faqs;
+      if (announcement !== undefined) content.announcement = announcement;
+      if (nextDrop !== undefined) content.nextDrop = nextDrop;
+      if (ourPeoples !== undefined) {
+        content.ourPeoples = ourPeoples;
+        content.markModified('ourPeoples');
+      }
+  
+      await content.save();
     
     // Return populated content
     const updatedContent = await Content.findById(content._id)

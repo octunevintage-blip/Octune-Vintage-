@@ -90,17 +90,24 @@ export default function InvoicePage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            <tr>
-              <td className="py-6 px-2">
-                <p className="font-bold uppercase tracking-wider">{order.product.name}</p>
-                <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">
-                  Size: {order.product.size || 'OS'} | Color: {order.product.color || 'N/A'}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-1 uppercase">1-of-1 Archive Piece</p>
-              </td>
-              <td className="py-6 px-2 text-center font-mono">1</td>
-              <td className="py-6 px-2 text-right font-mono">{formatINR(order.product.price)}</td>
-            </tr>
+            {(order.products && order.products.length > 0 ? order.products : (order.product ? [order.product] : [])).map((prod, idx) => (
+              <tr key={prod.productId || idx}>
+                <td className="py-6 px-2">
+                  <p className="font-bold uppercase tracking-wider">{prod.name}</p>
+                  <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">
+                    Size: {prod.size || 'OS'} | Color: {prod.color || 'N/A'}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-1 uppercase">1-of-1 Archive Piece</p>
+                </td>
+                <td className="py-6 px-2 text-center font-mono">1</td>
+                <td className="py-6 px-2 text-right font-mono">{formatINR(prod.price)}</td>
+              </tr>
+            ))}
+            {(!order.products?.length && !order.product) && (
+              <tr>
+                <td colSpan="3" className="py-6 px-2 text-center text-gray-400 uppercase tracking-widest text-xs">No Product Info</td>
+              </tr>
+            )}
           </tbody>
         </table>
 

@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
   shortDescription: { type: String, maxLength: 200 },
   category: { 
     type: String, 
-    enum: ['Jackets', 'Windbreakers', 'Tracktops', 'Trackpants', 'Jerseys', 'Shorts'],
+    enum: ['Jackets', 'Tracktops', 'Trackpants', 'Jerseys', 'Shorts'],
     required: true,
     index: true
   },

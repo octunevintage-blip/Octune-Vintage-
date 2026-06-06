@@ -73,12 +73,20 @@ export default function ContactPage() {
               <div className="border-t border-vnv-gray/20 pt-4">
                 <p className="text-xs uppercase tracking-wider font-bold text-vnv-black mb-3">For any other queries:</p>
                 <a 
-                  href="https://www.instagram.com/octune_vintage2.0?igsh=MW4wamRmc283M211Ng%3D%3D&utm_source=qr" 
+                  href="https://www.instagram.com/octune_vintage" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center justify-center bg-vnv-black text-vnv-white hover:bg-vnv-gray font-display font-bold tracking-widest text-[11px] py-3.5 px-6 uppercase border border-vnv-black hover:border-vnv-gray transition-colors w-full mb-3"
+                >
+                  DM us on Instagram
+                </a>
+                <a 
+                  href="https://www.facebook.com/share/1BCjH1QZu7/" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="inline-flex items-center justify-center bg-vnv-black text-vnv-white hover:bg-vnv-gray font-display font-bold tracking-widest text-[11px] py-3.5 px-6 uppercase border border-vnv-black hover:border-vnv-gray transition-colors w-full"
                 >
-                  DM us on Instagram
+                  Message us on Facebook
                 </a>
               </div>
             </div>

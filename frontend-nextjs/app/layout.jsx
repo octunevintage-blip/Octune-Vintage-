@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${openSans.variable} font-sans bg-vnv-white text-vnv-black flex flex-col min-h-screen`}>
         <Navbar />
-        <main className="pt-[160px] md:pt-28 min-h-[80vh]">
+        <main className="min-h-[80vh]">
           {children}
         </main>
         <Footer />

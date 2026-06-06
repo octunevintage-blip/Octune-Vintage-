@@ -141,8 +141,15 @@ export default function AdminOrders() {
                   </div>
                 </td>
                 <td className="p-4">
-                  <div className="font-medium max-w-[180px] truncate">{order.product?.name || 'Product'}</div>
-                  <div className="text-[11px] text-ink/50 mt-0.5">Size: {order.product?.size}</div>
+                  {(order.products && order.products.length > 0 ? order.products : (order.product ? [order.product] : [])).map((prod, idx) => (
+                    <div key={prod.productId || idx} className={idx > 0 ? "mt-2 pt-2 border-t border-ink/5" : ""}>
+                      <div className="font-medium max-w-[180px] truncate" title={prod.name}>{prod.name || 'Product'}</div>
+                      <div className="text-[11px] text-ink/50 mt-0.5">Size: {prod.size || 'N/A'}</div>
+                    </div>
+                  ))}
+                  {(!order.products?.length && !order.product) && (
+                     <div className="font-medium text-ink/50">No Product Info</div>
+                  )}
                 </td>
                 <td className="p-4 font-serif font-semibold">{formatINR(order.pricing.total)}</td>
                 <td className="p-4">

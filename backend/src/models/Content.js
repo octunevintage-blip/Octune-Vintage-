@@ -123,6 +123,15 @@ const contentSchema = new mongoose.Schema({
 <section><h2 class="font-display text-xl uppercase tracking-widest mb-4 mt-8">10. Website Use</h2><p>All content on this website, including images, text, branding, logos, and product descriptions, is the property of Octune Vintage and may not be copied, reused, distributed, or reproduced without prior written permission.</p></section>
 <section><h2 class="font-display text-xl uppercase tracking-widest mb-4 mt-8">11. Contact</h2><p>For any order-related concerns, questions, or support, customers may contact Octune Vintage at:<br/><strong>Email:</strong> octunevintage@gmail.com</p></section>`
   },
+  announcement: {
+    text: { type: String, default: '' },
+    isActive: { type: Boolean, default: false }
+  },
+  nextDrop: {
+    isActive: { type: Boolean, default: false },
+    title: { type: String, default: 'NEXT DROP IN:' },
+    targetDate: { type: Date, default: null }
+  },
   faqs: {
     type: [{
       q: { type: String, required: true },
@@ -136,6 +145,14 @@ const contentSchema = new mongoose.Schema({
       { q: 'Can I cancel my order?', a: 'Orders can be cancelled within 2 hours of placement, provided they haven\'t been shipped yet. Contact our support team for assistance.' },
       { q: 'Do you offer international shipping?', a: 'Currently, we ship within India only. International shipping will be available soon. Stay tuned!' }
     ]
+  },
+  ourPeoples: {
+    type: [{
+      image: { type: String, required: true },
+      title: { type: String, default: '' },
+      createdAt: { type: Date, default: Date.now }
+    }],
+    default: []
   }
 }, { timestamps: true });
 

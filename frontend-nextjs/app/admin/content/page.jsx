@@ -57,7 +57,8 @@ export default function AdminContentPage() {
         heroBanners: content.heroBanners || [],
         splitBanners: content.splitBanners,
         customBanners: content.customBanners || [],
-        trendingProducts: (content.trendingProducts || []).map(p => p._id || p)
+        trendingProducts: (content.trendingProducts || []).map(p => p._id || p),
+        announcement: content.announcement || { text: '', isActive: false }
       };
 
       await api.put('/content', payload);
@@ -205,6 +206,37 @@ export default function AdminContentPage() {
           ))}
         </div>
       </section>
+
+      {/* ANNOUNCEMENT BANNER SECTION */}
+      <section className="bg-white p-6 border border-paper-dark shadow-sm">
+        <h2 className="font-serif text-2xl tracking-widest mb-6">Announcement Bar</h2>
+        <p className="text-sm text-ink/70 mb-4">This moving text will be displayed on the homepage right below the active coupon code bar.</p>
+        
+        <div className="space-y-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input 
+              type="checkbox"
+              checked={content?.announcement?.isActive || false}
+              onChange={(e) => setContent({...content, announcement: {...(content.announcement || {}), isActive: e.target.checked}})}
+              className="accent-brick w-4 h-4"
+            />
+            <span className="text-sm font-bold uppercase tracking-widest">Enable Announcement Bar</span>
+          </label>
+          
+          {content?.announcement?.isActive && (
+            <div>
+              <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Announcement Text</label>
+              <textarea 
+                className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm min-h-[100px]"
+                placeholder="E.g. UPCOMING EXCLUSIVE DROP: 12TH JULY | VINTAGE NIKE JACKETS"
+                value={content?.announcement?.text || ''}
+                onChange={(e) => setContent({...content, announcement: {...(content.announcement || {}), text: e.target.value}})}
+              />
+            </div>
+          )}
+        </div>
+      </section>
+
 
       {/* TRENDING PRODUCTS SECTION */}
       <section className="bg-white p-6 border border-paper-dark shadow-sm">

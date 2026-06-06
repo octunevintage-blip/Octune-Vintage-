@@ -66,7 +66,7 @@ export default function HeroSlider({ banners }) {
           </SwiperSlide>
         ))}
       </Swiper>
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .hero-swiper .swiper-pagination-bullet {
           background: #fff;
           opacity: 0.5;
@@ -92,7 +92,7 @@ export default function HeroSlider({ banners }) {
         .swiper-slide-active .swiper-slide-active\\:translate-y-0 {
           transform: translateY(0);
         }
-      `}</style>
+      `}} />
     </section>
   );
 }

@@ -9,7 +9,6 @@ export default function ProductGallery({ images, productName, isSold, isLocked, 
   const [direction, setDirection] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-
   const navigate = useCallback((newIndex) => {
     setDirection(newIndex > active ? 1 : -1);
     setActive(newIndex);
@@ -69,7 +68,7 @@ export default function ProductGallery({ images, productName, isSold, isLocked, 
               }`}
               style={{
                 transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-                transform: isZoomed && !isSold && !isLocked ? 'scale(1.15)' : 'scale(1)',
+                transform: isZoomed && !isSold && !isLocked ? 'scale(2.5)' : 'scale(1)',
               }}
               priority={active === 0}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 45vw"

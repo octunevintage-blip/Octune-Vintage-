@@ -6,12 +6,15 @@ import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle } from 
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
+import api from '@/lib/api';
+import CountdownTimer from './CountdownTimer';
 
 const NAV_LINKS = [
-  { href: '/',        label: 'Home',       exact: true  },
-  { href: '/shop',    label: 'Shop',       exact: false },
-  { href: '/about',   label: 'About Us',   exact: false },
-  { href: '/contact', label: 'Contact Us', exact: false },
+  { href: '/',             label: 'Home',        exact: true  },
+  { href: '/shop',         label: 'Shop',        exact: false },
+  { href: '/our-peoples',  label: 'Our Peoples', exact: false },
+  { href: '/about',        label: 'About Us',    exact: false },
+  { href: '/contact',      label: 'Contact Us',  exact: false },
 ];
 
 export default function Navbar() {
@@ -25,6 +28,24 @@ export default function Navbar() {
 
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [nextDrop, setNextDrop] = useState(null);
+
+  useEffect(() => {
+    // Fetch global content to check if Next Drop timer is active
+    const loadContent = async () => {
+      try {
+        const res = await api.get('/content');
+        if (res.data?.nextDrop?.isActive) {
+          setNextDrop(res.data.nextDrop);
+        } else {
+          setNextDrop(null);
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+    loadContent();
+  }, [pathname]);
 
   // Sync search query with URL parameter
   useEffect(() => {
@@ -94,52 +115,60 @@ export default function Navbar() {
         </div>
       </div>
 
-      <nav className="fixed w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm">
-        {/* Top Info Bar — Scrolling Marquee on Mobile, Static on Desktop */}
-        
-
-        <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between">
+      <nav className="sticky top-0 w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm shadow-sm transition-all">
+        <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-2 md:gap-4">
 
           {/* Mobile Menu Toggle */}
-          <button className="lg:hidden p-2 text-vnv-black" onClick={() => setIsOpen(true)}>
+          <button className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2" onClick={() => setIsOpen(true)}>
             <Menu size={24} strokeWidth={1.5} />
           </button>
 
           {/* Logo */}
-          <Link href="/" className="shrink-0 lg:w-1/3 flex items-center ml-4 lg:ml-8">
+          <Link href="/" className="shrink-0 flex items-center lg:w-[150px] xl:w-[200px]">
             <Image
               src="/logo.png?v=2"
               alt="Octune Vintage"
               width={1925}
               height={921}
-              className="w-auto object-contain h-[50px] md:h-[75px]"
+              className="w-auto object-contain h-[35px] md:h-[50px] xl:h-[60px]"
               priority
             />
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center justify-center space-x-1 w-1/2">
-            {NAV_LINKS.map(({ href, label, exact }) => {
-              const isActive = exact ? pathname === href : pathname.startsWith(href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className="relative px-3 py-1 transition-all duration-200 hover:text-vnv-black"
-                  style={{
-                    color: isActive ? '#111111' : '#999999',
-                    fontWeight: isActive ? '700' : '500',
-                    borderBottom: isActive ? '2px solid #111111' : '2px solid transparent',
-                  }}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+          {/* Center Area: Nav Links & Timer */}
+          <div className="flex-1 flex items-center justify-center gap-6 xl:gap-12 px-2 lg:px-4">
+            
+            {/* Desktop Nav Links */}
+            <div className="hidden lg:flex items-center justify-center space-x-4 xl:space-x-8">
+              {NAV_LINKS.map(({ href, label, exact }) => {
+                const isActive = exact ? pathname === href : pathname.startsWith(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="relative py-1 transition-all duration-200 hover:text-vnv-black whitespace-nowrap text-[11px] xl:text-sm tracking-[0.15em] xl:tracking-widest"
+                    style={{
+                      color: isActive ? '#111111' : '#999999',
+                      fontWeight: isActive ? '800' : '600',
+                      borderBottom: isActive ? '2px solid #111111' : '2px solid transparent',
+                    }}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Inline Timer widget */}
+            {nextDrop && nextDrop.targetDate && (
+              <div className="flex shrink-0 items-center justify-center">
+                <CountdownTimer targetDate={nextDrop.targetDate} title={nextDrop.title} />
+              </div>
+            )}
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center justify-end space-x-4 lg:space-x-6 lg:w-1/4">
+          <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 lg:w-[150px] xl:w-[200px]">
             <button 
               onClick={() => setShowSearch(true)} 
               className="hidden md:block hover:text-vnv-gray transition-colors"

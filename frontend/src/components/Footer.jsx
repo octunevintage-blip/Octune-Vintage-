@@ -59,8 +59,8 @@ export default function Footer() {
       <div className="container mx-auto px-6 lg:px-12 mt-12 md:mt-20 pt-6 md:pt-8 border-t border-vnv-dark-gray/20 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-xs text-vnv-gray uppercase tracking-widest text-center md:text-left gap-4">
         <p>&copy; {new Date().getFullYear()} OCTUNE VINTAGE. ALL RIGHTS RESERVED.</p>
         <div className="flex space-x-6">
-          <a href="https://www.instagram.com/octune_vintage2.0?igsh=MW4wamRmc283M211Ng%3D%3D&utm_source=qr" className="hover:text-vnv-white transition-colors">INSTAGRAM</a>
-          
+          <a href="https://www.instagram.com/octune_vintage" target="_blank" rel="noopener noreferrer" className="hover:text-vnv-white transition-colors">INSTAGRAM</a>
+          <a href="https://www.facebook.com/share/1BCjH1QZu7/" target="_blank" rel="noopener noreferrer" className="hover:text-vnv-white transition-colors">FACEBOOK</a>
         </div>
       </div>
     </footer>

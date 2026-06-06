@@ -339,7 +339,7 @@ export default function ProductPageClient({
               <span className="w-px h-3 bg-black/10" />
               <span className="flex items-center gap-1.5">
                 <Layers size={11} />
-                1 of 1 Piece
+                Only 1 piece available
               </span>
             </motion.div>
 

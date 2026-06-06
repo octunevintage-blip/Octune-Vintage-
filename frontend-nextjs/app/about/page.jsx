@@ -31,7 +31,7 @@ export default function AboutPage() {
               We’re a thrifted/second-hand clothing store from West Bengal, India, built around timeless fashion and sustainable shopping! At Octune, we curate pre-loved and vintage pieces that bring style, comfort, and a whole lot of personality to your wardrobe.
             </p>
             <p>
-              Think vintage jackets, windbreakers, track tops, jerseys, T-shirts, shorts, pants, and honestly, anything cool we can get our hands on! We only stock one piece of each product. So when you add something to your cart, you know it’s gonna be one of a kind!
+              Think vintage jackets, track tops, jerseys, T-shirts, shorts, pants, and honestly, anything cool we can get our hands on! We only stock one piece of each product. So when you add something to your cart, you know it’s gonna be one of a kind!
             </p>
 
             <p className="text-lg sm:text-xl font-bold text-vnv-black uppercase tracking-tight pt-4">

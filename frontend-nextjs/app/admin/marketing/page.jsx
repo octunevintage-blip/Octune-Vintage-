@@ -6,7 +6,9 @@ import { Trash2, Plus, Percent } from 'lucide-react';
 
 export default function MarketingDashboard() {
   const [coupons, setCoupons] = useState([]);
+  const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [savingDrop, setSavingDrop] = useState(false);
   
   const [formData, setFormData] = useState({
     code: '',
@@ -19,19 +21,24 @@ export default function MarketingDashboard() {
     validTo: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
   });
 
-  const fetchCoupons = async () => {
+  const fetchData = async () => {
     try {
-      const res = await api.get('/coupons');
-      setCoupons(res.data);
+      setLoading(true);
+      const [couponsRes, contentRes] = await Promise.all([
+        api.get('/coupons'),
+        api.get('/content')
+      ]);
+      setCoupons(couponsRes.data);
+      setContent(contentRes.data);
     } catch (error) {
-      toast.error('Failed to load coupons');
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCoupons();
+    fetchData();
   }, []);
 
   const handleCreate = async (e) => {
@@ -39,7 +46,7 @@ export default function MarketingDashboard() {
     try {
       await api.post('/coupons', formData);
       toast.success('Coupon created successfully');
-      fetchCoupons();
+      fetchData();
       setFormData({ ...formData, code: '', value: '' }); // Reset main fields
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create coupon');
@@ -51,7 +58,7 @@ export default function MarketingDashboard() {
     try {
       await api.delete(`/coupons/${id}`);
       toast.success('Coupon deleted');
-      fetchCoupons();
+      fetchData();
     } catch (error) {
       toast.error('Failed to delete coupon');
     }
@@ -64,6 +71,71 @@ export default function MarketingDashboard() {
       <div className="flex justify-between items-center border-b border-ink/10 pb-4">
         <h1 className="font-serif text-3xl uppercase tracking-widest">Marketing & Promos</h1>
       </div>
+
+      {/* NEXT DROP TIMER SECTION */}
+      <section className="bg-white p-6 border border-ink/10 shadow-sm relative">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="font-serif text-xl tracking-widest flex items-center gap-2">
+              Next Drop Timer (Navbar)
+            </h2>
+            <p className="text-sm text-ink/70 mt-1">Display an animated countdown timer at the very top of the website. It automatically hides when it reaches 0.</p>
+          </div>
+          <button 
+            onClick={async () => {
+              try {
+                setSavingDrop(true);
+                await api.put('/content', { nextDrop: content.nextDrop });
+                toast.success('Timer settings saved!');
+              } catch (err) {
+                toast.error('Failed to save timer settings');
+              } finally {
+                setSavingDrop(false);
+              }
+            }}
+            disabled={savingDrop}
+            className="bg-brick text-cream px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark disabled:opacity-50"
+          >
+            {savingDrop ? 'Saving...' : 'Save Timer'}
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input 
+              type="checkbox"
+              checked={content?.nextDrop?.isActive || false}
+              onChange={(e) => setContent({...content, nextDrop: {...(content.nextDrop || {}), isActive: e.target.checked}})}
+              className="accent-brick w-4 h-4"
+            />
+            <span className="text-sm font-bold uppercase tracking-widest">Enable Countdown Timer</span>
+          </label>
+          
+          {content?.nextDrop?.isActive && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Timer Title</label>
+                <input 
+                  type="text"
+                  className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                  placeholder="E.g. NEXT DROP IN:"
+                  value={content?.nextDrop?.title || 'NEXT DROP IN:'}
+                  onChange={(e) => setContent({...content, nextDrop: {...(content.nextDrop || {}), title: e.target.value}})}
+                />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Target Date & Time</label>
+                <input 
+                  type="datetime-local"
+                  className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                  value={content?.nextDrop?.targetDate ? new Date(content.nextDrop.targetDate).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => setContent({...content, nextDrop: {...(content.nextDrop || {}), targetDate: e.target.value}})}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         

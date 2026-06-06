@@ -83,7 +83,7 @@ export default function SignupPopup() {
             Join The Community
           </h3>
           <p className="text-black font-semibold text-sm font-sans leading-relaxed mb-6">
-            Create your Octune Vintage account and get 5% discount and free shipping on all orders.
+            Create Your Octune Vintage account and get exciting offers on all orders.
           </p>
 
           {/* CTA */}

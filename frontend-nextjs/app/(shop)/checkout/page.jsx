@@ -51,10 +51,11 @@ const INDIAN_STATES = [
 ];
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCartStore();
+  const { items, clearCart, buyNowItem, clearBuyNowItem } = useCartStore();
   const { user } = useAuthStore();
   const router = useRouter();
   const mounted = useHasMounted();
+  const [isBuyNowMode, setIsBuyNowMode] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '',
@@ -67,14 +68,22 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [savedAddress, setSavedAddress] = useState(null);
   const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
   const fetchedRef = useRef(false);
 
   useEffect(() => {
     if (mounted) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const mode = searchParams.get('mode');
+      const isBuyNow = mode === 'buyNow';
+      if (isBuyNow) setIsBuyNowMode(true);
+
+      const currentItems = isBuyNow && buyNowItem ? [buyNowItem] : items;
+
       if (!user) {
         router.push('/shop');
         toast.error('Please sign up or log in to checkout.');
-      } else if (!items || items.length === 0) {
+      } else if (!currentItems || currentItems.length === 0) {
         router.push('/shop');
       } else if (!fetchedRef.current) {
         fetchedRef.current = true;
@@ -142,9 +151,13 @@ export default function CheckoutPage() {
               setUseSavedAddress(true);
             }
           });
+
+        api.get('/coupons/active')
+          .then(res => setAvailableCoupons(res.data))
+          .catch(err => console.error('Failed to fetch coupons:', err));
       }
     }
-  }, [items, user, router, mounted]);
+  }, [items, buyNowItem, user, router, mounted]);
 
   const handleToggleSavedAddress = (checked) => {
     setUseSavedAddress(checked);
@@ -171,9 +184,10 @@ export default function CheckoutPage() {
 
   // Don't render until client-side so zustand localStorage is ready
   if (!mounted) return null;
-  if (!user || !items || items.length === 0) return null;
+  const checkoutItems = isBuyNowMode && buyNowItem ? [buyNowItem] : items;
+  if (!user || !checkoutItems || checkoutItems.length === 0) return null;
 
-  const subtotal = items.reduce((acc, curr) => acc + curr.price, 0);
+  const subtotal = checkoutItems.reduce((acc, curr) => acc + curr.price, 0);
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
   const total = Math.max(subtotal - discount + shipping, 0);
 
@@ -217,7 +231,8 @@ export default function CheckoutPage() {
           });
           
           if (verifyRes.data.success) {
-            clearCart();
+            if (isBuyNowMode) clearBuyNowItem();
+            else clearCart();
             router.push(`/order-success/${verifyRes.data.orderId}`);
           }
         } catch (error) {
@@ -254,7 +269,7 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const res = await api.post('/payment/create-order', {
-        productIds: items.map(i => i._id),
+        productIds: checkoutItems.map(i => i._id),
         customer: { name: formData.name, email: formData.email, phone: formData.phone },
         shippingAddress: {
           line1: formData.line1, line2: formData.line2,
@@ -265,7 +280,8 @@ export default function CheckoutPage() {
       });
       
       if (paymentMethod === 'cod') {
-        clearCart();
+        if (isBuyNowMode) clearBuyNowItem();
+        else clearCart();
         router.push(`/order-success/${res.data.orderId}`);
       } else {
         initPayment(res.data);
@@ -377,10 +393,10 @@ export default function CheckoutPage() {
           {/* Order Summary Sidebar */}
           <div className="order-1 lg:order-2">
             <div className="bg-paper p-8 border border-ink/5 shadow-sm sticky top-24">
-              <h2 className="font-display text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Items ({items.length})</h2>
+              <h2 className="font-display text-xl uppercase tracking-widest mb-6 border-b border-ink/10 pb-4">Your Items ({checkoutItems.length})</h2>
               
               <div className="max-h-[320px] overflow-y-auto space-y-6 mb-8 border-b border-ink/10 pb-8 pr-2">
-                {items.map((item) => (
+                {checkoutItems.map((item) => (
                   <div key={item._id} className="flex items-center space-x-6">
                     <div className="relative w-16 h-20 bg-white flex-shrink-0 border border-ink/10 p-1 shadow-sm">
                       <Image src={item.images?.[0]?.url || '/placeholder.jpg'} alt={item.name} fill className="object-cover" />
@@ -394,7 +410,7 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <form onSubmit={handleApplyCoupon} className="flex mb-8">
+              <form onSubmit={handleApplyCoupon} className="flex mb-4">
                 <input 
                   type="text" 
                   placeholder="Discount code" 
@@ -404,6 +420,31 @@ export default function CheckoutPage() {
                 />
                 <button type="submit" className="bg-ink text-cream px-6 text-xs uppercase tracking-widest hover:bg-brick transition-colors ml-2">Apply</button>
               </form>
+
+              {availableCoupons.length > 0 && (
+                <div className="mb-8 border border-ink/10 bg-white p-3 space-y-2">
+                  <p className="text-[10px] uppercase tracking-widest text-ink/50 font-bold mb-2">Available Coupons</p>
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                    {availableCoupons.map(coupon => (
+                      <button
+                        key={coupon._id}
+                        type="button"
+                        onClick={() => setCouponCode(coupon.code)}
+                        className="w-full text-left p-2 border border-dashed border-ink/20 hover:border-brick hover:bg-cream transition-colors group flex justify-between items-center"
+                      >
+                        <div>
+                          <span className="font-mono text-xs font-bold text-ink">{coupon.code}</span>
+                          <span className="text-[10px] text-ink/60 block mt-0.5">
+                            {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`} 
+                            {coupon.minOrderValue > 0 && ` on orders above ₹${coupon.minOrderValue}`}
+                          </span>
+                        </div>
+                        <span className="text-[9px] uppercase tracking-widest text-brick opacity-0 group-hover:opacity-100 transition-opacity">Apply</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4 text-sm mb-6 border-b border-ink/10 pb-6">
                 <div className="flex justify-between">
