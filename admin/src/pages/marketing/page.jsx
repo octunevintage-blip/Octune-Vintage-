@@ -235,17 +235,34 @@ export default function MarketingDashboard() {
         </div>
       </section>
 
-      {/* OUR PEOPLES SECTION */}
+      {/* OUR PEOPLE SECTION */}
       <section className="bg-white p-6 border border-ink/10 shadow-sm relative mt-12">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="font-serif text-xl tracking-widest flex items-center gap-2">
-              <ImageIcon size={20} className="text-brick" /> Our Peoples / Customer Reviews
+              <ImageIcon size={20} className="text-brick" /> Our People / Customer Reviews
             </h2>
-            <p className="text-sm text-ink/70 mt-1">Upload photos of customers wearing Octune Vintage items. These will appear on the "Our Peoples" page.</p>
+            <p className="text-sm text-ink/70 mt-1">Manage the text and photos that appear on the "Our People" page.</p>
           </div>
-          <div>
-            <label className="bg-brick text-cream px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark cursor-pointer flex items-center gap-2 disabled:opacity-50">
+          <div className="flex gap-3">
+            <button 
+              onClick={async () => {
+                try {
+                  setSavingPeoples(true);
+                  await api.put('/content', { ourPeopleContent: content.ourPeopleContent });
+                  toast.success('Text saved successfully!');
+                } catch (err) {
+                  toast.error('Failed to save text');
+                } finally {
+                  setSavingPeoples(false);
+                }
+              }}
+              disabled={savingPeoples}
+              className="bg-brick text-cream px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark disabled:opacity-50"
+            >
+              Save Text
+            </button>
+            <label className="bg-ink text-white px-4 py-2 uppercase tracking-widest text-xs font-bold cursor-pointer flex items-center gap-2 disabled:opacity-50">
               <Upload size={14} /> {savingPeoples ? 'Uploading...' : 'Upload Photo'}
               <input 
                 type="file" 
@@ -255,6 +272,27 @@ export default function MarketingDashboard() {
                 onChange={(e) => handleUpload(e, handleAddPerson)} 
               />
             </label>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Page Heading</label>
+            <input 
+              type="text"
+              className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+              value={content?.ourPeopleContent?.heading || 'Our Happy Customers'}
+              onChange={(e) => setContent({...content, ourPeopleContent: {...(content.ourPeopleContent || {}), heading: e.target.value}})}
+            />
+          </div>
+          <div>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Page Paragraph</label>
+            <input 
+              type="text"
+              className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+              value={content?.ourPeopleContent?.paragraph || '"You make the clothes look good."'}
+              onChange={(e) => setContent({...content, ourPeopleContent: {...(content.ourPeopleContent || {}), paragraph: e.target.value}})}
+            />
           </div>
         </div>
 

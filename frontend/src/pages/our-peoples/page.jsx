@@ -4,14 +4,18 @@ import api from '@/lib/api';
 
 export default function OurPeoplesPage() {
   const [images, setImages] = useState([]);
+  const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchOurPeoples() {
       try {
         const { data } = await api.get('/content');
-        if (data && data.ourPeoples) {
-          setImages(data.ourPeoples);
+        if (data) {
+          setContent(data);
+          if (data.ourPeoples) {
+            setImages(data.ourPeoples);
+          }
         }
       } catch (error) {
         console.error('Failed to load Our Peoples content:', error);
@@ -35,10 +39,10 @@ export default function OurPeoplesPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-12 max-w-7xl">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h1 className="font-display text-4xl md:text-5xl uppercase tracking-widest text-vnv-black mb-4">
-            Our Happy Customers
+            {content?.ourPeopleContent?.heading || 'Our Happy Customers'}
           </h1>
           <p className="text-vnv-dark-gray text-lg italic">
-            "You make the clothes look good."
+            {content?.ourPeopleContent?.paragraph || '"You make the clothes look good."'}
           </p>
           <div className="w-16 h-1 bg-brick mx-auto mt-6"></div>
         </div>

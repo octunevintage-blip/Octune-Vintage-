@@ -40,7 +40,8 @@ export const updateContent = async (req, res) => {
         faqs,
         announcement,
         nextDrop,
-        ourPeoples
+        ourPeoples,
+        ourPeopleContent
       } = req.body;
   
       let content = await Content.findOne();
@@ -66,6 +67,10 @@ export const updateContent = async (req, res) => {
       if (ourPeoples !== undefined) {
         content.ourPeoples = ourPeoples;
         content.markModified('ourPeoples');
+      }
+      if (ourPeopleContent !== undefined) {
+        content.ourPeopleContent = ourPeopleContent;
+        content.markModified('ourPeopleContent');
       }
   
       await content.save();

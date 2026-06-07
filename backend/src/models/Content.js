@@ -153,6 +153,10 @@ const contentSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now }
     }],
     default: []
+  },
+  ourPeopleContent: {
+    heading: { type: String, default: 'Our Happy Customers' },
+    paragraph: { type: String, default: '"You make the clothes look good."' }
   }
 }, { timestamps: true });
 
