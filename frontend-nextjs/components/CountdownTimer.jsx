@@ -7,7 +7,7 @@ const AnimatedDigit = ({ value, label }) => {
     <div className="flex flex-col items-center mx-0.5">
       <motion.div 
         whileHover={{ scale: 1.1, rotateZ: 2 }}
-        className="relative w-4 h-6 sm:w-6 sm:h-8 md:w-8 md:h-10 bg-[#111] rounded shadow-[0_0_10px_rgba(0,0,0,0.3)] perspective-1000 flex items-center justify-center overflow-hidden border border-[#333]"
+        className="relative w-3.5 h-5 sm:w-4 sm:h-6 md:w-6 md:h-8 lg:w-8 lg:h-10 bg-[#111] rounded shadow-[0_0_10px_rgba(0,0,0,0.3)] perspective-1000 flex items-center justify-center overflow-hidden border border-[#333]"
       >
         <AnimatePresence mode="popLayout">
           <motion.span
@@ -22,7 +22,7 @@ const AnimatedDigit = ({ value, label }) => {
               mass: 1.2
             }}
             style={{ transformOrigin: "center" }}
-            className="absolute font-mono text-[10px] sm:text-base md:text-xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)] z-10"
+            className="absolute font-mono text-[9px] sm:text-[11px] md:text-base lg:text-xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)] z-10"
           >
             {value}
           </motion.span>
@@ -50,7 +50,7 @@ const AnimatedDigit = ({ value, label }) => {
         initial={{ opacity: 0.5 }}
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ repeat: Infinity, duration: 2 }}
-        className="text-[6px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] mt-1 text-[#888]"
+        className="hidden sm:block text-[6px] sm:text-[8px] md:text-[9px] font-black uppercase tracking-[0.3em] mt-1 text-[#888]"
       >
         {label}
       </motion.span>
@@ -105,7 +105,8 @@ export default function CountdownTimer({ targetDate, title = "NEXT DROP IN" }) {
           transition={{ repeat: Infinity, duration: 2 }}
           className="text-[8px] sm:text-[10px] md:text-xs font-black uppercase tracking-[0.25em] text-[#111] whitespace-nowrap"
         >
-          {title || "NEXT DROP IN:"}
+          <span className="md:hidden">DROP:</span>
+          <span className="hidden md:inline">{title || "NEXT DROP IN:"}</span>
         </motion.span>
       </div>
       
@@ -115,7 +116,7 @@ export default function CountdownTimer({ targetDate, title = "NEXT DROP IN" }) {
         <motion.span 
           animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
           transition={{ repeat: Infinity, duration: 1 }}
-          className="text-[#111] text-xs sm:text-base md:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
+          className="text-[#111] text-[10px] sm:text-xs md:text-base lg:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
         >
           :
         </motion.span>
@@ -125,7 +126,7 @@ export default function CountdownTimer({ targetDate, title = "NEXT DROP IN" }) {
         <motion.span 
           animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
           transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
-          className="text-[#111] text-xs sm:text-base md:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
+          className="text-[#111] text-[10px] sm:text-xs md:text-base lg:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
         >
           :
         </motion.span>
@@ -135,7 +136,7 @@ export default function CountdownTimer({ targetDate, title = "NEXT DROP IN" }) {
         <motion.span 
           animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 0.8] }}
           transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
-          className="text-[#111] text-xs sm:text-base md:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
+          className="text-[#111] text-[10px] sm:text-xs md:text-base lg:text-lg font-black mt-0.5 sm:mt-1 md:mt-1.5 mx-0 sm:mx-0.5"
         >
           :
         </motion.span>
