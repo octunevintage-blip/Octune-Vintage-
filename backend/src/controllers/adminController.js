@@ -140,7 +140,9 @@ export const sendPersonalizedCoupon = asyncHandler(async (req, res) => {
     value: Number(value),
     usageLimit: 1,
     validFrom: new Date(),
-    validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Valid for 30 days
+    validTo: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // Valid for 2 days
+    restrictedToEmail: email,
+    restrictedToPhone: phone
   });
 
   const discountText = type === 'percent' ? `${value}% OFF` : `₹${value} OFF`;
@@ -161,11 +163,16 @@ export const sendPersonalizedCoupon = asyncHandler(async (req, res) => {
     </div>
   `;
   
-  await sendEmail({
-    to: email,
-    subject: 'A Special Gift from Octune Vintage',
-    html: emailHtml
-  });
+  try {
+    await sendEmail({
+      to: email,
+      subject: 'A Special Gift from Octune Vintage',
+      html: emailHtml
+    });
+  } catch (err) {
+    console.error('Email failed to send but coupon was generated:', err);
+    // Continue execution to send WhatsApp and return success
+  }
 
   // Send WhatsApp if phone is provided
   if (phone) {

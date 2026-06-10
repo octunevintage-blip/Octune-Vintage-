@@ -14,7 +14,9 @@ const couponSchema = new mongoose.Schema({
   usedCount: { type: Number, default: 0 },
   validFrom: { type: Date, required: true },
   validTo: { type: Date, required: true },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  restrictedToEmail: { type: String },
+  restrictedToPhone: { type: String }
 }, {
   timestamps: true
 });

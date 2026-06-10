@@ -62,13 +62,26 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
       validTo: { $gte: new Date() }
     });
 
-    if (coupon && coupon.usedCount < coupon.usageLimit && subtotal >= coupon.minOrderValue) {
-      if (coupon.type === 'flat') {
-        couponDiscount = coupon.value;
-      } else {
-        couponDiscount = (subtotal * coupon.value) / 100;
-        if (coupon.maxDiscount && couponDiscount > coupon.maxDiscount) {
-          couponDiscount = coupon.maxDiscount;
+    if (coupon) {
+      // Enforce restrictions
+      if (coupon.restrictedToEmail || coupon.restrictedToPhone) {
+        const emailMatches = coupon.restrictedToEmail && customer.email && coupon.restrictedToEmail.toLowerCase() === customer.email.toLowerCase();
+        const phoneMatches = coupon.restrictedToPhone && customer.phone && coupon.restrictedToPhone === customer.phone;
+        
+        if (!emailMatches && !phoneMatches) {
+          res.status(400);
+          throw new Error('This coupon is restricted to the customer it was sent to.');
+        }
+      }
+
+      if (coupon.usedCount < coupon.usageLimit && subtotal >= coupon.minOrderValue) {
+        if (coupon.type === 'flat') {
+          couponDiscount = coupon.value;
+        } else {
+          couponDiscount = (subtotal * coupon.value) / 100;
+          if (coupon.maxDiscount && couponDiscount > coupon.maxDiscount) {
+            couponDiscount = coupon.maxDiscount;
+          }
         }
       }
     }

@@ -200,7 +200,12 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (!couponCode) return;
     try {
-      const res = await api.post('/coupons/validate', { code: couponCode, subtotal });
+      const res = await api.post('/coupons/validate', { 
+        code: couponCode, 
+        subtotal,
+        email: formData.email,
+        phone: formData.phone 
+      });
       if (res.data.valid) {
         setDiscount(res.data.discount);
         toast.success('Coupon applied!');

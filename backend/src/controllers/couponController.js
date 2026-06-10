@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import Coupon from '../models/Coupon.js';
 
 export const validateCoupon = asyncHandler(async (req, res) => {
-  const { code, subtotal } = req.body;
+  const { code, subtotal, email, phone } = req.body;
   
   if (!code || !subtotal) {
     res.status(400);
@@ -18,6 +18,16 @@ export const validateCoupon = asyncHandler(async (req, res) => {
 
   if (!coupon) {
     return res.json({ valid: false, reason: 'Invalid or expired coupon' });
+  }
+
+  // Enforce restrictions
+  if (coupon.restrictedToEmail || coupon.restrictedToPhone) {
+    const emailMatches = coupon.restrictedToEmail && email && coupon.restrictedToEmail.toLowerCase() === email.toLowerCase();
+    const phoneMatches = coupon.restrictedToPhone && phone && coupon.restrictedToPhone === phone;
+    
+    if (!emailMatches && !phoneMatches) {
+      return res.json({ valid: false, reason: 'This coupon is restricted to the customer it was sent to.' });
+    }
   }
 
   if (coupon.usedCount >= coupon.usageLimit) {
