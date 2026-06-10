@@ -181,16 +181,16 @@ export const sendPersonalizedCoupon = asyncHandler(async (req, res) => {
     // Note: We might need a generic template or a specific template for this on Meta.
     // For now, if no specific template exists, we can log it or send a standard message.
     // Assuming we have a template 'custom_coupon' or we fallback gracefully.
-    try {
-      await sendWhatsAppMessage(phone, 'custom_coupon', [
-        { type: "text", text: code },
-        { type: "text", text: discountText }
-      ]);
-    } catch (e) {
+      try {
+        await sendWhatsAppMessage({
+          to: phone,
+          type: 'custom_coupon',
+          data: { code, discountText }
+        });
+      } catch (e) {
       console.error('WhatsApp custom coupon failed:', e);
     }
   }
 
   res.status(201).json({ message: 'Coupon generated and sent to customer', coupon });
-});
 

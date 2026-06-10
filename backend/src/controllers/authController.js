@@ -4,6 +4,7 @@ import Admin from '../models/Admin.js';
 import TempUser from '../models/TempUser.js';
 import { sendSMS } from '../utils/smsService.js';
 import sendEmail, { otpEmailTemplate, resetPasswordEmailTemplate } from '../utils/sendEmail.js';
+import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
 import { generateToken, setTokenCookie } from '../utils/generateToken.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -41,6 +42,12 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
+    sendWhatsAppMessage({
+      to: user.phone,
+      type: 'welcome_message',
+      data: { customerName: user.name }
+    });
+
     res.status(201).json({
       success: true,
       message: 'Registration successful! Please log in to your account.',
@@ -102,6 +109,13 @@ export const verifyOTP = asyncHandler(async (req, res) => {
 
   if (user) {
     await TempUser.deleteOne({ _id: tempUser._id });
+    
+    sendWhatsAppMessage({
+      to: user.phone,
+      type: 'welcome_message',
+      data: { customerName: user.name }
+    });
+
     res.status(201).json({
       success: true,
       message: 'Registration verified successfully! Please log in to your account.',

@@ -57,6 +57,31 @@ export const sendWhatsAppMessage = async ({ to, type, data }) => {
         ];
         break;
 
+      case 'custom_coupon':
+        templateName = 'custom_coupon_template';
+        components = [
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: data.code },
+              { type: 'text', text: data.discountText }
+            ]
+          }
+        ];
+        break;
+
+      case 'welcome_message':
+        templateName = 'welcome_template';
+        components = [
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: data.customerName }
+            ]
+          }
+        ];
+        break;
+
       case 'back_in_stock':
         templateName = 'back_in_stock_template';
         components = [
