@@ -6,7 +6,7 @@ const AnimatedDigit = ({ value, label }) => {
     <div className="flex flex-col items-center mx-0.5">
       <motion.div 
         whileHover={{ scale: 1.1, rotateZ: 2 }}
-        className="relative w-3.5 h-5 sm:w-4 sm:h-6 md:w-6 md:h-8 lg:w-8 lg:h-10 bg-[#111] rounded shadow-[0_0_10px_rgba(0,0,0,0.3)] perspective-1000 flex items-center justify-center overflow-hidden border border-[#333]"
+        className="relative w-5 h-5 sm:w-6 sm:h-7 md:w-8 md:h-10 bg-[#111] rounded shadow-[0_0_10px_rgba(0,0,0,0.3)] perspective-1000 flex items-center justify-center overflow-hidden border border-[#333]"
       >
         <AnimatePresence mode="popLayout">
           <motion.span
