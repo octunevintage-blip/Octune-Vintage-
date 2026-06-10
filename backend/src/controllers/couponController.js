@@ -62,6 +62,7 @@ export const getActiveCoupons = asyncHandler(async (req, res) => {
     validFrom: { $lte: new Date() },
     validTo: { $gte: new Date() },
     $expr: { $lt: ["$usedCount", "$usageLimit"] },
+    code: { $not: /^COMP-/i },
     restrictedToEmail: { $in: [null, "", undefined] },
     restrictedToPhone: { $in: [null, "", undefined] }
   }).sort({ createdAt: -1 });
