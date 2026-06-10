@@ -193,4 +193,6 @@ export const sendPersonalizedCoupon = asyncHandler(async (req, res) => {
   }
 
   res.status(201).json({ message: 'Coupon generated and sent to customer', coupon });
+});
+
 
