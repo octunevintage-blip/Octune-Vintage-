@@ -21,14 +21,14 @@ const AnimatedDigit = ({ value, label }) => {
               mass: 1.2
             }}
             style={{ transformOrigin: "center" }}
-            className="absolute font-mono text-[10px] sm:text-base md:text-xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]"
+            className="absolute font-mono text-[10px] sm:text-base md:text-xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)] z-10"
           >
             {value}
           </motion.span>
         </AnimatePresence>
         
         {/* Horizontal line for split flip clock look */}
-        <div className="absolute inset-x-0 top-1/2 h-[2px] bg-black z-10 opacity-90 shadow-[0_1px_2px_rgba(255,255,255,0.1)]" />
+        <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black z-0 opacity-80 shadow-[0_1px_1px_rgba(255,255,255,0.1)]" />
         
         {/* Animated glossy sweep effect */}
         <motion.div 
