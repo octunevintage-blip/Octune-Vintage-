@@ -12,7 +12,7 @@ import CountdownTimer from './CountdownTimer';
 const NAV_LINKS = [
   { href: '/',             label: 'Home',        exact: true  },
   { href: '/shop',         label: 'Shop',        exact: false },
-  { href: '/our-peoples',  label: 'Our People', exact: false },
+  { href: '/our-people',  label: 'Our People', exact: false },
   { href: '/about',        label: 'About Us',    exact: false },
   { href: '/contact',      label: 'Contact Us',  exact: false },
 ];

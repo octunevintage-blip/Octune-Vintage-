@@ -15,6 +15,14 @@ export const getContent = async (req, res) => {
       content = await Content.create({});
     }
 
+    // Auto-deactivate expired timer
+    if (content.nextDrop && content.nextDrop.isActive && content.nextDrop.targetDate) {
+      if (new Date(content.nextDrop.targetDate) <= new Date()) {
+        content.nextDrop.isActive = false;
+        await content.save();
+      }
+    }
+
     res.json(content);
   } catch (error) {
     console.error('Get Content Error:', error);

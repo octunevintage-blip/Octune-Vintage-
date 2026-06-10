@@ -23,7 +23,7 @@ import Terms from '@/pages/terms/page';
 import Shipping from '@/pages/shipping/page';
 import CustomerInvoice from '@/pages/(shop)/account/invoice/[id]/page';
 import ResetPassword from '@/pages/(shop)/reset-password/[token]/page';
-import OurPeoples from '@/pages/our-peoples/page';
+import OurPeoples from '@/pages/our-people/page';
 
 // Shop Layout Wrapper with global Navbar and Footer
 function ShopLayout() {
@@ -76,7 +76,7 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
-          <Route path="/our-peoples" element={<OurPeoples />} />
+          <Route path="/our-people" element={<OurPeoples />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/shipping" element={<Shipping />} />

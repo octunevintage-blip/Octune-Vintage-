@@ -124,12 +124,12 @@ export default function MarketingDashboard() {
     e.preventDefault();
     setSendingCustom(true);
     try {
-      await api.post('/marketing/personalized-coupon', customForm);
+      await api.post('/admin/marketing/personalized-coupon', customForm);
       toast.success('Custom coupon generated and sent successfully');
       setCustomForm({ email: '', phone: '', type: 'flat', value: '', reason: '' });
       fetchData(); // Refresh to show new coupon
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send custom coupon');
+      toast.error(error.message || 'Failed to send custom coupon');
     } finally {
       setSendingCustom(false);
     }
