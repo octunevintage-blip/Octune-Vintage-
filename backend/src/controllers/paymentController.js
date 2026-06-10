@@ -129,8 +129,8 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
           user.phone = customer.phone;
           updated = true;
         }
-        if ((!user.addresses || user.addresses.length === 0) && shippingAddress) {
-          user.addresses = [{
+        if (shippingAddress) {
+          const newAddress = {
             label: 'Default',
             line1: shippingAddress.line1,
             line2: shippingAddress.line2,
@@ -138,8 +138,25 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
             state: shippingAddress.state,
             pincode: shippingAddress.pincode,
             isDefault: true
-          }];
-          updated = true;
+          };
+
+          if (!user.addresses) {
+            user.addresses = [newAddress];
+            updated = true;
+          } else {
+            // Check if this exact address already exists
+            const exists = user.addresses.some(a => 
+              a.line1 === newAddress.line1 &&
+              a.pincode === newAddress.pincode
+            );
+            
+            if (!exists) {
+              // Unset other defaults
+              user.addresses.forEach(a => { a.isDefault = false; });
+              user.addresses.push(newAddress);
+              updated = true;
+            }
+          }
         }
         if (updated) {
           await user.save();

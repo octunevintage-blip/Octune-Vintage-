@@ -70,7 +70,8 @@ export const getCustomers = asyncHandler(async (req, res) => {
               $expr: { $eq: ['$customer.email', '$$userEmail'] },
               'payment.status': 'paid'
             }
-          }
+          },
+          { $sort: { createdAt: -1 } }
         ],
         as: 'orders'
       }
@@ -81,6 +82,7 @@ export const getCustomers = asyncHandler(async (req, res) => {
         email: 1,
         phone: 1,
         addresses: 1,
+        latestOrderAddress: { $arrayElemAt: ['$orders.shippingAddress', 0] },
         createdAt: 1,
         totalOrders: { $size: '$orders' },
         totalSpent: { $sum: '$orders.pricing.total' }

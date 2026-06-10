@@ -48,7 +48,7 @@ export default function AdminCustomers() {
           </thead>
           <tbody className="divide-y divide-ink/5">
             {customers.map(customer => {
-              const defaultAddress = customer.addresses?.find(a => a.isDefault) || customer.addresses?.[0];
+              const defaultAddress = customer.addresses?.find(a => a.isDefault) || customer.addresses?.[0] || customer.latestOrderAddress;
               return (
                 <tr key={customer._id} className="hover:bg-cream/50 transition-colors">
                   <td className="p-4">
