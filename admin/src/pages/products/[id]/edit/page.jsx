@@ -90,7 +90,7 @@ export default function EditProduct() {
     }
     if (!window.confirm('Delete this image?')) return;
     try {
-      await api.delete(`/products/${params.id}/image/${publicId}`);
+      await api.delete(`/products/${params.id}/image/${encodeURIComponent(publicId)}`);
       setExistingImages(prev => prev.filter(img => img.publicId !== publicId));
       toast.success('Image removed');
     } catch (error) {
