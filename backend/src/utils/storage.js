@@ -84,7 +84,12 @@ export const deleteImage = async (publicId) => {
       return await s3Client.send(command);
     } else {
       console.log('Deleting image from Cloudinary: %s', publicId);
-      return await cloudinary.uploader.destroy(publicId);
+      try {
+        return await cloudinary.uploader.destroy(publicId);
+      } catch (cloudinaryErr) {
+        console.warn('Cloudinary deletion failed (might be due to quota/credentials), ignoring so DB can update:', cloudinaryErr.message);
+        return { result: 'ignored error' };
+      }
     }
   } catch (error) {
     console.error('Storage Deletion Error:', error);
