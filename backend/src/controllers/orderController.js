@@ -34,7 +34,19 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new Error('Order not found');
   }
 
+  const previousStatus = order.status;
   order.status = status;
+  
+  if (status === 'delivered' && previousStatus !== 'delivered' && order.customer?.phone) {
+    sendWhatsAppMessage({
+      to: order.customer.phone,
+      type: 'product_delivered',
+      data: {
+        customerName: order.customer.name.split(' ')[0],
+        orderNumber: order.orderNumber
+      }
+    });
+  }
   
   if (tracking) {
     const isNewTracking = !order.tracking || order.tracking.number !== tracking.number;

@@ -95,6 +95,19 @@ export const sendWhatsAppMessage = async ({ to, type, data }) => {
         ];
         break;
 
+      case 'product_delivered':
+        templateName = 'product_delivered_template';
+        components = [
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: data.customerName },
+              { type: 'text', text: data.orderNumber }
+            ]
+          }
+        ];
+        break;
+
       default:
         throw new Error('Invalid WhatsApp message type');
     }
