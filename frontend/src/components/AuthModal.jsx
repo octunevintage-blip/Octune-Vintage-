@@ -190,7 +190,7 @@ export default function AuthModal() {
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => setTab('signup')}
-                className={`flex-1 pb-3 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border-b-2 ${
+                className={`flex-1 pb-3 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border-b-2 whitespace-nowrap ${
                   tab === 'signup'
                     ? 'text-black border-black'
                     : 'text-gray-400 border-transparent hover:text-gray-600'
@@ -200,7 +200,7 @@ export default function AuthModal() {
               </button>
               <button
                 onClick={() => setTab('login')}
-                className={`flex-1 pb-3 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border-b-2 ${
+                className={`flex-1 pb-3 text-xs font-bold uppercase tracking-[0.2em] transition-all duration-300 border-b-2 whitespace-nowrap ${
                   tab === 'login'
                     ? 'text-black border-black'
                     : 'text-gray-400 border-transparent hover:text-gray-600'
@@ -484,3 +484,4 @@ export default function AuthModal() {
     </div>
   );
 }
+

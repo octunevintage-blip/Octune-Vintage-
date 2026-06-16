@@ -124,7 +124,7 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="shrink-0 flex items-center lg:w-[150px] xl:w-[200px]">
+          <Link href="/" className="shrink-0 flex items-center w-auto">
             <Image
               src="/logo.png?v=2"
               alt="Octune Vintage"
@@ -168,7 +168,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 lg:w-[150px] xl:w-[200px]">
+          <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 w-auto">
             <button 
               onClick={() => setShowSearch(true)} 
               className="hidden md:block hover:text-vnv-gray transition-colors"
@@ -197,7 +197,7 @@ export default function Navbar() {
                 <span className="text-vnv-gray/40 text-[10px]">|</span>
                 <button
                   onClick={() => openAuthModal('signup')}
-                  className="text-vnv-black hover:text-vnv-gray transition-colors text-[10px] font-bold tracking-[0.15em] uppercase"
+                  className="text-vnv-black hover:text-vnv-gray transition-colors text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap"
                 >
                   Sign Up
                 </button>
@@ -286,7 +286,7 @@ export default function Navbar() {
                   </button>
                   <button
                     onClick={() => { setIsOpen(false); openAuthModal('signup'); }}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-vnv-black text-vnv-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-vnv-dark-gray transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-vnv-black text-vnv-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-vnv-dark-gray transition-all whitespace-nowrap"
                   >
                     <UserPlus size={14} />
                     Sign Up
@@ -341,3 +341,4 @@ export default function Navbar() {
     </>
   );
 }
+
