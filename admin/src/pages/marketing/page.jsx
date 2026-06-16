@@ -15,17 +15,21 @@ export default function MarketingDashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
+    const toastId = toast.loading('Uploading image...');
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const toastId = toast.loading('Uploading image...');
       const { data } = await api.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success('Uploaded successfully', { id: toastId });
       callback(data.url);
     } catch (err) {
-      toast.error('Failed to upload image');
+      const errMsg = err.response?.data?.message || err.message || 'Failed to upload image';
+      toast.error(errMsg, { id: toastId });
+    } finally {
+      // Clear the input so the same file can be selected again
+      e.target.value = '';
     }
   };
 
