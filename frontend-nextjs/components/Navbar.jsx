@@ -198,7 +198,7 @@ export default function Navbar() {
                 <span className="text-vnv-gray/40 text-[10px]">|</span>
                 <button
                   onClick={() => openAuthModal('signup')}
-                  className="text-vnv-black hover:text-vnv-gray transition-colors text-[10px] font-bold tracking-[0.15em] uppercase"
+                  className="text-vnv-black hover:text-vnv-gray transition-colors text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap"
                 >
                   Sign Up
                 </button>
@@ -294,7 +294,7 @@ export default function Navbar() {
                   </button>
                   <button
                     onClick={() => { setIsOpen(false); openAuthModal('signup'); }}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-vnv-black text-vnv-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-vnv-dark-gray transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-vnv-black text-vnv-white text-[10px] font-bold uppercase tracking-[0.15em] hover:bg-vnv-dark-gray transition-all whitespace-nowrap"
                   >
                     <UserPlus size={14} />
                     Sign Up
