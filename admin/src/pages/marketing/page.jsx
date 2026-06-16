@@ -139,22 +139,22 @@ export default function MarketingDashboard() {
     }
   };
 
-  if (loading) return <div className="text-center py-20 uppercase tracking-widest text-sm text-ink/50">Loading Marketing Data...</div>;
+  if (loading) return <div className="text-center py-20 uppercase tracking-widest text-sm text-black/50">Loading Marketing Data...</div>;
 
   return (
     <div className="space-y-12">
-      <div className="flex justify-between items-center border-b border-ink/10 pb-4">
+      <div className="flex justify-between items-center border-b border-black/10 pb-4">
         <h1 className="font-serif text-3xl uppercase tracking-widest">Marketing & Promos</h1>
       </div>
 
       {/* NEXT DROP TIMER SECTION */}
-      <section className="bg-white p-6 border border-ink/10 shadow-sm relative">
+      <section className="bg-white p-6 border border-black/10 shadow-sm relative">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="font-serif text-xl tracking-widest flex items-center gap-2">
               Next Drop Timer (Navbar)
             </h2>
-            <p className="text-sm text-ink/70 mt-1">Display an animated countdown timer at the very top of the website. It automatically hides when it reaches 0.</p>
+            <p className="text-sm text-black/70 mt-1">Display an animated countdown timer at the very top of the website. It automatically hides when it reaches 0.</p>
           </div>
           <div className="flex gap-3">
             {content?.nextDrop?.targetDate && (
@@ -192,7 +192,7 @@ export default function MarketingDashboard() {
                 }
               }}
               disabled={savingDrop}
-              className="bg-brick text-cream px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark disabled:opacity-50"
+              className="bg-red-600 text-white px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-red-600-dark disabled:opacity-50"
             >
               {savingDrop ? 'Saving...' : 'Save Timer'}
             </button>
@@ -205,7 +205,7 @@ export default function MarketingDashboard() {
               type="checkbox"
               checked={content?.nextDrop?.isActive || false}
               onChange={(e) => setContent({...content, nextDrop: {...(content.nextDrop || {}), isActive: e.target.checked}})}
-              className="accent-brick w-4 h-4"
+              className="accent-red-600 w-4 h-4"
             />
             <span className="text-sm font-bold uppercase tracking-widest">Enable Countdown Timer</span>
           </label>
@@ -213,20 +213,20 @@ export default function MarketingDashboard() {
           {content?.nextDrop?.isActive && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Timer Title</label>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-black/70">Timer Title</label>
                 <input 
                   type="text"
-                  className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                  className="w-full p-2 border border-black/20 bg-gray-50 focus:outline-none focus:border-red-600 font-mono text-sm"
                   placeholder="E.g. NEXT DROP IN:"
                   value={content?.nextDrop?.title || 'NEXT DROP IN:'}
                   onChange={(e) => setContent({...content, nextDrop: {...(content.nextDrop || {}), title: e.target.value}})}
                 />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Target Date & Time</label>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-black/70">Target Date & Time</label>
                 <input 
                   type="datetime-local"
-                  className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+                  className="w-full p-2 border border-black/20 bg-gray-50 focus:outline-none focus:border-red-600 font-mono text-sm"
                   value={content?.nextDrop?.targetDate ? new Date(new Date(content.nextDrop.targetDate).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -240,13 +240,13 @@ export default function MarketingDashboard() {
       </section>
 
       {/* OUR PEOPLE SECTION */}
-      <section className="bg-white p-6 border border-ink/10 shadow-sm relative mt-12">
+      <section className="bg-white p-6 border border-black/10 shadow-sm relative mt-12">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="font-serif text-xl tracking-widest flex items-center gap-2">
-              <ImageIcon size={20} className="text-brick" /> Our People / Customer Reviews
+              <ImageIcon size={20} className="text-red-600" /> Our People / Customer Reviews
             </h2>
-            <p className="text-sm text-ink/70 mt-1">Manage the text and photos that appear on the "Our People" page.</p>
+            <p className="text-sm text-black/70 mt-1">Manage the text and photos that appear on the "Our People" page.</p>
           </div>
           <div className="flex gap-3">
             <button 
@@ -262,11 +262,11 @@ export default function MarketingDashboard() {
                 }
               }}
               disabled={savingPeoples}
-              className="bg-brick text-cream px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark disabled:opacity-50"
+              className="bg-red-600 text-white px-4 py-2 uppercase tracking-widest text-xs font-bold hover:bg-red-600-dark disabled:opacity-50"
             >
               Save Text
             </button>
-            <label className="bg-ink text-white px-4 py-2 uppercase tracking-widest text-xs font-bold cursor-pointer flex items-center gap-2 disabled:opacity-50">
+            <label className="bg-black text-white px-4 py-2 uppercase tracking-widest text-xs font-bold cursor-pointer flex items-center gap-2 disabled:opacity-50">
               <Upload size={14} /> {savingPeoples ? 'Uploading...' : 'Upload Photo'}
               <input 
                 type="file" 
@@ -281,19 +281,19 @@ export default function MarketingDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Page Heading</label>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-black/70">Page Heading</label>
             <input 
               type="text"
-              className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+              className="w-full p-2 border border-black/20 bg-gray-50 focus:outline-none focus:border-red-600 font-mono text-sm"
               value={content?.ourPeopleContent?.heading || 'Our Happy Customers'}
               onChange={(e) => setContent({...content, ourPeopleContent: {...(content.ourPeopleContent || {}), heading: e.target.value}})}
             />
           </div>
           <div>
-            <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Page Paragraph</label>
+            <label className="block text-xs uppercase tracking-widest mb-1 text-black/70">Page Paragraph</label>
             <input 
               type="text"
-              className="w-full p-2 border border-ink/20 bg-paper focus:outline-none focus:border-brick font-mono text-sm"
+              className="w-full p-2 border border-black/20 bg-gray-50 focus:outline-none focus:border-red-600 font-mono text-sm"
               value={content?.ourPeopleContent?.paragraph || '"You make the clothes look good."'}
               onChange={(e) => setContent({...content, ourPeopleContent: {...(content.ourPeopleContent || {}), paragraph: e.target.value}})}
             />
@@ -302,7 +302,7 @@ export default function MarketingDashboard() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {(content?.ourPeoples || []).map((person, idx) => (
-            <div key={idx} className="relative group aspect-[3/4] border border-ink/10 bg-paper">
+            <div key={idx} className="relative group aspect-[3/4] border border-black/10 bg-gray-50">
               <img src={person.image} alt="Customer Review" className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button 
@@ -316,7 +316,7 @@ export default function MarketingDashboard() {
             </div>
           ))}
           {(!content?.ourPeoples || content.ourPeoples.length === 0) && (
-            <div className="col-span-full py-8 text-center text-sm text-ink/50 uppercase tracking-widest italic border-2 border-dashed border-ink/20">
+            <div className="col-span-full py-8 text-center text-sm text-black/50 uppercase tracking-widest italic border-2 border-dashed border-black/20">
               No photos uploaded yet. Click "Upload Photo" to add one.
             </div>
           )}
@@ -326,17 +326,17 @@ export default function MarketingDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
         
         {/* Create Coupon Form */}
-        <div className="bg-white p-6 border border-ink/10 shadow-sm h-fit">
+        <div className="bg-white p-6 border border-black/10 shadow-sm h-fit">
           <h2 className="font-serif text-xl tracking-widest mb-6 flex items-center gap-2">
-            <Plus size={20} className="text-brick" /> Create Coupon
+            <Plus size={20} className="text-red-600" /> Create Coupon
           </h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Coupon Code</label>
+              <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Coupon Code</label>
               <input 
                 type="text" 
                 required
-                className="w-full p-2 border border-ink/20 bg-paper uppercase font-mono text-sm focus:outline-none focus:border-brick"
+                className="w-full p-2 border border-black/20 bg-gray-50 uppercase font-mono text-sm focus:outline-none focus:border-red-600"
                 value={formData.code}
                 onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
                 placeholder="e.g. ARCHIVE20"
@@ -344,9 +344,9 @@ export default function MarketingDashboard() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Type</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Type</label>
                 <select 
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-brick"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-red-600"
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
                 >
@@ -355,11 +355,11 @@ export default function MarketingDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Value</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Value</label>
                 <input 
                   type="number" 
                   required min="1"
-                  className="w-full p-2 border border-ink/20 bg-paper font-mono text-sm focus:outline-none focus:border-brick"
+                  className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-red-600"
                   value={formData.value}
                   onChange={(e) => setFormData({...formData, value: e.target.value})}
                   placeholder={formData.type === 'percentage' ? "20" : "500"}
@@ -368,66 +368,66 @@ export default function MarketingDashboard() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Valid From</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Valid From</label>
                 <input 
                   type="date" 
                   required
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-brick"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-red-600"
                   value={formData.validFrom}
                   onChange={(e) => setFormData({...formData, validFrom: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Valid To</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Valid To</label>
                 <input 
                   type="date" 
                   required
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-brick"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-red-600"
                   value={formData.validTo}
                   onChange={(e) => setFormData({...formData, validTo: e.target.value})}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Total Usage Limit (Total times it can be used)</label>
+              <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Total Usage Limit (Total times it can be used)</label>
               <input 
                 type="number" 
                 required min="1"
-                className="w-full p-2 border border-ink/20 bg-paper font-mono text-sm focus:outline-none focus:border-brick"
+                className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-red-600"
                 value={formData.usageLimit}
                 onChange={(e) => setFormData({...formData, usageLimit: e.target.value})}
               />
             </div>
-            <button type="submit" className="w-full bg-brick text-cream py-3 uppercase tracking-widest text-xs font-bold hover:bg-brick-dark mt-4">
+            <button type="submit" className="w-full bg-red-600 text-white py-3 uppercase tracking-widest text-xs font-bold hover:bg-red-600-dark mt-4">
               Generate Coupon
             </button>
           </form>
         </div>
 
         {/* Custom Apology / Issue Coupon Form */}
-        <div className="bg-white p-6 border border-ink/10 shadow-sm h-fit lg:col-span-2">
+        <div className="bg-white p-6 border border-black/10 shadow-sm h-fit lg:col-span-2">
           <h2 className="font-serif text-xl tracking-widest mb-2 flex items-center gap-2">
             <Send size={20} className="text-blue-600" /> Send Personalized Coupon
           </h2>
-          <p className="text-xs text-ink/60 mb-6 tracking-widest uppercase">Target a specific customer via Email & WhatsApp</p>
+          <p className="text-xs text-black/60 mb-6 tracking-widest uppercase">Target a specific customer via Email & WhatsApp</p>
           <form onSubmit={handleSendCustom} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Customer Email *</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Customer Email *</label>
                 <input 
                   type="email" 
                   required
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-blue-600"
                   value={customForm.email}
                   onChange={(e) => setCustomForm({...customForm, email: e.target.value})}
                   placeholder="customer@email.com"
                 />
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">WhatsApp Number</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">WhatsApp Number</label>
                 <input 
                   type="tel" 
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-blue-600"
                   value={customForm.phone}
                   onChange={(e) => setCustomForm({...customForm, phone: e.target.value})}
                   placeholder="+91..."
@@ -437,9 +437,9 @@ export default function MarketingDashboard() {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Discount Type</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Discount Type</label>
                 <select 
-                  className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600"
+                  className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-blue-600"
                   value={customForm.type}
                   onChange={(e) => setCustomForm({...customForm, type: e.target.value})}
                 >
@@ -448,11 +448,11 @@ export default function MarketingDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Value *</label>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Value *</label>
                 <input 
                   type="number" 
                   required min="1"
-                  className="w-full p-2 border border-ink/20 bg-paper font-mono text-sm focus:outline-none focus:border-blue-600"
+                  className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-blue-600"
                   value={customForm.value}
                   onChange={(e) => setCustomForm({...customForm, value: e.target.value})}
                   placeholder={customForm.type === 'flat' ? "500" : "20"}
@@ -461,9 +461,9 @@ export default function MarketingDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-widest text-ink/70 mb-1">Reason / Apology Message (Optional)</label>
+              <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Reason / Apology Message (Optional)</label>
               <textarea 
-                className="w-full p-2 border border-ink/20 bg-paper text-sm focus:outline-none focus:border-blue-600 h-20"
+                className="w-full p-2 border border-black/20 bg-gray-50 text-sm focus:outline-none focus:border-blue-600 h-20"
                 value={customForm.reason}
                 onChange={(e) => setCustomForm({...customForm, reason: e.target.value})}
                 placeholder="e.g. your recent order was delayed..."
@@ -481,9 +481,9 @@ export default function MarketingDashboard() {
         </div>
 
         {/* Active Coupons List */}
-        <div className="lg:col-span-3 bg-white p-6 border border-ink/10 shadow-sm">
+        <div className="lg:col-span-3 bg-white p-6 border border-black/10 shadow-sm">
           <h2 className="font-serif text-xl tracking-widest mb-6 flex items-center gap-2">
-            <Percent size={20} className="text-brick" /> Active Campaigns
+            <Percent size={20} className="text-red-600" /> Active Campaigns
           </h2>
           
           <div className="space-y-4">
@@ -493,7 +493,7 @@ export default function MarketingDashboard() {
               const status = isExpired ? 'Expired' : isExhausted ? 'Exhausted' : 'Active';
 
               return (
-                <div key={coupon._id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-ink/10 bg-paper/30 gap-4">
+                <div key={coupon._id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border border-black/10 bg-gray-50/30 gap-4">
                   <div>
                     <div className="flex items-center gap-3">
                       <h3 className="font-mono text-xl font-bold bg-cream px-2 py-1 tracking-widest">{coupon.code}</h3>
@@ -503,16 +503,16 @@ export default function MarketingDashboard() {
                         {status}
                       </span>
                     </div>
-                    <p className="text-sm mt-2 text-ink/70 uppercase tracking-wider">
+                    <p className="text-sm mt-2 text-black/70 uppercase tracking-wider">
                       {coupon.type === 'percent' ? `${coupon.value}% OFF` : `₹${coupon.value} OFF`} 
                     </p>
-                    <p className="text-xs text-ink/50 mt-1 font-mono">
+                    <p className="text-xs text-black/50 mt-1 font-mono">
                       Used: {coupon.usedCount} / {coupon.usageLimit}
                     </p>
                   </div>
                   
-                  <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-none border-ink/10 pt-4 md:pt-0">
-                    <div className="text-right text-xs text-ink/50 font-mono">
+                  <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-none border-black/10 pt-4 md:pt-0">
+                    <div className="text-right text-xs text-black/50 font-mono">
                       <p>Expires:</p>
                       <p>{new Date(coupon.validTo).toLocaleDateString()}</p>
                     </div>
@@ -529,7 +529,7 @@ export default function MarketingDashboard() {
             })}
             
             {coupons.length === 0 && (
-              <p className="text-center py-8 text-sm text-ink/50 uppercase tracking-widest italic">
+              <p className="text-center py-8 text-sm text-black/50 uppercase tracking-widest italic">
                 No active campaigns. Create a coupon to get started.
               </p>
             )}
@@ -540,3 +540,4 @@ export default function MarketingDashboard() {
     </div>
   );
 }
+
