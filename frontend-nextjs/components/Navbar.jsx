@@ -169,7 +169,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 lg:w-[150px] xl:w-[200px]">
+          <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 w-auto">
             <button 
               onClick={() => setShowSearch(true)} 
               className="hidden md:block hover:text-vnv-gray transition-colors"
