@@ -12,6 +12,10 @@ export default {
         'vnv-light-gray': '#f4f4f4',
         'vnv-dark-gray': '#333333',
         'vnv-gray': '#999999',
+        'ink': '#111111',
+        'brick': '#b91c1c',
+        'cream': '#fdfbf7',
+        'paper': '#f4f4f4',
       },
       fontFamily: {
         sans: ['var(--font-open-sans)', 'sans-serif'],
