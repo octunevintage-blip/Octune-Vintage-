@@ -23,6 +23,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (typeof window !== 'undefined') {
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }
+    }
     const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
     throw new Error(message);
   }
