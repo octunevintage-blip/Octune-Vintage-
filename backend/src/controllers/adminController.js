@@ -195,4 +195,13 @@ export const sendPersonalizedCoupon = asyncHandler(async (req, res) => {
   res.status(201).json({ message: 'Coupon generated and sent to customer', coupon });
 });
 
-
+export const deleteCustomer = asyncHandler(async (req, res) => {
+  const customer = await User.findById(req.params.id);
+  if (!customer) {
+    res.status(404);
+    throw new Error('Customer not found');
+  }
+  
+  await User.deleteOne({ _id: customer._id });
+  res.json({ message: 'Customer deleted successfully' });
+});

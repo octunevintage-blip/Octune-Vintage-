@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
-import { Mail, MapPin, Phone, ShoppingBag, Calendar } from 'lucide-react';
+import { Mail, MapPin, Phone, ShoppingBag, Calendar, Trash2 } from 'lucide-react';
 import { formatINR } from '@/lib/utils';
 
 export default function AdminCustomers() {
@@ -17,6 +17,17 @@ export default function AdminCustomers() {
       toast.error('Failed to load customers');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this customer? All their login data will be removed.')) return;
+    try {
+      await api.delete(`/admin/customers/${id}`);
+      toast.success('Customer deleted successfully');
+      setCustomers(customers.filter(c => c._id !== id));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to delete customer');
     }
   };
 
@@ -44,6 +55,7 @@ export default function AdminCustomers() {
               <th className="p-4 font-medium">Default Address</th>
               <th className="p-4 font-medium">Order History</th>
               <th className="p-4 font-medium">Joined Date</th>
+              <th className="p-4 font-medium text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-ink/5">
@@ -94,12 +106,21 @@ export default function AdminCustomers() {
                       day: '2-digit', month: 'short', year: 'numeric'
                     })}
                   </td>
+                  <td className="p-4 text-right">
+                    <button 
+                      onClick={() => handleDelete(customer._id)}
+                      className="p-2 text-ink/40 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                      title="Delete Customer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
             {customers.length === 0 && (
               <tr>
-                <td colSpan="5" className="p-8 text-center text-ink/50 uppercase tracking-widest text-xs">No customers found.</td>
+                <td colSpan="6" className="p-8 text-center text-ink/50 uppercase tracking-widest text-xs">No customers found.</td>
               </tr>
             )}
           </tbody>
