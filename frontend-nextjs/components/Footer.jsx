@@ -1,7 +1,30 @@
+"use client";
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import api from '@/lib/api';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      const res = await api.post('/subscribers', { email });
+      toast.success(res.data.message || 'Subscribed successfully!');
+      setEmail('');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <footer className="bg-vnv-black text-vnv-white pt-20 pb-10 font-sans border-t-4 border-vnv-black">
       <div className="container mx-auto px-6 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -17,7 +40,8 @@ export default function Footer() {
             />
           </Link>
           <p className="text-vnv-gray text-sm leading-relaxed max-w-xs">
-            Premium 1-of-1 curated streetwear. One piece. One owner. No restocks.
+            Premium 1-of-1 curated streetwear. One piece. One owner. No restocks.<br />
+            Pre-owned. Not affiliated with any brand.
           </p>
         </div>
 
@@ -35,15 +59,22 @@ export default function Footer() {
         <div>
           <h3 className="font-display text-lg uppercase tracking-widest mb-6">Stay Updated</h3>
           <p className="text-vnv-gray text-xs mb-4 uppercase tracking-widest">Join the drop list. Get notified the second we archive new pieces.</p>
-          <form className="flex">
+          <form className="flex" onSubmit={handleSubscribe}>
             <input 
               type="email" 
               placeholder="EMAIL ADDRESS" 
               className="bg-vnv-white text-vnv-black px-4 py-3 text-xs w-full focus:outline-none placeholder:text-vnv-gray font-display tracking-widest"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
-            <button type="submit" className="bg-vnv-gray text-vnv-white px-6 font-display text-xs tracking-widest hover:bg-vnv-white hover:text-vnv-black transition-colors uppercase">
-              Submit
+            <button 
+              type="submit" 
+              className="bg-vnv-gray text-vnv-white px-6 font-display text-xs tracking-widest hover:bg-vnv-white hover:text-vnv-black transition-colors uppercase disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? 'WAIT' : 'SUBMIT'}
             </button>
           </form>
         </div>

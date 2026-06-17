@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import SignupPopupWrapper from '@/components/SignupPopupWrapper';
 import CookieConsent from '@/components/CookieConsent';
+import WhatsAppFloat from '@/components/WhatsAppFloat';
 
 const openSans = Open_Sans({ subsets: ['latin'], variable: '--font-open-sans' });
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
         <AuthModal />
         <SignupPopupWrapper />
         <CookieConsent />
+        <WhatsAppFloat />
         <Toaster position="top-center" />
       </body>
     </html>

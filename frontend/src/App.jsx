@@ -7,6 +7,7 @@ import AuthModal from '@/components/AuthModal';
 import SignupPopupWrapper from '@/components/SignupPopupWrapper';
 import MobileBottomNav from '@/components/MobileBottomNav';
 import CookieConsent from '@/components/CookieConsent';
+import WhatsAppFloat from '@/components/WhatsAppFloat';
 
 // Shop/Frontend Pages
 import Home from '@/pages/(shop)/page';
@@ -38,6 +39,7 @@ function ShopLayout() {
       <AuthModal />
       <SignupPopupWrapper />
       <CookieConsent />
+      <WhatsAppFloat />
       <Toaster position="top-center" />
     </div>
   );
