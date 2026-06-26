@@ -64,26 +64,29 @@ export default function SignupPopup() {
         {/* Close */}
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 z-10 p-1.5 text-gray-400 hover:text-black transition-colors"
+          className="absolute top-3 right-3 z-10 p-1.5 bg-white/90 shadow-md backdrop-blur-sm rounded-full text-gray-600 hover:text-black hover:bg-white transition-all border border-gray-200"
         >
-          <X size={18} strokeWidth={1.5} />
+          <X size={20} strokeWidth={2} />
         </button>
 
         {/* Top accent bar */}
         <div className="h-1 bg-black w-full" />
 
-        {/* Content */}
-        <div className="px-8 py-8 text-center">
-          {/* Icon */}
-          <div className="mx-auto w-14 h-14 rounded-full bg-black/5 flex items-center justify-center mb-5">
-            <Gift size={24} className="text-black" strokeWidth={1.5} />
-          </div>
+        {/* Cover Image */}
+        <div className="w-full bg-white border-b border-gray-100 flex justify-center">
+          <img src="/login-form.png" alt="Octune Vintage Community" className="w-full h-auto max-h-[320px] object-contain" />
+        </div>
 
+        {/* Content */}
+        <div className="px-8 py-6 text-center">
           <h3 className="font-display text-xl font-bold uppercase tracking-[0.15em] text-black mb-2">
             Join The Community
           </h3>
-          <p className="text-black font-semibold text-sm font-sans leading-relaxed mb-6">
-            Create Your Octune Vintage account and get exciting offers on all orders.
+          <p className="text-gray-500 text-sm font-sans leading-relaxed mb-2">
+            Over 25k+ community on Instagram, follow us here for exclusive drop updates.
+          </p>
+          <p className="text-black font-bold text-sm font-sans tracking-wide mb-6">
+            Get early access to every new drop.
           </p>
 
           {/* CTA */}

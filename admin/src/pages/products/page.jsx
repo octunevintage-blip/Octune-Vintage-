@@ -12,11 +12,13 @@ export default function AdminProducts() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchProducts = async (page = 1) => {
     try {
       setLoading(true);
-      const res = await api.get(`/products?page=${page}&limit=24&includeUpcoming=true`);
+      const statusParam = statusFilter !== 'all' ? `&status=${statusFilter}` : '';
+      const res = await api.get(`/products?page=${page}&limit=24&includeUpcoming=true${statusParam}`);
       setProducts(res.data.products);
       setTotalPages(res.data.pages);
       setTotalProducts(res.data.total);
@@ -30,7 +32,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage]);
+  }, [currentPage, statusFilter]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this product and its images?')) return;
@@ -67,6 +69,23 @@ export default function AdminProducts() {
         <Link to="/products/new" className="btn btn-primary flex items-center shadow-md">
           <Plus size={16} className="mr-2" /> Add Piece
         </Link>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex space-x-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
+        {['all', 'available', 'upcoming', 'reserved', 'sold', 'out-of-stock', 'archived'].map(status => (
+          <button
+            key={status}
+            onClick={() => { setStatusFilter(status); setCurrentPage(1); }}
+            className={`px-4 py-2 text-xs uppercase tracking-widest font-mono border transition-colors whitespace-nowrap ${
+              statusFilter === status 
+                ? 'bg-vnv-black text-vnv-white border-vnv-black' 
+                : 'bg-vnv-white text-vnv-black/70 border-vnv-black/20 hover:border-vnv-black/50'
+            }`}
+          >
+            {status.replace('-', ' ')}
+          </button>
+        ))}
       </div>
       
       <div className="bg-white border border-ink/10 shadow-sm overflow-x-auto text-sm">
