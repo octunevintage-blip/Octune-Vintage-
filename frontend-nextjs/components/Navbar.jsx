@@ -124,20 +124,19 @@ export default function Navbar() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="shrink-0 flex items-center lg:w-[150px] xl:w-[200px]">
+          <Link href="/" className="shrink-0 flex items-center w-28 md:w-auto lg:w-[150px] xl:w-[200px]">
             <Image
               src="/logo.png"
               alt="Octune Vintage"
               width={1925}
               height={921}
-              className="w-auto object-contain"
-              style={{ height: '60px' }}
+              className="w-auto object-contain h-10 md:h-[60px]"
               priority
             />
           </Link>
 
           {/* Center Area: Nav Links & Timer */}
-          <div className="flex-1 flex items-center justify-center gap-6 xl:gap-12 px-2 lg:px-4">
+          <div className="flex-1 flex items-center justify-center gap-2 lg:gap-6 xl:gap-12 px-1 lg:px-4">
             
             {/* Desktop Nav Links */}
             <div className="hidden lg:flex items-center justify-center space-x-4 xl:space-x-8">

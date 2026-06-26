@@ -10,6 +10,7 @@ import { Edit, Trash2, Plus } from 'lucide-react';
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchProducts = async () => {
     try {
@@ -62,6 +63,23 @@ export default function AdminProducts() {
           <Plus size={16} className="mr-2" /> Add Piece
         </Link>
       </div>
+
+      {/* Filter Tabs */}
+      <div className="flex space-x-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
+        {['all', 'available', 'upcoming', 'reserved', 'sold', 'out-of-stock', 'archived'].map(status => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`px-4 py-2 text-xs uppercase tracking-widest font-mono border transition-colors whitespace-nowrap ${
+              statusFilter === status 
+                ? 'bg-vnv-black text-vnv-white border-vnv-black' 
+                : 'bg-vnv-white text-vnv-black/70 border-vnv-black/20 hover:border-vnv-black/50'
+            }`}
+          >
+            {status.replace('-', ' ')}
+          </button>
+        ))}
+      </div>
       
       <div className="bg-white border border-ink/10 shadow-sm overflow-hidden text-sm">
         <table className="w-full text-left">
@@ -75,7 +93,7 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody className="divide-y divide-ink/5">
-            {products.map(product => (
+            {products.filter(p => statusFilter === 'all' || p.status === statusFilter).map(product => (
               <tr key={product._id} className="hover:bg-cream/50 transition-colors">
                 <td className="p-4 flex items-center space-x-4">
                   <div className="relative w-12 h-16 bg-paper border border-ink/10">
@@ -116,9 +134,9 @@ export default function AdminProducts() {
                 </td>
               </tr>
             ))}
-            {products.length === 0 && (
+            {products.filter(p => statusFilter === 'all' || p.status === statusFilter).length === 0 && (
               <tr>
-                <td colSpan="5" className="p-8 text-center text-ink/50 uppercase tracking-widest text-xs">No products found.</td>
+                <td colSpan="5" className="p-8 text-center text-ink/50 uppercase tracking-widest text-xs">No products found for this filter.</td>
               </tr>
             )}
           </tbody>

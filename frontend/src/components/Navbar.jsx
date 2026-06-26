@@ -136,7 +136,7 @@ export default function Navbar() {
           </Link>
 
           {/* Center Area: Nav Links & Timer */}
-          <div className="flex-1 flex items-center justify-center gap-6 xl:gap-12 px-2 lg:px-4">
+          <div className="flex-1 flex items-center justify-center gap-2 lg:gap-6 xl:gap-12 px-1 lg:px-4">
             
             {/* Desktop Nav Links */}
             <div className="hidden lg:flex items-center justify-center space-x-4 xl:space-x-8">
