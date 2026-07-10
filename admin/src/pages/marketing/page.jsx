@@ -68,6 +68,7 @@ export default function MarketingDashboard() {
     minOrderValue: 0,
     maxDiscount: '',
     usageLimit: 100,
+    usageLimitPerUser: 1,
     validFrom: new Date().toISOString().split('T')[0],
     validTo: new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]
   });
@@ -388,15 +389,27 @@ export default function MarketingDashboard() {
                 />
               </div>
             </div>
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Total Usage Limit (Total times it can be used)</label>
-              <input 
-                type="number" 
-                required min="1"
-                className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-red-600"
-                value={formData.usageLimit}
-                onChange={(e) => setFormData({...formData, usageLimit: e.target.value})}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Total Limit</label>
+                <input 
+                  type="number" 
+                  required min="1"
+                  className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-red-600"
+                  value={formData.usageLimit}
+                  onChange={(e) => setFormData({...formData, usageLimit: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-black/70 mb-1">Limit Per Customer</label>
+                <input 
+                  type="number" 
+                  required min="1"
+                  className="w-full p-2 border border-black/20 bg-gray-50 font-mono text-sm focus:outline-none focus:border-red-600"
+                  value={formData.usageLimitPerUser}
+                  onChange={(e) => setFormData({...formData, usageLimitPerUser: e.target.value})}
+                />
+              </div>
             </div>
             <button type="submit" className="w-full bg-red-600 text-white py-3 uppercase tracking-widest text-xs font-bold hover:bg-red-600-dark mt-4">
               Generate Coupon

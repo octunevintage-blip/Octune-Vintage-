@@ -42,9 +42,10 @@ export const validateCoupon = asyncHandler(async (req, res) => {
     
     if (userOrCond.length > 0) {
       orderQuery.$or = userOrCond;
-      const existingOrder = await Order.findOne(orderQuery);
-      if (existingOrder) {
-        return res.json({ valid: false, reason: 'You have already used this coupon.' });
+      const usageLimitPerUser = coupon.usageLimitPerUser || 1;
+      const userOrdersWithCoupon = await Order.countDocuments(orderQuery);
+      if (userOrdersWithCoupon >= usageLimitPerUser) {
+        return res.json({ valid: false, reason: 'You have reached the usage limit for this coupon.' });
       }
     }
   }
@@ -99,14 +100,17 @@ export const getActiveCoupons = asyncHandler(async (req, res) => {
     }
   }
 
-  let usedCouponCodes = [];
+  let usedCouponUsage = {};
   if (userEmail || userPhone) {
     const userOrCond = [];
     if (userEmail) userOrCond.push({ 'customer.email': { $regex: new RegExp(`^${userEmail}$`, 'i') } });
     if (userPhone) userOrCond.push({ 'customer.phone': userPhone });
     
     const orders = await Order.find({ 'coupon.code': { $exists: true, $ne: null }, status: { $ne: 'cancelled' }, $or: userOrCond });
-    usedCouponCodes = orders.map(o => o.coupon.code.toUpperCase());
+    orders.forEach(o => {
+      const code = o.coupon.code.toUpperCase();
+      usedCouponUsage[code] = (usedCouponUsage[code] || 0) + 1;
+    });
   }
 
   const query = {
@@ -117,10 +121,6 @@ export const getActiveCoupons = asyncHandler(async (req, res) => {
   };
 
   const andConditions = [];
-
-  if (usedCouponCodes.length > 0) {
-    andConditions.push({ code: { $nin: usedCouponCodes } });
-  }
 
   const orConditions = [
     {
@@ -144,7 +144,14 @@ export const getActiveCoupons = asyncHandler(async (req, res) => {
   query.$and = andConditions;
 
   const coupons = await Coupon.find(query).sort({ createdAt: -1 });
-  res.json(coupons);
+
+  const availableCoupons = coupons.filter(c => {
+    const usageLimitPerUser = c.usageLimitPerUser || 1;
+    const userUsage = usedCouponUsage[c.code] || 0;
+    return userUsage < usageLimitPerUser;
+  });
+
+  res.json(availableCoupons);
 });
 
 export const createCoupon = asyncHandler(async (req, res) => {
