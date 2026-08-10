@@ -1,7 +1,9 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, ShoppingBag, PhoneCall, User } from 'lucide-react';
+import { Home, ShoppingBag, PhoneCall, User, ArrowRight } from 'lucide-react';
+import { useCartStore, useAuthStore, useAuthModalStore, useActiveProductStore } from '@/lib/store';
+import toast from 'react-hot-toast';
 
 const NAV_LINKS = [
   { path: '/', label: 'Home', icon: Home },
@@ -11,6 +13,71 @@ const NAV_LINKS = [
 ];
 
 export default function MobileBottomNav() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isProductPage = location.pathname.startsWith('/product/');
+
+  const { activeProduct } = useActiveProductStore();
+  const { addItem, items } = useCartStore();
+  const { user } = useAuthStore();
+  const { open: openAuthModal } = useAuthModalStore();
+
+  // Product page action handlers
+  const isAlreadyInCart = activeProduct && (items || []).some(i => i._id === activeProduct._id);
+
+  const handleAddToCart = () => {
+    if (!activeProduct) return;
+    if (!user) {
+      openAuthModal('signup');
+      return;
+    }
+    if (isAlreadyInCart) {
+      navigate('/cart');
+    } else {
+      addItem(activeProduct);
+      toast.success('Added to cart');
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (!activeProduct) return;
+    if (!user) {
+      openAuthModal('signup');
+      return;
+    }
+    useCartStore.getState().setBuyNowItem(activeProduct);
+    navigate('/checkout?mode=buyNow');
+  };
+
+  // If on product page, render ADD TO CART & BUY NOW continuously floating above all elements
+  if (isProductPage) {
+    if (!activeProduct) return null;
+
+    return (
+      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] z-[999999]">
+        <div 
+          className="bg-white/95 backdrop-blur-2xl border-2 border-black rounded-full p-2 px-3 flex gap-2.5 items-center justify-between shadow-[0_15px_35px_rgba(0,0,0,0.35)]"
+        >
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-white text-black border border-black font-display uppercase font-bold tracking-wider text-[11px] py-2.5 rounded-full active:scale-[0.98] transition-all shadow-sm"
+          >
+            <ShoppingBag size={13} strokeWidth={2.5} />
+            <span>{isAlreadyInCart ? 'GO TO CART' : 'ADD TO CART'}</span>
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-black text-white border border-black font-display uppercase font-bold tracking-wider text-[11px] py-2.5 rounded-full active:scale-[0.98] transition-all shadow-sm"
+          >
+            <span>BUY NOW</span>
+            <ArrowRight size={13} strokeWidth={2.5} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular pages: render 4 Nav Links
   return (
     <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-[400px] z-[70]">
       <div 

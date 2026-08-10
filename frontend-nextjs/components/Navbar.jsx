@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle, Shield } from 'lucide-react';
+import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle, Shield, ArrowLeft } from 'lucide-react';
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
@@ -118,10 +118,20 @@ export default function Navbar() {
       <nav className="sticky top-0 w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm shadow-sm transition-all">
         <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-2 md:gap-4">
 
-          {/* Mobile Menu Toggle */}
-          <button className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2" onClick={() => setIsOpen(true)}>
-            <Menu size={24} strokeWidth={1.5} />
-          </button>
+          {/* Mobile Menu Toggle or Back Button */}
+          {pathname.startsWith('/product/') ? (
+            <button
+              className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center"
+              onClick={() => router.back()}
+              title="Go back"
+            >
+              <ArrowLeft size={22} strokeWidth={2} />
+            </button>
+          ) : (
+            <button className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2" onClick={() => setIsOpen(true)}>
+              <Menu size={24} strokeWidth={1.5} />
+            </button>
+          )}
 
           {/* Logo */}
           <Link href="/" className="shrink-0 flex items-center w-28 md:w-auto lg:w-[150px] xl:w-[200px]">

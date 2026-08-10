@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle } from 'lucide-react';
+import { ShoppingBag, Menu, X, Search, User, LogIn, UserPlus, UserCircle, ArrowLeft } from 'lucide-react';
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
@@ -118,10 +118,20 @@ export default function Navbar() {
       <nav className="sticky top-0 w-full z-50 bg-vnv-white border-b border-vnv-gray/20 font-display uppercase tracking-widest text-sm shadow-sm transition-all">
         <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-2 md:gap-4">
 
-          {/* Mobile Menu Toggle */}
-          <button className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2" onClick={() => setIsOpen(true)}>
-            <Menu size={24} strokeWidth={1.5} />
-          </button>
+          {/* Mobile Menu Toggle or Back Button */}
+          {pathname.startsWith('/product/') ? (
+            <button
+              className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center"
+              onClick={() => router.back()}
+              title="Go back"
+            >
+              <ArrowLeft size={22} strokeWidth={2} />
+            </button>
+          ) : (
+            <button className="lg:hidden shrink-0 p-2 text-vnv-black -ml-2" onClick={() => setIsOpen(true)}>
+              <Menu size={24} strokeWidth={1.5} />
+            </button>
+          )}
 
           {/* Logo */}
           <Link href="/" className="shrink-0 flex items-center w-auto">
@@ -169,9 +179,11 @@ export default function Navbar() {
 
           {/* Right Icons */}
           <div className="shrink-0 flex items-center justify-end space-x-3 lg:space-x-5 w-auto">
+            {/* Search Icon next to Cart Icon for both mobile and desktop */}
             <button 
               onClick={() => setShowSearch(true)} 
-              className="hidden md:block hover:text-vnv-gray transition-colors"
+              className="flex items-center hover:text-vnv-gray transition-colors"
+              title="Search Archives"
             >
               <Search size={20} strokeWidth={1.5} />
             </button>
@@ -204,8 +216,6 @@ export default function Navbar() {
               </div>
             )}
 
-
-
             <Link href="/cart" className="flex items-center hover:text-vnv-gray transition-colors relative">
               <ShoppingBag size={20} strokeWidth={1.5} />
               {mounted && items && items.length > 0 && (
@@ -215,28 +225,6 @@ export default function Navbar() {
               )}
             </Link>
           </div>
-        </div>
-        {/* Mobile Search Bar below Nav Icons */}
-        <div className="lg:hidden px-4 pb-3 pt-1 border-t border-vnv-gray/10 bg-vnv-white">
-          <form onSubmit={handleMobileSearchSubmit} className="relative flex items-center">
-            <Search size={18} strokeWidth={1.5} className="absolute left-3 text-vnv-gray" />
-            <input
-              type="text"
-              placeholder="SEARCH THE ARCHIVES..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-vnv-light-gray pl-10 pr-12 py-2 text-xs uppercase tracking-wider font-display border border-transparent focus:border-vnv-black focus:outline-none rounded-md shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 text-vnv-gray hover:text-vnv-black text-[10px] font-bold tracking-widest uppercase"
-              >
-                Clear
-              </button>
-            )}
-          </form>
         </div>
       </nav>
 

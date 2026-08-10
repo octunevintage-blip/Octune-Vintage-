@@ -83,17 +83,19 @@ export default function CustomerInvoice() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            <tr>
-              <td className="py-6 px-4">
-                <p className="font-bold uppercase tracking-wider">{order.product?.name || 'Item'}</p>
-                <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">
-                  Size: {order.product?.size || 'OS'} | Color: {order.product?.color || 'N/A'}
-                </p>
-                <p className="text-[10px] text-gray-400 mt-1 uppercase">1-of-1 Archive Piece</p>
-              </td>
-              <td className="py-6 px-4 text-center font-mono">1</td>
-              <td className="py-6 px-4 text-right font-mono">{formatINR(order.product?.price || 0)}</td>
-            </tr>
+            {(order.products && order.products.length > 0 ? order.products : (order.product ? [order.product] : [])).map((item, index) => (
+              <tr key={item.productId || index}>
+                <td className="py-6 px-4">
+                  <p className="font-bold uppercase tracking-wider">{item.name || 'Item'}</p>
+                  <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">
+                    Size: {item.size || 'OS'} {item.color ? `| Color: ${item.color}` : ''}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-1 uppercase">1-of-1 Archive Piece</p>
+                </td>
+                <td className="py-6 px-4 text-center font-mono">1</td>
+                <td className="py-6 px-4 text-right font-mono">{formatINR(item.price || 0)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 

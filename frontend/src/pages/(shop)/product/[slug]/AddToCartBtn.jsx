@@ -1,5 +1,4 @@
-'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -12,6 +11,37 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
   const { user } = useAuthStore();
   const { open } = useAuthModalStore();
   const router = useRouter();
+
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const inlineBtn = document.getElementById('inline-cta-container');
+      const recs = document.getElementById('recommendations-section');
+      if (!inlineBtn) {
+        setShowStickyBar(true);
+        return;
+      }
+
+      const inlineRect = inlineBtn.getBoundingClientRect();
+      const recsRect = recs ? recs.getBoundingClientRect() : null;
+
+      // Show sticky bar ONLY when main inline CTA has scrolled off-screen above
+      // AND recommendations section has not entered the viewport
+      const scrolledPastInline = inlineRect.bottom < 50;
+      const reachedRecs = recsRect ? recsRect.top < window.innerHeight - 100 : false;
+
+      if (scrolledPastInline && !reachedRecs) {
+        setShowStickyBar(true);
+      } else {
+        setShowStickyBar(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleAdd = () => {
     if (!user) {
@@ -108,7 +138,7 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
     return (
       <motion.button
         onClick={() => setShowNotifyForm(true)}
-        className="w-full flex items-center justify-center gap-3 bg-black text-white font-display uppercase font-bold tracking-[0.15em] py-4 text-xs border border-black relative overflow-hidden group"
+        className="w-full flex items-center justify-center gap-3 bg-black text-white font-display uppercase font-bold tracking-[0.15em] py-4 text-xs border border-black relative overflow-hidden group my-3"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -149,10 +179,11 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
   };
 
   return (
-    <div className="flex w-full gap-3">
+    <div className="hidden md:flex w-full gap-2.5 sm:gap-3 my-3">
       <motion.button
         onClick={handleAddToCart}
-        className="flex-1 flex items-center justify-center gap-2 bg-white text-black border border-black font-display uppercase font-bold tracking-[0.1em] py-4 text-xs relative overflow-hidden group hover:bg-black/5 transition-colors"
+        className="flex-1 flex items-center justify-center gap-2 bg-white text-black border-2 border-black font-display uppercase font-bold tracking-[0.1em] py-3.5 sm:py-4 text-xs relative overflow-hidden group hover:bg-black/5 active:scale-[0.98] transition-all shadow-sm"
+        style={{ borderRadius: '2px', backgroundColor: '#ffffff', color: '#000000' }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -165,7 +196,8 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
 
       <motion.button
         onClick={handleBuyNow}
-        className="flex-1 flex items-center justify-center gap-2 bg-black text-white border border-black font-display uppercase font-bold tracking-[0.1em] py-4 text-xs relative overflow-hidden group hover:bg-black/90 transition-colors"
+        className="flex-1 flex items-center justify-center gap-2 bg-black text-white border-2 border-black font-display uppercase font-bold tracking-[0.1em] py-3.5 sm:py-4 text-xs relative overflow-hidden group hover:bg-black/90 active:scale-[0.98] transition-all shadow-sm"
+        style={{ borderRadius: '2px', backgroundColor: '#000000', color: '#ffffff' }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
@@ -174,8 +206,8 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
       >
         <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
         <span className="relative flex items-center gap-2">
-          BUY NOW
-          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          <span>BUY NOW</span>
+          <ArrowRight size={14} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
         </span>
       </motion.button>
     </div>

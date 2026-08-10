@@ -5,10 +5,11 @@ import { uploadImage, deleteImage } from '../utils/storage.js';
 import slugify from 'slugify';
 
 export const getProducts = asyncHandler(async (req, res) => {
-  const { category, sort, search, status, page = 1, limit = 24, includeUpcoming } = req.query;
+  const { category, sort, search, status, page = 1, limit = 24, includeUpcoming, size } = req.query;
   const query = {};
 
   if (category) query.category = category;
+  if (size) query.size = { $regex: `^${size}$|\\b${size}\\b`, $options: 'i' };
   if (search) {
     query.$or = [
       { name: { $regex: search, $options: 'i' } },
@@ -31,11 +32,12 @@ export const getProducts = asyncHandler(async (req, res) => {
   if (sort === 'price-asc') sortCriteria = { status: 1, price: 1 };
   if (sort === 'price-desc') sortCriteria = { status: 1, price: -1 };
 
+  const parsedLimit = limit === 'all' ? 5000 : Number(limit);
   const total = await Product.countDocuments(query);
   const products = await Product.find(query)
     .sort(sortCriteria)
-    .skip((Number(page) - 1) * Number(limit))
-    .limit(Number(limit));
+    .skip((Number(page) - 1) * parsedLimit)
+    .limit(parsedLimit);
 
   res.json({ products, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 });

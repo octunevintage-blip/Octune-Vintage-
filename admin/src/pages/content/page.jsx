@@ -5,6 +5,107 @@ import toast from 'react-hot-toast';
 import Image from 'next/image';
 import { Upload, Plus, Trash2, Save } from 'lucide-react';
 
+function ProductPicker({ products = [], selectedProducts = [], onSelectProduct, title = "product" }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const selectedIds = selectedProducts.map(p => p._id || p);
+  const availableProducts = products.filter(p => !selectedIds.includes(p._id));
+  
+  const filteredProducts = availableProducts.filter(p => {
+    if (!search.trim()) return true;
+    const term = search.toLowerCase();
+    return (
+      (p.name && p.name.toLowerCase().includes(term)) ||
+      (p.brand && p.brand.toLowerCase().includes(term)) ||
+      (p.category && p.category.toLowerCase().includes(term)) ||
+      (p.size && p.size.toLowerCase().includes(term))
+    );
+  });
+
+  return (
+    <div className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full text-left p-3 border border-paper-dark bg-paper focus:outline-none focus:border-brick font-mono text-sm flex items-center justify-between shadow-sm hover:bg-white transition-colors"
+      >
+        <span className="text-ink/70 font-sans">
+          Select a product to feature ({availableProducts.length} available)...
+        </span>
+        <span className="text-xs text-ink/50 font-mono">▼</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-paper-dark shadow-2xl z-[100] p-3">
+          <input
+            type="text"
+            placeholder="Search product by name, brand, size, price..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full p-2.5 mb-3 border border-paper-dark bg-paper text-xs uppercase font-mono focus:outline-none focus:border-brick"
+            autoFocus
+          />
+
+          <div className="max-h-72 overflow-y-auto divide-y divide-paper-dark/30">
+            {filteredProducts.length === 0 ? (
+              <div className="p-4 text-center text-xs text-ink/50 uppercase font-mono">
+                No matching products found.
+              </div>
+            ) : (
+              filteredProducts.map(product => (
+                <button
+                  key={product._id}
+                  type="button"
+                  onClick={() => {
+                    onSelectProduct(product);
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                  className="w-full flex items-center p-2 hover:bg-paper text-left transition-colors group"
+                >
+                  {product.images && product.images[0] ? (
+                    <img
+                      src={product.images[0].url}
+                      alt={product.name}
+                      className="w-10 h-12 object-cover border border-paper-dark mr-3 shrink-0 rounded-sm"
+                    />
+                  ) : (
+                    <div className="w-10 h-12 bg-paper-dark border border-paper-dark mr-3 shrink-0 rounded-sm flex items-center justify-center text-[10px] text-ink/40">
+                      No Img
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-xs uppercase tracking-wider text-ink group-hover:text-brick truncate">
+                      {product.name}
+                    </p>
+                    <div className="flex items-center gap-2 text-[10px] text-ink/60 font-mono mt-0.5">
+                      <span>Size: {product.size || 'N/A'}</span>
+                      {product.brand && <span>• {product.brand}</span>}
+                      <span className="font-bold text-brick">• ₹{product.price}</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-brick ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    + Add
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="w-full mt-3 py-1.5 bg-paper-dark text-ink/70 text-[10px] uppercase font-bold tracking-widest text-center hover:bg-paper"
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminContentPage() {
   const [content, setContent] = useState(null);
   const [products, setProducts] = useState([]);
@@ -21,8 +122,8 @@ export default function AdminContentPage() {
       setLoading(true);
       const [resContent, resProducts, resUpcoming] = await Promise.all([
         api.get('/content'),
-        api.get('/products?limit=100'), // fetch available products
-        api.get('/products?status=upcoming&limit=100') // fetch upcoming products
+        api.get('/products?limit=all&includeUpcoming=true'), // fetch ALL products
+        api.get('/products?status=upcoming&limit=all') // fetch upcoming products
       ]);
       const contentData = resContent.data || {};
       if (!contentData.about) {
@@ -41,11 +142,23 @@ export default function AdminContentPage() {
           bannerImage: ''
         };
       }
+      if (!contentData.sectionHeadings) {
+        contentData.sectionHeadings = {
+          trendingTitle: "WHAT'S TRENDING",
+          trendingSubtitle: "Handpicked archives currently on fire.",
+          newArrivalsTitle: "NEW ARRIVALS",
+          newArrivalsSubtitle: "Freshly dropped 1-of-1 vintage grails.",
+          vintageClassicsTitle: "VINTAGE CLASSICS",
+          vintageClassicsSubtitle: "Timeless heritage pieces that never fade.",
+          archivePicksTitle: "ARCHIVE PICKS",
+          archivePicksSubtitle: "Rare curated selections from the vault."
+        };
+      }
       if (!contentData.faqs) {
         contentData.faqs = [];
       }
       setContent(contentData);
-      setProducts(resProducts.data.products);
+      setProducts(resProducts.data.products || []);
       setUpcomingProducts(resUpcoming.data.products || []);
     } catch (error) {
       toast.error('Failed to load data');
@@ -89,6 +202,8 @@ export default function AdminContentPage() {
         trendingProducts: (content.trendingProducts || []).map(p => p._id || p),
         newArrivals: (content.newArrivals || []).map(p => p._id || p),
         vintageClassics: (content.vintageClassics || []).map(p => p._id || p),
+        archivePicks: (content.archivePicks || []).map(p => p._id || p),
+        sectionHeadings: content.sectionHeadings || {},
         about: content.about,
         terms: content.terms,
         faqs: content.faqs || []
@@ -107,10 +222,34 @@ export default function AdminContentPage() {
   if (loading || !content) return <div>Loading...</div>;
 
   const sections = [
-    { key: 'trendingProducts', title: 'What\'s Trending', subtitle: 'Select the exact products you want to feature in the trending section on the homepage.' },
-    { key: 'newArrivals', title: 'New Arrivals', subtitle: 'Select the exact products you want to feature in the new arrivals section on the homepage.' },
-    { key: 'vintageClassics', title: 'Vintage Classics', subtitle: 'Select the exact products you want to feature in the vintage classics section on the homepage.' },
-    { key: 'archivePicks', title: 'Archive Picks', subtitle: 'Select the exact products you want to feature in the archive picks section on the homepage.' }
+    {
+      key: 'trendingProducts',
+      titleKey: 'trendingTitle',
+      subtitleKey: 'trendingSubtitle',
+      defaultTitle: "WHAT'S TRENDING",
+      defaultSubtitle: 'Handpicked archives currently on fire.'
+    },
+    {
+      key: 'newArrivals',
+      titleKey: 'newArrivalsTitle',
+      subtitleKey: 'newArrivalsSubtitle',
+      defaultTitle: 'NEW ARRIVALS',
+      defaultSubtitle: 'Freshly dropped 1-of-1 vintage grails.'
+    },
+    {
+      key: 'vintageClassics',
+      titleKey: 'vintageClassicsTitle',
+      subtitleKey: 'vintageClassicsSubtitle',
+      defaultTitle: 'VINTAGE CLASSICS',
+      defaultSubtitle: 'Timeless heritage pieces that never fade.'
+    },
+    {
+      key: 'archivePicks',
+      titleKey: 'archivePicksTitle',
+      subtitleKey: 'archivePicksSubtitle',
+      defaultTitle: 'ARCHIVE PICKS',
+      defaultSubtitle: 'Rare curated selections from the vault.'
+    }
   ];
 
   return (
@@ -370,36 +509,83 @@ export default function AdminContentPage() {
       {/* PRODUCT CAROUSEL SECTIONS */}
       {sections.map((sec, secIdx) => {
         const secProducts = content[sec.key] || [];
+        const currentTitle = content.sectionHeadings?.[sec.titleKey] ?? sec.defaultTitle;
+        const currentSubtitle = content.sectionHeadings?.[sec.subtitleKey] ?? sec.defaultSubtitle;
+
         return (
-          <section key={sec.key} className="bg-white p-6 border border-paper-dark shadow-sm">
-            <h2 className="font-serif text-2xl tracking-widest mb-6">{secIdx + 3}. "{sec.title}" Carousel</h2>
-            <p className="text-sm text-ink/70 mb-4">{sec.subtitle} Add them in the order you want them to appear.</p>
+          <section key={sec.key} className="bg-white p-6 border border-paper-dark shadow-sm space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-paper-dark pb-4 gap-2">
+              <div>
+                <h2 className="font-serif text-2xl tracking-widest">{secIdx + 3}. "{currentTitle}" Carousel</h2>
+                <p className="text-xs text-ink/60 uppercase tracking-wider mt-1">
+                  Customize the heading, paragraph description, and featured products for this homepage section.
+                </p>
+              </div>
+            </div>
+
+            {/* Editable Heading Title and Subtitle / Paragraph */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-paper p-4 border border-paper-dark">
+              <div>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70 font-bold">
+                  Section Heading / Title
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm uppercase"
+                  value={currentTitle}
+                  onChange={(e) => {
+                    setContent({
+                      ...content,
+                      sectionHeadings: {
+                        ...content.sectionHeadings,
+                        [sec.titleKey]: e.target.value
+                      }
+                    });
+                  }}
+                  placeholder={sec.defaultTitle}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70 font-bold">
+                  Section Paragraph / Subtitle
+                </label>
+                <input
+                  type="text"
+                  className="w-full p-2 border border-paper-dark bg-white focus:outline-none focus:border-brick font-mono text-sm"
+                  value={currentSubtitle}
+                  onChange={(e) => {
+                    setContent({
+                      ...content,
+                      sectionHeadings: {
+                        ...content.sectionHeadings,
+                        [sec.subtitleKey]: e.target.value
+                      }
+                    });
+                  }}
+                  placeholder={sec.defaultSubtitle}
+                />
+              </div>
+            </div>
             
             <div className="space-y-4">
-              <div className="flex gap-4 items-end">
-                <div className="flex-1">
-                  <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70">Add Product to {sec.title}</label>
-                  <select 
-                    className="w-full p-3 border border-paper-dark bg-paper focus:outline-none focus:border-brick font-mono text-sm"
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      const selectedProduct = products.find(p => p._id === e.target.value);
-                      if (selectedProduct && !secProducts.some(p => (p._id || p) === selectedProduct._id)) {
-                        setContent({
-                          ...content,
-                          [sec.key]: [...secProducts, selectedProduct]
-                        });
-                      }
-                      e.target.value = '';
-                    }}
-                    defaultValue=""
-                  >
-                    <option value="" disabled>Select a product to feature...</option>
-                    {products.filter(p => !secProducts.some(tp => (tp._id || tp) === p._id)).map(p => (
-                      <option key={p._id} value={p._id}>{p.name} - ₹{p.price}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs uppercase tracking-widest mb-1 text-ink/70 font-bold">
+                  Add Product to {currentTitle} (With Image Preview)
+                </label>
+                <ProductPicker
+                  products={products}
+                  selectedProducts={secProducts}
+                  title={currentTitle}
+                  onSelectProduct={(selectedProduct) => {
+                    if (selectedProduct && !secProducts.some(p => (p._id || p) === selectedProduct._id)) {
+                      setContent({
+                        ...content,
+                        [sec.key]: [...secProducts, selectedProduct]
+                      });
+                    }
+                  }}
+                />
               </div>
 
               {/* List of currently selected products */}

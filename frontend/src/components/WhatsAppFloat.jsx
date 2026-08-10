@@ -5,7 +5,7 @@ const WhatsAppFloat = () => {
     <a
       href="https://wa.me/918250689552?text=Hi%20Octune%20Vintage%21%20I%20have%20a%20query%20about%20your%20products."
       target="_blank"
-      className="fixed bottom-28 md:bottom-6 right-4 md:right-6 z-[9999] flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-[0_4px_15px_rgba(37,211,102,0.4)] hover:bg-[#1ebe57] hover:scale-110 transition-all duration-300"
+      className="fixed bottom-20 md:bottom-6 right-3 md:right-6 z-[99] flex items-center justify-center w-12 h-12 md:w-14 md:h-14 bg-[#25D366] text-white rounded-full shadow-[0_4px_15px_rgba(37,211,102,0.4)] hover:bg-[#1ebe57] hover:scale-110 transition-all duration-300"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

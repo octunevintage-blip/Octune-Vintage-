@@ -226,25 +226,29 @@ export default function Home() {
 
       {/* 4 Featured Product Carousels */}
       <ProductSectionCarousel 
-        title="WHAT'S TRENDING" 
+        title={siteContent?.sectionHeadings?.trendingTitle || "WHAT'S TRENDING"} 
+        subtitle={siteContent?.sectionHeadings?.trendingSubtitle || ""}
         products={trendingProductsToDisplay} 
         viewAllLink="/shop"
       />
 
       <ProductSectionCarousel 
-        title="NEW ARRIVALS" 
+        title={siteContent?.sectionHeadings?.newArrivalsTitle || "NEW ARRIVALS"} 
+        subtitle={siteContent?.sectionHeadings?.newArrivalsSubtitle || ""}
         products={siteContent?.newArrivals || []} 
         viewAllLink="/shop"
       />
 
       <ProductSectionCarousel 
-        title="VINTAGE CLASSICS" 
+        title={siteContent?.sectionHeadings?.vintageClassicsTitle || "VINTAGE CLASSICS"} 
+        subtitle={siteContent?.sectionHeadings?.vintageClassicsSubtitle || ""}
         products={siteContent?.vintageClassics || []} 
         viewAllLink="/shop"
       />
 
       <ProductSectionCarousel 
-        title="ARCHIVE PICKS" 
+        title={siteContent?.sectionHeadings?.archivePicksTitle || "ARCHIVE PICKS"} 
+        subtitle={siteContent?.sectionHeadings?.archivePicksSubtitle || ""}
         products={siteContent?.archivePicks || []} 
         viewAllLink="/shop"
       />

@@ -29,7 +29,7 @@ import OurPeoples from '@/pages/our-people/page';
 // Shop Layout Wrapper with global Navbar and Footer
 function ShopLayout() {
   return (
-    <div className="flex flex-col min-h-screen bg-vnv-white text-vnv-black font-sans pb-24 md:pb-0">
+    <div className="flex flex-col min-h-screen bg-vnv-white text-vnv-black font-sans overflow-x-hidden">
       <Navbar />
       <main className="flex-grow min-h-[80vh]">
         <Outlet />

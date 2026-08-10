@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
-export default function ProductSectionCarousel({ title, products = [], viewAllLink = '/shop' }) {
+export default function ProductSectionCarousel({ title, subtitle, products = [], viewAllLink = '/shop' }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -24,8 +24,13 @@ export default function ProductSectionCarousel({ title, products = [], viewAllLi
     <section className="mt-16 md:mt-24 container mx-auto px-4 md:px-8">
       {/* Header section with category/section title and View All link */}
       <div className="flex justify-between items-end mb-8 border-b-2 border-vnv-black pb-4">
-        <h2 className="font-display text-2xl md:text-4xl font-bold uppercase tracking-wide">{title}</h2>
-        <Link to={viewAllLink} className="font-display text-xs md:text-sm uppercase tracking-widest text-vnv-gray hover:text-vnv-black transition-colors">
+        <div>
+          <h2 className="font-display text-2xl md:text-4xl font-bold uppercase tracking-wide">{title}</h2>
+          {subtitle && (
+            <p className="font-sans text-xs md:text-sm text-vnv-gray mt-1 tracking-wider">{subtitle}</p>
+          )}
+        </div>
+        <Link to={viewAllLink} className="font-display text-xs md:text-sm uppercase tracking-widest text-vnv-gray hover:text-vnv-black transition-colors shrink-0">
           VIEW ALL
         </Link>
       </div>

@@ -157,6 +157,16 @@ const contentSchema = new mongoose.Schema({
   ourPeopleContent: {
     heading: { type: String, default: 'Our Happy Customers' },
     paragraph: { type: String, default: '"You make the clothes look good."' }
+  },
+  sectionHeadings: {
+    trendingTitle: { type: String, default: "WHAT'S TRENDING" },
+    trendingSubtitle: { type: String, default: "Handpicked archives currently on fire." },
+    newArrivalsTitle: { type: String, default: "NEW ARRIVALS" },
+    newArrivalsSubtitle: { type: String, default: "Freshly dropped 1-of-1 vintage grails." },
+    vintageClassicsTitle: { type: String, default: "VINTAGE CLASSICS" },
+    vintageClassicsSubtitle: { type: String, default: "Timeless heritage pieces that never fade." },
+    archivePicksTitle: { type: String, default: "ARCHIVE PICKS" },
+    archivePicksSubtitle: { type: String, default: "Rare curated selections from the vault." }
   }
 }, { timestamps: true });
 

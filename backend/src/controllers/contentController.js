@@ -49,7 +49,8 @@ export const updateContent = async (req, res) => {
         announcement,
         nextDrop,
         ourPeoples,
-        ourPeopleContent
+        ourPeopleContent,
+        sectionHeadings
       } = req.body;
   
       let content = await Content.findOne();
@@ -79,6 +80,10 @@ export const updateContent = async (req, res) => {
       if (ourPeopleContent !== undefined) {
         content.ourPeopleContent = ourPeopleContent;
         content.markModified('ourPeopleContent');
+      }
+      if (sectionHeadings !== undefined) {
+        content.sectionHeadings = sectionHeadings;
+        content.markModified('sectionHeadings');
       }
   
       await content.save();

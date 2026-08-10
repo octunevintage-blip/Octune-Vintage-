@@ -53,3 +53,9 @@ export const useAuthModalStore = create((set) => ({
   close: () => set({ isOpen: false }),
   setTab: (tab) => set({ tab }),
 }));
+
+// Non-persisted store for active product on detail pages
+export const useActiveProductStore = create((set) => ({
+  activeProduct: null,
+  setActiveProduct: (product) => set({ activeProduct: product }),
+}));

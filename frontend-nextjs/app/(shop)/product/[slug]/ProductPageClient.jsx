@@ -137,7 +137,7 @@ export default function ProductPageClient({
   };
 
   return (
-    <div className="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-10">
+    <div className="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-10 pb-56 md:pb-10">
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16 relative">
 
         {/* ─── Gallery ─── Left 38% (Max 440px) ─── */}

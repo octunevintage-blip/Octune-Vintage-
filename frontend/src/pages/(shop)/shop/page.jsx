@@ -12,6 +12,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
 
   const currentCategory = searchParams.get('category') || 'All';
+  const currentSize = searchParams.get('size') || 'All';
   const currentSort = searchParams.get('sort') || 'newest';
   const currentPage = parseInt(searchParams.get('page')) || 1;
   const currentSearch = searchParams.get('search') || '';
@@ -42,9 +43,24 @@ export default function Shop() {
   }, [searchParams]);
 
   // Helper to build links for sorting
+  const SIZES = ['All', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  // Helper to build links for sorting
   const getSortLink = (sortVal) => {
     const params = new URLSearchParams(searchParams);
     params.set('sort', sortVal);
+    return `/shop?${params.toString()}`;
+  };
+
+  // Helper to build links for size filter
+  const getSizeLink = (szVal) => {
+    const params = new URLSearchParams(searchParams);
+    if (szVal === 'All') {
+      params.delete('size');
+    } else {
+      params.set('size', szVal);
+    }
+    params.delete('page');
     return `/shop?${params.toString()}`;
   };
 
@@ -54,7 +70,7 @@ export default function Shop() {
         <CategoryPill />
       </Suspense>
 
-      <div className="container mx-auto px-4 md:px-8 pt-4 pb-12 flex-grow">
+      <div className="container mx-auto px-4 md:px-8 pt-4 pb-28 md:pb-12 flex-grow">
         
         {/* VNV Style Header */}
         <header className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between border-b-4 border-vnv-black pb-6">
@@ -64,6 +80,7 @@ export default function Shop() {
                 ? `Search: "${currentSearch.toUpperCase()}"` 
                 : (currentCategory === 'All' ? 'ALL APPAREL' : currentCategory.toUpperCase())
               }
+              {currentSize !== 'All' ? ` · SIZE ${currentSize}` : ''}
             </h1>
             <div className="flex flex-col md:flex-row md:items-center gap-2 mt-1">
               <p className="text-xs text-vnv-gray uppercase tracking-[0.2em] font-bold">
@@ -81,34 +98,67 @@ export default function Shop() {
                   (Clear Search)
                 </button>
               )}
+              {currentSize !== 'All' && (
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams);
+                    params.delete('size');
+                    setSearchParams(params);
+                  }}
+                  className="text-xs text-brick hover:underline font-bold uppercase tracking-wider"
+                >
+                  (Clear Size)
+                </button>
+              )}
             </div>
           </div>
         </header>
 
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 space-y-6 lg:space-y-0">
+        {/* Sort & Size Filter Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4 flex-wrap">
           
-          {/* Sort */}
-          <div className="flex items-center space-x-4 text-xs font-display tracking-widest uppercase">
+          {/* Sort By (Left Side) */}
+          <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-display tracking-widest uppercase">
             <span className="text-vnv-gray">SORT BY:</span>
-            <div className="flex gap-4">
+            <div className="flex gap-3 sm:gap-4">
               <Link 
                 to={getSortLink('newest')}
-                className={`pb-1 border-b-2 ${currentSort === 'newest' ? 'border-vnv-black text-vnv-black' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
+                className={`pb-1 border-b-2 ${currentSort === 'newest' ? 'border-vnv-black text-vnv-black font-bold' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
               >
                 NEW IN
               </Link>
               <Link 
                 to={getSortLink('price-asc')}
-                className={`pb-1 border-b-2 ${currentSort === 'price-asc' ? 'border-vnv-black text-vnv-black' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
+                className={`pb-1 border-b-2 ${currentSort === 'price-asc' ? 'border-vnv-black text-vnv-black font-bold' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
               >
                 PRICE LOW
               </Link>
               <Link 
                 to={getSortLink('price-desc')}
-                className={`pb-1 border-b-2 ${currentSort === 'price-desc' ? 'border-vnv-black text-vnv-black' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
+                className={`pb-1 border-b-2 ${currentSort === 'price-desc' ? 'border-vnv-black text-vnv-black font-bold' : 'border-transparent text-vnv-gray hover:text-vnv-black'}`}
               >
                 PRICE HIGH
               </Link>
+            </div>
+          </div>
+
+          {/* Size Filter (Right Side) */}
+          <div className="flex items-center space-x-2 text-xs font-display tracking-widest uppercase">
+            <span className="text-vnv-gray font-semibold mr-1">SIZE:</span>
+            <div className="flex items-center gap-1">
+              {SIZES.map(sz => (
+                <Link
+                  key={sz}
+                  to={getSizeLink(sz)}
+                  className={`px-2.5 py-1 rounded text-[11px] font-bold transition-all ${
+                    (sz === 'All' && currentSize === 'All') || currentSize === sz
+                      ? 'bg-vnv-black text-vnv-white shadow-sm'
+                      : 'text-vnv-gray hover:text-vnv-black hover:bg-black/5'
+                  }`}
+                >
+                  {sz === 'All' ? 'ALL' : sz}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

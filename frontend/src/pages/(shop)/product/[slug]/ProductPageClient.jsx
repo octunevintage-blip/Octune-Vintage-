@@ -1,11 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { formatINR } from '@/lib/utils';
 import AddToCartBtn from './AddToCartBtn';
 import ProductGallery from './ProductGallery';
-import { ChevronDown, Ruler, Palette, Tag, Shield, Layers, Info, Heart, Share2 } from 'lucide-react';
-import { useAuthStore, useAuthModalStore } from '@/lib/store';
+import { ChevronDown, Ruler, Palette, Tag, Shield, Layers, Info, Heart, Share2, ArrowLeft, RefreshCw } from 'lucide-react';
+import ProductCard from '@/components/ProductCard';
+import { useAuthStore, useAuthModalStore, useActiveProductStore } from '@/lib/store';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
@@ -62,13 +64,66 @@ export default function ProductPageClient({
   measurementLabels,
   hasMeasurements,
 }) {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { open: openAuthModal } = useAuthModalStore();
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [allSuggestions, setAllSuggestions] = useState([]);
+  const [isShuffling, setIsShuffling] = useState(false);
 
   const isReserved = product.status === 'reserved' && product.reservedUntil && new Date(product.reservedUntil) > new Date();
   const isReservedByOther = isReserved && (!user || String(product.reservedBy) !== String(user?._id));
+
+  const shuffleSuggestions = (pool = allSuggestions) => {
+    if (!pool || pool.length === 0) return;
+    setIsShuffling(true);
+    const validPool = pool.filter(item => item._id !== product._id);
+    const shuffled = [...validPool].sort(() => 0.5 - Math.random());
+    setSimilarProducts(shuffled.slice(0, 4));
+    setTimeout(() => setIsShuffling(false), 400);
+  };
+
+  // Fetch similar & random products for recommendation
+  useEffect(() => {
+    async function loadSimilar() {
+      try {
+        const catQuery = product.category ? `category=${encodeURIComponent(product.category)}&` : '';
+        const [catRes, genRes] = await Promise.allSettled([
+          api.get(`/products?${catQuery}limit=20`),
+          api.get('/products?limit=30')
+        ]);
+        
+        let pool = [];
+        if (catRes.status === 'fulfilled' && catRes.value?.data?.products) {
+          pool = [...catRes.value.data.products];
+        }
+        if (genRes.status === 'fulfilled' && genRes.value?.data?.products) {
+          const genItems = genRes.value.data.products;
+          pool = [...pool, ...genItems.filter(g => !pool.some(p => p._id === g._id))];
+        }
+
+        const filteredPool = pool.filter(item => item._id !== product._id);
+        setAllSuggestions(filteredPool);
+        shuffleSuggestions(filteredPool);
+      } catch (err) {
+        console.error('Failed to load suggested products:', err);
+      }
+    }
+    if (product?._id) {
+      loadSimilar();
+    }
+  }, [product._id, product.category]);
+
+  useEffect(() => {
+    if (product) {
+      useActiveProductStore.getState().setActiveProduct(product);
+    }
+    return () => {
+      useActiveProductStore.getState().setActiveProduct(null);
+    };
+  }, [product]);
 
   useEffect(() => {
     async function checkWishlist() {
@@ -140,7 +195,19 @@ export default function ProductPageClient({
   };
 
   return (
-    <div className="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-10 py-6 md:py-10">
+    <div className="max-w-[1150px] mx-auto px-4 sm:px-6 lg:px-10 py-4 md:py-10 pb-10 md:pb-10">
+      {/* Mobile Top Header Back Arrow */}
+      <div className="lg:hidden mb-3 flex items-center">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/80 bg-black/5 hover:bg-black/10 px-3.5 py-1.5 rounded-full transition-colors active:scale-95"
+          title="Back"
+        >
+          <ArrowLeft size={16} strokeWidth={2} />
+          <span className="uppercase tracking-wider">Back</span>
+        </button>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 xl:gap-16 relative">
 
         {/* ─── Gallery ─── Left 38% (Max 440px) ─── */}
@@ -252,77 +319,41 @@ export default function ProductPageClient({
               )}
             </motion.div>
 
-            {/* Size & Measurements (Directly Visible above CTA) */}
-            {hasMeasurements && (
-              <motion.div
-                className="mb-5 p-4 bg-[#fbfbfa] border border-black/[0.04]"
-                style={{ borderRadius: '2px' }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.38, duration: 0.5 }}
-              >
-                <div className="flex items-center gap-2 mb-2.5">
-                  <Ruler size={13} className="text-black/60" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-black/80">
-                    Size & Measurements (Inches)
-                  </span>
-                </div>
-                <div className="divide-y divide-black/[0.05] border-t border-b border-black/[0.05] py-1 bg-white px-3" style={{ borderRadius: '2px' }}>
-                  {Object.entries(measurementLabels).map(([key, label]) => {
-                    const val = product.measurements[key];
-                    if (!val) return null;
-                    return (
-                      <div
-                        key={key}
-                        className="flex justify-between items-center py-2 text-xs"
-                      >
-                        <span className="uppercase tracking-[0.08em] text-[10px] font-semibold text-black/40">
-                          {label}
-                        </span>
-                        <span className="font-bold text-xs text-black/80">
-                          {val}"
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="text-[9px] text-black/35 mt-2 leading-relaxed uppercase tracking-wider">
-                  * Measurements are taken flat. Vintage items may have minor variations.
-                </p>
-              </motion.div>
-            )}
-
             {/* CTA Button & Actions Row */}
             <motion.div
-              className="flex items-stretch gap-3"
+              id="inline-cta-container"
+              className="flex flex-col gap-3 my-4"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.5 }}
             >
-              <div className="flex-grow">
-                <AddToCartBtn product={product} isLocked={isLocked || isSold} isReserved={isReservedByOther} />
+              <AddToCartBtn product={product} isLocked={isLocked || isSold} isReserved={isReservedByOther} />
+              
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={toggleWishlist}
+                  disabled={wishlistLoading}
+                  className={`flex-1 py-2.5 sm:py-3 flex items-center justify-center gap-2 border text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 ${
+                    isInWishlist
+                      ? 'border-red-500 bg-red-50 text-red-500'
+                      : 'border-black/10 hover:border-black text-black/60 hover:text-black bg-white'
+                  }`}
+                  style={{ borderRadius: '2px' }}
+                  title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <Heart size={16} className={isInWishlist ? "fill-current" : ""} />
+                  <span className="text-[10px] tracking-widest">{isInWishlist ? 'SAVED' : 'WISHLIST'}</span>
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="flex-1 py-2.5 sm:py-3 flex items-center justify-center gap-2 border border-black/10 hover:border-black text-black/60 hover:text-black bg-white text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-95"
+                  style={{ borderRadius: '2px' }}
+                  title="Share product"
+                >
+                  <Share2 size={16} />
+                  <span className="text-[10px] tracking-widest">SHARE</span>
+                </button>
               </div>
-              <button
-                onClick={toggleWishlist}
-                disabled={wishlistLoading}
-                className={`px-4 flex items-center justify-center border transition-all duration-200 active:scale-95 ${
-                  isInWishlist
-                    ? 'border-red-500 bg-red-50 text-red-500'
-                    : 'border-black/10 hover:border-black text-black/60 hover:text-black'
-                }`}
-                style={{ borderRadius: '2px' }}
-                title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-              >
-                <Heart size={16} className={isInWishlist ? "fill-current" : ""} />
-              </button>
-              <button
-                onClick={handleShare}
-                className="px-4 flex items-center justify-center border border-black/10 hover:border-black text-black/60 hover:text-black transition-all duration-200 active:scale-95"
-                style={{ borderRadius: '2px' }}
-                title="Share product"
-              >
-                <Share2 size={16} />
-              </button>
             </motion.div>
 
             {/* Trust Indicators */}
@@ -346,6 +377,39 @@ export default function ProductPageClient({
             {/* ─── Expandable Detail Sections ─── */}
             <div className="mt-8 space-y-0">
 
+              {/* Size & Measurements Dropdown */}
+              {hasMeasurements && (
+                <DetailSection
+                  title="Size & Measurements (Inches)"
+                  icon={Ruler}
+                  defaultOpen={true}
+                  delay={0.56}
+                >
+                  <div className="divide-y divide-black/[0.05] border-t border-b border-black/[0.05] py-1 bg-white px-3" style={{ borderRadius: '2px' }}>
+                    {Object.entries(measurementLabels).map(([key, label]) => {
+                      const val = product.measurements[key];
+                      if (!val) return null;
+                      return (
+                        <div
+                          key={key}
+                          className="flex justify-between items-center py-2 text-xs"
+                        >
+                          <span className="uppercase tracking-[0.08em] text-[10px] font-semibold text-black/40">
+                            {label}
+                          </span>
+                          <span className="font-bold text-xs text-black/80">
+                            {val}"
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[9px] text-black/35 mt-2 leading-relaxed uppercase tracking-wider">
+                    * Measurements are taken flat. Vintage items may have minor variations.
+                  </p>
+                </DetailSection>
+              )}
+
               {product.description && (
                 <DetailSection
                   title="Description"
@@ -359,7 +423,7 @@ export default function ProductPageClient({
                 </DetailSection>
               )}
 
-              {/* Product Details */}
+              {/* Product Details Dropdown */}
               <DetailSection
                 title="Product Details"
                 icon={Palette}
@@ -397,6 +461,35 @@ export default function ProductPageClient({
           </div>
         </div>
       </div>
+
+      {/* ─── Similar / Random Suggestions Section ─── */}
+      {similarProducts.length > 0 && (
+        <div id="recommendations-section" className="mt-12 md:mt-24 pt-10 border-t border-black/10 pb-48 md:pb-12">
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
+            <div>
+              <h2 className="font-display text-xl sm:text-2xl font-bold uppercase tracking-wider">
+                YOU MIGHT ALSO LIKE
+              </h2>
+              <p className="text-xs text-black/40 uppercase tracking-[0.15em] font-medium mt-1">
+                Randomly suggested vintage grails for you
+              </p>
+            </div>
+            <button
+              onClick={() => shuffleSuggestions()}
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-black/80 hover:text-black border border-black/20 hover:border-black px-3.5 py-2 rounded transition-all active:scale-95 bg-white shadow-sm"
+              title="Shuffle random recommendations"
+            >
+              <RefreshCw size={13} className={`transition-transform duration-500 ${isShuffling ? 'rotate-180' : ''}`} />
+              <span>SHUFFLE SUGGESTIONS</span>
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {similarProducts.map(similar => (
+              <ProductCard key={similar._id} product={similar} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
