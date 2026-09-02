@@ -37,10 +37,30 @@ export default async function OrderSuccessPage({ params }) {
   });
 
   const savedAmount = order.pricing?.discount || 0;
+  const productIds = (order.products && order.products.length > 0)
+    ? order.products.map(p => p.productId || p._id)
+    : [order.product?.productId || order.product?._id].filter(Boolean);
+  const totalValue = order.totalAmount || order.totalPrice || order.amount || 0;
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl">
       <SuccessSound />
+      
+      {/* Meta Pixel Purchase Event Tracking */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            if (typeof window !== 'undefined' && window.fbq) {
+              window.fbq('track', 'Purchase', {
+                content_ids: ${JSON.stringify(productIds)},
+                content_type: 'product',
+                value: ${totalValue},
+                currency: 'INR'
+              });
+            }
+          `
+        }}
+      />
       
       <div className="bg-white border border-vnv-gray/20 shadow-xl overflow-hidden rounded-none">
         {/* Top Confirmation Header */}

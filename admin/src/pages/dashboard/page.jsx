@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { formatINR } from '@/lib/utils';
@@ -125,7 +125,7 @@ export default function AdminDashboard() {
           </div>
           {stats.recentOrders && stats.recentOrders.length > 0 ? (
             <div className="space-y-4">
-              {stats.recentOrders.map(order => (
+              {stats.recentOrders.map(order => ( 
                 <div key={order._id} className="flex justify-between items-center p-3 border border-ink/5 bg-paper/30">
                   <div>
                     <p className="font-mono text-sm font-bold">{order?.orderNumber || 'Unknown'}</p>

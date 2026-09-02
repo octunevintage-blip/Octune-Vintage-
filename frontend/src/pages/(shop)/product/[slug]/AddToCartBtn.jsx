@@ -166,6 +166,14 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
     } else {
       addItem(product);
       toast.success('Added to cart');
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'AddToCart', {
+          content_ids: [product._id],
+          content_type: 'product',
+          value: product.price || 0,
+          currency: 'INR'
+        });
+      }
     }
   };
 

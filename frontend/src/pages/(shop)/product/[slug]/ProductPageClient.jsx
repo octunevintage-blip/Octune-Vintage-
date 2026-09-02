@@ -85,6 +85,18 @@ export default function ProductPageClient({
     setTimeout(() => setIsShuffling(false), 400);
   };
 
+  // Meta Pixel ViewContent Tracking
+  useEffect(() => {
+    if (product?._id && typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'ViewContent', {
+        content_ids: [product._id],
+        content_type: 'product',
+        value: product.price || 0,
+        currency: 'INR'
+      });
+    }
+  }, [product?._id]);
+
   // Fetch similar & random products for recommendation
   useEffect(() => {
     async function loadSimilar() {
@@ -471,7 +483,7 @@ export default function ProductPageClient({
                 YOU MIGHT ALSO LIKE
               </h2>
               <p className="text-xs text-black/40 uppercase tracking-[0.15em] font-medium mt-1">
-                Randomly suggested vintage grails for you
+                More handpicked 1-of-1 archive grails for you
               </p>
             </div>
             <button
