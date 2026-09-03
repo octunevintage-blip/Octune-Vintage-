@@ -36,6 +36,15 @@ export default function MobileBottomNav() {
     } else {
       addItem(activeProduct);
       toast.success('Added to cart');
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        window.fbq('track', 'AddToCart', {
+          content_name: activeProduct.name,
+          content_ids: [activeProduct._id],
+          content_type: 'product',
+          value: activeProduct.price || 0,
+          currency: 'INR'
+        });
+      }
     }
   };
 
@@ -44,6 +53,15 @@ export default function MobileBottomNav() {
     if (!user) {
       openAuthModal('signup');
       return;
+    }
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      window.fbq('track', 'AddToCart', {
+        content_name: activeProduct.name,
+        content_ids: [activeProduct._id],
+        content_type: 'product',
+        value: activeProduct.price || 0,
+        currency: 'INR'
+      });
     }
     useCartStore.getState().setBuyNowItem(activeProduct);
     navigate('/checkout?mode=buyNow');

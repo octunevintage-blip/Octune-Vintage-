@@ -37,7 +37,15 @@ export default function AddToCartBtn({ product, isLocked }) {
       router.push('/cart');
     } else {
       addItem(product);
-      // In a real app we'd trigger a toast here
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        window.fbq('track', 'AddToCart', {
+          content_name: product.name,
+          content_ids: [product._id],
+          content_type: 'product',
+          value: product.price || 0,
+          currency: 'INR'
+        });
+      }
     }
   };
 
@@ -45,6 +53,15 @@ export default function AddToCartBtn({ product, isLocked }) {
     if (!user) {
       open('signup');
       return;
+    }
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      window.fbq('track', 'AddToCart', {
+        content_name: product.name,
+        content_ids: [product._id],
+        content_type: 'product',
+        value: product.price || 0,
+        currency: 'INR'
+      });
     }
     useCartStore.getState().setBuyNowItem(product);
     router.push('/checkout?mode=buyNow');
