@@ -45,14 +45,25 @@ function ShopLayout() {
   );
 }
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    // Track PageView on SPA route changes (index.html handles the initial page load)
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      window.fbq('track', 'PageView');
+    }
   }, [pathname]);
 
   return null;
