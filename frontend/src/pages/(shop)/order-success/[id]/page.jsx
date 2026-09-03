@@ -1,3 +1,5 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -5,17 +7,56 @@ import { formatINR } from '@/lib/utils';
 import { CheckCircle2, MapPin, Phone, Calendar, ShoppingBag } from 'lucide-react';
 import SuccessSound from '@/components/SuccessSound';
 
-async function getOrder(id) {
-  try {
-    const res = await api.get(`/orders/${id}`);
-    return res.data;
-  } catch (error) {
-    return null;
-  }
-}
+export default function OrderSuccessPage() {
+  const { id } = useParams();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const hasTrackedPurchase = useRef(false);
 
-export default async function OrderSuccessPage({ params }) {
-  const order = await getOrder(params.id);
+  useEffect(() => {
+    async function fetchOrder() {
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const res = await api.get(`/orders/${id}`);
+        setOrder(res.data);
+      } catch (error) {
+        console.error('Failed to get order:', error);
+        setOrder(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOrder();
+  }, [id]);
+
+  // Meta Pixel Purchase Event Tracking
+  useEffect(() => {
+    if (order && !hasTrackedPurchase.current && typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      hasTrackedPurchase.current = true;
+      const productIds = (order.products && order.products.length > 0)
+        ? order.products.map(p => p.productId || p._id)
+        : [order.product?.productId || order.product?._id].filter(Boolean);
+      const totalValue = order.totalAmount || order.totalPrice || order.amount || 0;
+
+      window.fbq('track', 'Purchase', {
+        content_ids: productIds,
+        content_type: 'product',
+        value: totalValue,
+        currency: 'INR'
+      });
+    }
+  }, [order]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-6 py-32 text-center">
+        <div className="font-display text-2xl uppercase tracking-widest animate-pulse">Loading Order Details...</div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -37,30 +78,10 @@ export default async function OrderSuccessPage({ params }) {
   });
 
   const savedAmount = order.pricing?.discount || 0;
-  const productIds = (order.products && order.products.length > 0)
-    ? order.products.map(p => p.productId || p._id)
-    : [order.product?.productId || order.product?._id].filter(Boolean);
-  const totalValue = order.totalAmount || order.totalPrice || order.amount || 0;
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl">
       <SuccessSound />
-      
-      {/* Meta Pixel Purchase Event Tracking */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            if (typeof window !== 'undefined' && window.fbq) {
-              window.fbq('track', 'Purchase', {
-                content_ids: ${JSON.stringify(productIds)},
-                content_type: 'product',
-                value: ${totalValue},
-                currency: 'INR'
-              });
-            }
-          `
-        }}
-      />
       
       <div className="bg-white border border-vnv-gray/20 shadow-xl overflow-hidden rounded-none">
         {/* Top Confirmation Header */}

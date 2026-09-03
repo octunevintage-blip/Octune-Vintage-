@@ -87,8 +87,9 @@ export default function ProductPageClient({
 
   // Meta Pixel ViewContent Tracking
   useEffect(() => {
-    if (product?._id && typeof window !== 'undefined' && window.fbq) {
+    if (product?._id && typeof window !== 'undefined' && typeof window.fbq === 'function') {
       window.fbq('track', 'ViewContent', {
+        content_name: product.name,
         content_ids: [product._id],
         content_type: 'product',
         value: product.price || 0,

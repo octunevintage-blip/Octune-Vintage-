@@ -182,14 +182,31 @@ export default function CheckoutPage() {
     }
   };
 
-  // Don't render until client-side so zustand localStorage is ready
-  if (!mounted) return null;
   const checkoutItems = isBuyNowMode && buyNowItem ? [buyNowItem] : items;
-  if (!user || !checkoutItems || checkoutItems.length === 0) return null;
-
-  const subtotal = checkoutItems.reduce((acc, curr) => acc + curr.price, 0);
+  const subtotal = checkoutItems ? checkoutItems.reduce((acc, curr) => acc + (curr?.price || 0), 0) : 0;
   const shipping = (subtotal - discount) >= 999 ? 0 : 99;
   const total = Math.max(subtotal - discount + shipping, 0);
+
+  // Meta Pixel InitiateCheckout Tracking
+  const hasTrackedCheckout = useRef(false);
+  useEffect(() => {
+    if (mounted && user && checkoutItems && checkoutItems.length > 0 && !hasTrackedCheckout.current) {
+      hasTrackedCheckout.current = true;
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        window.fbq('track', 'InitiateCheckout', {
+          content_ids: checkoutItems.map(item => item._id || item.productId).filter(Boolean),
+          content_type: 'product',
+          value: total,
+          currency: 'INR',
+          num_items: checkoutItems.length
+        });
+      }
+    }
+  }, [mounted, user, checkoutItems, total]);
+
+  // Don't render until client-side so zustand localStorage is ready
+  if (!mounted) return null;
+  if (!user || !checkoutItems || checkoutItems.length === 0) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
