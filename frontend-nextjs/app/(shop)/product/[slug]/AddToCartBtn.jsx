@@ -3,17 +3,13 @@ import { useCartStore, useAuthStore, useAuthModalStore } from '@/lib/store';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Lock } from 'lucide-react';
+import { trackAddToCart } from '@/lib/metaPixel';
 
 export default function AddToCartBtn({ product, isLocked }) {
   const { addItem, items } = useCartStore();
   const { user } = useAuthStore();
   const { open } = useAuthModalStore();
   const router = useRouter();
-
-  const handleAdd = () => {
-    addItem(product);
-    router.push('/cart');
-  };
 
   if (isLocked) {
     return (
@@ -24,8 +20,8 @@ export default function AddToCartBtn({ product, isLocked }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <Lock size={14} />
-        UNAVAILABLE
+        <Lock size={16} />
+        Drop Locked
       </motion.button>
     );
   }
@@ -37,15 +33,12 @@ export default function AddToCartBtn({ product, isLocked }) {
       router.push('/cart');
     } else {
       addItem(product);
-      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-        window.fbq('track', 'AddToCart', {
-          content_name: product.name,
-          content_ids: [product._id],
-          content_type: 'product',
-          value: product.price || 0,
-          currency: 'INR'
-        });
-      }
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: product.price || 0,
+        currency: 'INR',
+      });
     }
   };
 
@@ -54,15 +47,12 @@ export default function AddToCartBtn({ product, isLocked }) {
       open('signup');
       return;
     }
-    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-      window.fbq('track', 'AddToCart', {
-        content_name: product.name,
-        content_ids: [product._id],
-        content_type: 'product',
-        value: product.price || 0,
-        currency: 'INR'
-      });
-    }
+    trackAddToCart({
+      id: product._id,
+      name: product.name,
+      price: product.price || 0,
+      currency: 'INR',
+    });
     useCartStore.getState().setBuyNowItem(product);
     router.push('/checkout?mode=buyNow');
   };

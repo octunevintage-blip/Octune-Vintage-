@@ -10,6 +10,7 @@ import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { ArrowLeft } from 'lucide-react';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 const INDIAN_STATES = [
   "Andaman and Nicobar Islands",
@@ -192,15 +193,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (mounted && user && checkoutItems && checkoutItems.length > 0 && !hasTrackedCheckout.current) {
       hasTrackedCheckout.current = true;
-      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-        window.fbq('track', 'InitiateCheckout', {
-          content_ids: checkoutItems.map(item => item._id || item.productId).filter(Boolean),
-          content_type: 'product',
-          value: total,
-          currency: 'INR',
-          num_items: checkoutItems.length
-        });
-      }
+      trackInitiateCheckout({
+        items: checkoutItems,
+        totalValue: total,
+        currency: 'INR',
+      });
     }
   }, [mounted, user, checkoutItems, total]);
 

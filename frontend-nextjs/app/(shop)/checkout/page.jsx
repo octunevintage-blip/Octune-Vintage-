@@ -10,6 +10,7 @@ import api from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { ArrowLeft } from 'lucide-react';
+import { trackInitiateCheckout } from '@/lib/metaPixel';
 
 const INDIAN_STATES = [
   "Andaman and Nicobar Islands",
@@ -70,6 +71,7 @@ export default function CheckoutPage() {
   const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [availableCoupons, setAvailableCoupons] = useState([]);
   const fetchedRef = useRef(false);
+  const initiatedRef = useRef(false);
 
   useEffect(() => {
     if (mounted) {
@@ -85,13 +87,25 @@ export default function CheckoutPage() {
         toast.error('Please sign up or log in to checkout.');
       } else if (!currentItems || currentItems.length === 0) {
         router.push('/shop');
-      } else if (!fetchedRef.current) {
-        fetchedRef.current = true;
-        // Fetch fresh user profile details from the database
-        api.get('/auth/me')
-          .then(res => {
-            const freshUser = res.data;
-            const defaultAddr = freshUser.addresses?.[0];
+      } else {
+        // Track InitiateCheckout once per checkout visit
+        if (!initiatedRef.current) {
+          initiatedRef.current = true;
+          const totalVal = currentItems.reduce((acc, item) => acc + (item.price || 0), 0);
+          trackInitiateCheckout({
+            items: currentItems,
+            totalValue: totalVal,
+            currency: 'INR',
+          });
+        }
+
+        if (!fetchedRef.current) {
+          fetchedRef.current = true;
+          // Fetch fresh user profile details from the database
+          api.get('/auth/me')
+            .then(res => {
+              const freshUser = res.data;
+              const defaultAddr = freshUser.addresses?.[0];
             const hasAddress = defaultAddr && (defaultAddr.line1 || defaultAddr.city || defaultAddr.state || defaultAddr.pincode);
             
             const addressData = hasAddress ? {

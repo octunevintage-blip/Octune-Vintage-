@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { formatINR } from '@/lib/utils';
 import { CheckCircle2, MapPin, Phone, Calendar, ShoppingBag } from 'lucide-react';
 import SuccessSound from '@/components/SuccessSound';
+import TrackPurchase from '@/components/analytics/TrackPurchase';
 
 async function getOrder(id) {
   try {
@@ -41,6 +42,7 @@ export default async function OrderSuccessPage({ params }) {
   return (
     <div className="container mx-auto px-4 py-12 max-w-2xl">
       <SuccessSound />
+      <TrackPurchase order={order} />
       
       <div className="bg-white border border-vnv-gray/20 shadow-xl overflow-hidden rounded-none">
         {/* Top Confirmation Header */}

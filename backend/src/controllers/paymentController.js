@@ -7,6 +7,7 @@ import User from '../models/User.js';
 import razorpay from '../config/razorpay.js';
 import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
 import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
+import { sendMetaPurchaseEvent } from '../utils/metaCapi.js';
 
 export const createPaymentOrder = asyncHandler(async (req, res) => {
   const { productId, productIds, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
@@ -230,6 +231,11 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
       }
     });
 
+    // Send Meta Conversions API (CAPI) server-side event
+    sendMetaPurchaseEvent(order, req).catch((capiErr) =>
+      console.error('[Meta CAPI Error in COD]:', capiErr)
+    );
+
     return res.json({
       success: true,
       orderId: order._id,
@@ -314,6 +320,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
       orderNumber: order.orderNumber
     }
   });
+
+  // Send Meta Conversions API (CAPI) server-side event
+  sendMetaPurchaseEvent(order, req).catch((capiErr) =>
+    console.error('[Meta CAPI Error in verifyPayment]:', capiErr)
+  );
 
   res.json({ success: true, orderId: order._id, orderNumber: order.orderNumber });
 });

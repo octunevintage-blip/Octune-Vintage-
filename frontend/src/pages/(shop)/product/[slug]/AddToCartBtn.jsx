@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowRight, Lock } from 'lucide-react';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import { trackAddToCart } from '@/lib/metaPixel';
 
 export default function AddToCartBtn({ product, isLocked, isReserved }) {
   const { addItem, items } = useCartStore();
@@ -166,15 +167,12 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
     } else {
       addItem(product);
       toast.success('Added to cart');
-      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-        window.fbq('track', 'AddToCart', {
-          content_name: product.name,
-          content_ids: [product._id],
-          content_type: 'product',
-          value: product.price || 0,
-          currency: 'INR'
-        });
-      }
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: product.price || 0,
+        currency: 'INR',
+      });
     }
   };
 
@@ -183,15 +181,12 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
       open('signup');
       return;
     }
-    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-      window.fbq('track', 'AddToCart', {
-        content_name: product.name,
-        content_ids: [product._id],
-        content_type: 'product',
-        value: product.price || 0,
-        currency: 'INR'
-      });
-    }
+    trackAddToCart({
+      id: product._id,
+      name: product.name,
+      price: product.price || 0,
+      currency: 'INR',
+    });
     useCartStore.getState().setBuyNowItem(product);
     router.push('/checkout?mode=buyNow');
   };

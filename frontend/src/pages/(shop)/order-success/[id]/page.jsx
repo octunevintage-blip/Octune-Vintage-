@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { formatINR } from '@/lib/utils';
 import { CheckCircle2, MapPin, Phone, Calendar, ShoppingBag } from 'lucide-react';
 import SuccessSound from '@/components/SuccessSound';
+import { trackPurchase } from '@/lib/metaPixel';
 
 export default function OrderSuccessPage() {
   const { id } = useParams();
@@ -32,19 +33,20 @@ export default function OrderSuccessPage() {
     fetchOrder();
   }, [id]);
 
-  // Meta Pixel Purchase Event Tracking
+  // Meta Pixel Purchase Event Tracking (with deduplication eventID)
   useEffect(() => {
-    if (order && !hasTrackedPurchase.current && typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    if (order && !hasTrackedPurchase.current) {
       hasTrackedPurchase.current = true;
-      const productIds = (order.products && order.products.length > 0)
-        ? order.products.map(p => p.productId || p._id)
-        : [order.product?.productId || order.product?._id].filter(Boolean);
-      const totalValue = order.totalAmount || order.totalPrice || order.amount || 0;
+      const items = (order.products && order.products.length > 0)
+        ? order.products
+        : order.product ? [order.product] : [];
+      const totalValue = order.pricing?.total ?? order.totalAmount ?? order.totalPrice ?? order.amount ?? 0;
+      const orderId = String(order.orderNumber || order._id || '');
 
-      window.fbq('track', 'Purchase', {
-        content_ids: productIds,
-        content_type: 'product',
-        value: totalValue,
+      trackPurchase({
+        orderId,
+        items,
+        totalValue,
         currency: 'INR'
       });
     }

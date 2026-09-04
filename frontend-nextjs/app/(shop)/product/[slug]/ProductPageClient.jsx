@@ -8,6 +8,7 @@ import { ChevronDown, Ruler, Palette, Tag, Shield, Layers, Info, Heart, Share2 }
 import { useAuthStore, useAuthModalStore } from '@/lib/store';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
+import { trackEvent } from '@/lib/metaPixel';
 
 // Accordion section component
 function DetailSection({ title, icon: Icon, children, defaultOpen = false, delay = 0 }) {
@@ -84,6 +85,19 @@ export default function ProductPageClient({
     }
     checkWishlist();
   }, [user, product._id]);
+
+  // Meta Pixel ViewContent Tracking
+  useEffect(() => {
+    if (product?._id) {
+      trackEvent('ViewContent', {
+        content_name: product.name,
+        content_ids: [String(product._id)],
+        content_type: 'product',
+        value: Number(product.price || 0),
+        currency: 'INR',
+      });
+    }
+  }, [product?._id]);
 
   const toggleWishlist = async () => {
     if (!user) {
