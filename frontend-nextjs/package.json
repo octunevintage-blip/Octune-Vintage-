@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
-    "@tailwindcss/typography": "^0.5.19",
     "axios": "^1.6.8",
     "clsx": "^2.1.1",
     "framer-motion": "^11.2.10",
