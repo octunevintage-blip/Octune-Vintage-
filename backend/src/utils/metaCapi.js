@@ -6,27 +6,43 @@ import crypto from 'crypto';
  * @returns {string|null} 64-character hex SHA-256 hash or null if empty
  */
 export function hashData(value) {
-  if (!value || typeof value !== 'string') return null;
-  const clean = value.trim().toLowerCase();
+  if (value === null || value === undefined) return null;
+  const clean = String(value).trim().toLowerCase();
   if (!clean) return null;
   return crypto.createHash('sha256').update(clean).digest('hex');
 }
 
 /**
  * Normalizes Indian and international phone numbers for Meta (E.164 without '+' or leading zeros).
- * @param {string} phone
+ * @param {string|number} phone
  * @returns {string|null} Hashed phone number
  */
 export function hashPhone(phone) {
   if (!phone) return null;
   let digits = String(phone).replace(/\D/g, '');
+  // Strip single leading 0 if 11-digit number (e.g., 09876543210 -> 9876543210)
+  if (digits.length === 11 && digits.startsWith('0')) {
+    digits = digits.slice(1);
+  }
   // Default to Indian country code 91 if 10-digit number
   if (digits.length === 10) {
     digits = `91${digits}`;
-  } else if (digits.length === 12 && digits.startsWith('091')) {
-    digits = digits.slice(1);
   }
   return hashData(digits);
+}
+
+/**
+ * Validates if an IP address is a public IPv4/IPv6 address suitable for Meta CAPI.
+ * Excludes localhost loopbacks and private LAN ranges to prevent Meta validation rejections.
+ * @param {string|null} ip
+ * @returns {boolean}
+ */
+export function isPublicIp(ip) {
+  if (!ip || typeof ip !== 'string') return false;
+  const clean = ip.trim();
+  if (clean === '::1' || clean === '127.0.0.1' || clean.startsWith('::ffff:127.0.0.1')) return false;
+  if (/^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(clean)) return false;
+  return true;
 }
 
 /**
@@ -99,7 +115,7 @@ export async function sendMetaPurchaseEvent(order, req = null) {
     userData.country = [hashData('in')];
 
     // Non-hashed client context
-    if (clientIp) userData.client_ip_address = clientIp;
+    if (isPublicIp(clientIp)) userData.client_ip_address = clientIp;
     if (userAgent) userData.client_user_agent = userAgent;
     if (fbp) userData.fbp = fbp;
     if (fbc) userData.fbc = fbc;
