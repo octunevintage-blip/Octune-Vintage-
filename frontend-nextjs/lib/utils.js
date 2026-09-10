@@ -26,5 +26,6 @@ export const CATEGORIES = [
   'Tracktops', 
   'Trackpants', 
   'Jerseys', 
-  'Shorts'
+  'Shorts',
+  'Pullovers'
 ];
