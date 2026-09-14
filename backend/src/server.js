@@ -107,10 +107,12 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate Limit - 1000 requests per 15 minutes per client IP (increased in development)
+// Rate Limit - 10000 requests per 15 minutes per client IP (increased for production & development)
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'development' ? 100000 : 1000,
+  max: process.env.NODE_ENV === 'development' ? 100000 : 10000,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: 'Too many requests, please try again later.',
 });
 
