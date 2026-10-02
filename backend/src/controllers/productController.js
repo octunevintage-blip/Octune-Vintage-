@@ -8,7 +8,15 @@ export const getProducts = asyncHandler(async (req, res) => {
   const { category, sort, search, status, page = 1, limit = 24, includeUpcoming, size } = req.query;
   const query = {};
 
-  if (category) query.category = category;
+  if (category) {
+    if (category.toLowerCase() === 'jackets' || category.toLowerCase() === 'windbreakers') {
+      query.category = { $in: ['Jackets', 'Windbreakers', 'Windbreaker'] };
+    } else if (category.toLowerCase() === 'bottoms' || category.toLowerCase() === 'bottom' || category.toLowerCase() === 'trackpants') {
+      query.category = { $in: ['Bottoms', 'Bottom', 'Trackpants', 'Trackpant'] };
+    } else {
+      query.category = category;
+    }
+  }
   if (size) query.size = { $regex: `^${size}$|\\b${size}\\b`, $options: 'i' };
   if (search) {
     query.$or = [

@@ -22,9 +22,8 @@ export const hoursLeftToDelete = (deleteAtDate) => {
 
 export const CATEGORIES = [
   'Jackets', 
-  'Windbreakers',
   'Tracktops', 
-  'Trackpants', 
+  'Bottoms', 
   'Jerseys', 
   'Shorts',
   'Pullovers'
