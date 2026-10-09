@@ -3,7 +3,20 @@ import cloudinary from '../config/cloudinary.js';
 import crypto from 'crypto';
 import sharp from 'sharp';
 
-// Initialize S3 Client only if credentials exist
+// 1. Initialize Cloudflare R2 Client (Zero Data Transfer Fees - Primary Choice)
+let r2Client = null;
+if (process.env.R2_ACCOUNT_ID && process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY) {
+  r2Client = new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  });
+}
+
+// 2. Initialize AWS S3 Client (Fallback if R2 is not configured)
 let s3Client = null;
 if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
   s3Client = new S3Client({
@@ -16,8 +29,8 @@ if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
 }
 
 /**
- * Upload an image buffer to S3 or Cloudinary.
- * Automatically compresses images to high-quality WebP format (~150KB) to reduce S3 storage & bandwidth costs by 90%.
+ * Upload an image buffer to Cloudflare R2, AWS S3, or Cloudinary.
+ * Automatically compresses images to high-quality WebP format (~150KB) to maximize speed and minimize storage.
  * @param {Buffer} fileBuffer - The file buffer from multer.
  * @param {string} mimeType - The mime type of the file.
  * @param {string} folder - The target folder / prefix.
@@ -25,7 +38,7 @@ if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
  */
 export const uploadImage = async (fileBuffer, mimeType, folder = 'octune-vintage/products') => {
   try {
-    // Compress image to WebP (max width 1400px, 82% quality) to save ~90% bandwidth & storage
+    // Compress image to WebP (max width 1400px, 82% quality)
     let processedBuffer = fileBuffer;
     let targetMimeType = mimeType;
     let fileExtension = 'webp';
@@ -41,30 +54,48 @@ export const uploadImage = async (fileBuffer, mimeType, folder = 'octune-vintage
       fileExtension = mimeType.split('/')[1] || 'jpg';
     }
 
-    if (s3Client) {
-      console.log('Uploading compressed WebP image to AWS S3...');
-      const bucketName = process.env.AWS_BUCKET_NAME || 'octunevintagecloud';
-      const region = process.env.AWS_REGION || 'eu-north-1';
-      
-      // Generate a unique file name
-      const uniqueId = crypto.randomBytes(16).toString('hex');
-      const key = `${folder}/${uniqueId}.${fileExtension}`;
+    const uniqueId = crypto.randomBytes(16).toString('hex');
+    const key = `${folder}/${uniqueId}.${fileExtension}`;
+
+    if (r2Client) {
+      console.log('Uploading compressed WebP image to Cloudflare R2 (0 Data Transfer Fees)...');
+      const bucketName = process.env.R2_BUCKET_NAME || 'octune-images';
+      let publicUrl = process.env.R2_PUBLIC_URL || '';
+      if (publicUrl.endsWith('/')) publicUrl = publicUrl.slice(0, -1);
 
       const command = new PutObjectCommand({
         Bucket: bucketName,
         Key: key,
         Body: processedBuffer,
         ContentType: targetMimeType,
-        ACL: 'public-read', // public read access so browser can load the image
+      });
+
+      await r2Client.send(command);
+
+      const url = publicUrl ? `${publicUrl}/${key}` : `https://${bucketName}.r2.cloudflarestorage.com/${key}`;
+      return {
+        url,
+        publicId: `r2:${key}`, // Prefix with r2: so deletion handler knows it's R2
+      };
+    } else if (s3Client) {
+      console.log('Uploading compressed WebP image to AWS S3...');
+      const bucketName = process.env.AWS_BUCKET_NAME || 'octunevintagecloud';
+      const region = process.env.AWS_REGION || 'eu-north-1';
+
+      const command = new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: processedBuffer,
+        ContentType: targetMimeType,
+        ACL: 'public-read',
       });
 
       await s3Client.send(command);
 
-      // S3 URL format
       const url = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
       return {
         url,
-        publicId: key, // Store the Key as the publicId so we can delete it later
+        publicId: key,
       };
     } else {
       console.log('Uploading image to Cloudinary (Fallback)...');
@@ -83,16 +114,21 @@ export const uploadImage = async (fileBuffer, mimeType, folder = 'octune-vintage
 };
 
 /**
- * Delete an image from S3 or Cloudinary.
- * @param {string} publicId - The key (S3) or public_id (Cloudinary).
+ * Delete an image from Cloudflare R2, AWS S3, or Cloudinary.
+ * @param {string} publicId - The key or public_id.
  * @returns {Promise<any>}
  */
 export const deleteImage = async (publicId) => {
   try {
-    // S3 keys have file extensions like .png, .jpg, .webp. Cloudinary publicIds do not have file extensions.
-    const isS3Key = publicId.includes('.');
-
-    if (s3Client && isS3Key) {
+    if (r2Client && publicId.startsWith('r2:')) {
+      const key = publicId.replace(/^r2:/, '');
+      console.log('Deleting image from Cloudflare R2: %s', key);
+      const command = new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME || 'octune-images',
+        Key: key,
+      });
+      return await r2Client.send(command);
+    } else if (s3Client && publicId.includes('.')) {
       console.log('Deleting image from AWS S3: %s', publicId);
       const command = new DeleteObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME || 'octunevintagecloud',
@@ -104,7 +140,7 @@ export const deleteImage = async (publicId) => {
       try {
         return await cloudinary.uploader.destroy(publicId);
       } catch (cloudinaryErr) {
-        console.warn('Cloudinary deletion failed (might be due to quota/credentials), ignoring so DB can update:', cloudinaryErr.message);
+        console.warn('Cloudinary deletion failed, ignoring error:', cloudinaryErr.message);
         return { result: 'ignored error' };
       }
     }
@@ -113,3 +149,4 @@ export const deleteImage = async (publicId) => {
     throw new Error('Failed to delete image from cloud storage: ' + error.message);
   }
 };
+
