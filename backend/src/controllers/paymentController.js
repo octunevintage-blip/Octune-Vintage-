@@ -12,6 +12,11 @@ import { sendMetaPurchaseEvent } from '../utils/metaCapi.js';
 export const createPaymentOrder = asyncHandler(async (req, res) => {
   const { productId, productIds, customer, shippingAddress, couponCode, paymentMethod = 'razorpay' } = req.body;
 
+  if (paymentMethod === 'cod') {
+    res.status(400);
+    throw new Error('Cash on Delivery is not available. Please use online payment.');
+  }
+
   let ids = [];
   if (Array.isArray(productIds)) {
     ids = productIds;

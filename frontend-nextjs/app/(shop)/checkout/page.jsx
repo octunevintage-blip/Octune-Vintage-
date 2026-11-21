@@ -67,7 +67,7 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('razorpay');
+
   const [savedAddress, setSavedAddress] = useState(null);
   const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [availableCoupons, setAvailableCoupons] = useState([]);
@@ -297,16 +297,9 @@ export default function CheckoutPage() {
           city: formData.city, state: formData.state, pincode: formData.pincode
         },
         couponCode: discount > 0 ? couponCode : undefined,
-        paymentMethod: paymentMethod
+        paymentMethod: 'razorpay'
       });
-      
-      if (paymentMethod === 'cod') {
-        if (isBuyNowMode) clearBuyNowItem();
-        else clearCart();
-        router.push(`/order-success/${res.data.orderId}`);
-      } else {
-        initPayment(res.data);
-      }
+      initPayment(res.data);
     } catch (error) {
       setPaymentFailed(true);
     } finally {
