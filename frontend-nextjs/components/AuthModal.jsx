@@ -129,6 +129,20 @@ export default function AuthModal() {
     }
   };
 
+  const handleGuestLogin = () => {
+    const guestUser = {
+      _id: 'guest_' + Math.random().toString(36).substring(2, 9),
+      name: 'Guest Customer',
+      email: '',
+      phone: '',
+      role: 'guest',
+      isGuest: true
+    };
+    setUser(guestUser);
+    toast.success('Continuing as Guest');
+    close();
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">
       {/* Backdrop */}
@@ -386,6 +400,25 @@ export default function AuthModal() {
                 )}
               </button>
             </form>
+          )}
+
+          {/* Continue as Guest option */}
+          {!isOtpSent && tab !== 'forgot-password' && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="relative mb-4 flex items-center justify-center">
+                <div className="border-t border-gray-200 w-full" />
+                <span className="bg-white px-3 text-[10px] uppercase tracking-widest text-gray-400 font-bold shrink-0">OR</span>
+                <div className="border-t border-gray-200 w-full" />
+              </div>
+              <button
+                type="button"
+                onClick={handleGuestLogin}
+                className="w-full border-2 border-black/80 text-black py-3.5 text-xs font-bold uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group cursor-pointer"
+              >
+                <User size={14} className="group-hover:scale-110 transition-transform" />
+                Continue as Guest
+              </button>
+            </div>
           )}
         </div>
 

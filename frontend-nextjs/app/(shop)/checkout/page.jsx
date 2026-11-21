@@ -84,10 +84,24 @@ export default function CheckoutPage() {
       const currentItems = isBuyNow && buyNowItem ? [buyNowItem] : items;
 
       if (!user) {
-        router.push('/shop');
-        toast.error('Please sign up or log in to checkout.');
+        const guestUser = {
+          _id: 'guest_' + Math.random().toString(36).substring(2, 9),
+          name: '',
+          email: '',
+          phone: '',
+          role: 'guest',
+          isGuest: true
+        };
+        useAuthStore.getState().setUser(guestUser);
       } else if (!currentItems || currentItems.length === 0) {
         router.push('/shop');
+      } else if (user.isGuest) {
+        if (!fetchedRef.current) {
+          fetchedRef.current = true;
+          api.get('/coupons/active')
+            .then(res => setAvailableCoupons(res.data))
+            .catch(err => console.error('Failed to fetch coupons:', err));
+        }
       } else {
         // Track InitiateCheckout once per checkout visit
         if (!initiatedRef.current) {
