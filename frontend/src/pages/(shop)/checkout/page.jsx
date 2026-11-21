@@ -279,36 +279,27 @@ export default function CheckoutPage() {
     rzp.open();
   };
 
-  const handleCheckout = async (e) => {
+  const handleCheckout = (e) => {
     e.preventDefault();
     if (!agreeTerms) {
       toast.error('Please accept the Terms & Conditions to proceed.');
       return;
     }
-    setLoading(true);
-    try {
-      const res = await api.post('/payment/create-order', {
-        productIds: checkoutItems.map(i => i._id),
-        customer: { name: formData.name, email: formData.email, phone: formData.phone },
-        shippingAddress: {
-          line1: formData.line1, line2: formData.line2,
-          city: formData.city, state: formData.state, pincode: formData.pincode
-        },
-        couponCode: discount > 0 ? couponCode : undefined,
-        paymentMethod: 'whatsapp'
-      });
+    if (!formData.name || !formData.phone || !formData.line1 || !formData.city || !formData.pincode) {
+      toast.error('Please fill in all required shipping address fields.');
+      return;
+    }
 
-      const orderData = res.data;
-      const orderNum = orderData.orderNumber || orderData.orderId;
+    const itemsList = checkoutItems
+      .map(i => `• ${i.name} (${i.size || 'Free Size'}) - ${formatINR(i.price)}`)
+      .join('\n');
 
-      const itemsList = checkoutItems
-        .map(i => `• ${i.name} (${i.size || 'Free Size'}) - ${formatINR(i.price)}`)
-        .join('\n');
+    const tempOrderNum = `OCT-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-      const message = 
+    const message = 
 `🛍️ *NEW ORDER - OCTUNE VINTAGE*
 ━━━━━━━━━━━━━━━━━━
-*Order ID:* ${orderNum}
+*Order ID:* ${tempOrderNum}
 *Total Amount:* ${formatINR(total)}
 
 👤 *Customer Details:*
@@ -325,26 +316,37 @@ ${itemsList}
 ${discount > 0 ? `\n🏷️ *Coupon Discount:* -${formatINR(discount)}` : ''}
 
 ━━━━━━━━━━━━━━━━━━
-I would like to complete my payment via UPI / Bank Transfer. Please confirm my order! 🙏`;
+I want to order via WhatsApp and pay via UPI / Bank Transfer. Please confirm my order! 🙏`;
 
-      const whatsappOrderUrl = `https://wa.me/918250689552?text=${encodeURIComponent(message)}`;
+    const whatsappOrderUrl = `https://wa.me/918250689552?text=${encodeURIComponent(message)}`;
 
-      if (isBuyNowMode) clearBuyNowItem();
-      else clearCart();
-
-      // Open WhatsApp directly
-      const win = window.open(whatsappOrderUrl, '_blank');
-      if (!win) {
-        window.location.href = whatsappOrderUrl;
-      }
-
-      router.push(`/order-success/${orderData.orderId}`);
-    } catch (error) {
-      console.error('Checkout error:', error);
-      toast.error(error.response?.data?.message || error.message || 'Failed to place order');
-    } finally {
-      setLoading(false);
+    // 1. Immediately open WhatsApp synchronously (guaranteed not blocked by browser popup blocker)
+    const win = window.open(whatsappOrderUrl, '_blank');
+    if (!win) {
+      window.location.href = whatsappOrderUrl;
     }
+
+    // 2. Clear cart
+    if (isBuyNowMode) clearBuyNowItem();
+    else clearCart();
+
+    // 3. Sync with backend in background
+    api.post('/payment/create-order', {
+      productIds: checkoutItems.map(i => i._id),
+      customer: { name: formData.name, email: formData.email, phone: formData.phone },
+      shippingAddress: {
+        line1: formData.line1, line2: formData.line2,
+        city: formData.city, state: formData.state, pincode: formData.pincode
+      },
+      couponCode: discount > 0 ? couponCode : undefined,
+      paymentMethod: 'whatsapp'
+    }).then(res => {
+      if (res.data?.orderId) {
+        router.push(`/order-success/${res.data.orderId}`);
+      }
+    }).catch(err => {
+      console.warn('Backend order record creation pending:', err);
+    });
   };
 
   const whatsappMessage = encodeURIComponent(
