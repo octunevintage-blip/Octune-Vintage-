@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
+import Product from '../models/Product.js';
 import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
 import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
 
@@ -25,8 +26,6 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   res.json({ orders, total, page: Number(page), pages: Math.ceil(total / Number(limit)) });
 });
 
-import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
-
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, tracking, notes, paymentStatus } = req.body;
   const order = await Order.findById(req.params.id);
@@ -40,6 +39,32 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   order.status = status;
   
   if (status === 'confirmed' && previousStatus !== 'confirmed') {
+    if (!order.payment) order.payment = {};
+    if (order.payment.status !== 'paid') {
+      order.payment.status = 'paid';
+      order.payment.paidAt = new Date();
+    }
+
+    const productIds = order.products && order.products.length > 0 
+      ? order.products.map(p => p.productId) 
+      : (order.product?.productId ? [order.product.productId] : []);
+
+    if (productIds.length > 0) {
+      await Product.updateMany(
+        { _id: { $in: productIds } },
+        {
+          $set: {
+            status: 'sold',
+            soldAt: new Date(),
+            deleteAt: new Date(Date.now() + 168 * 60 * 60 * 1000), // 168 hours
+            soldTo: order._id,
+            reservedUntil: null,
+            reservedBy: null
+          }
+        }
+      );
+    }
+
     if (order.customer?.email) {
       try {
         const html = orderConfirmationTemplate(order);

@@ -224,17 +224,7 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
       await Coupon.findOneAndUpdate({ code: couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
     }
 
-    const html = orderConfirmationTemplate(order);
-    sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Confirmed`, html }).catch(console.error);
-
-    sendWhatsAppMessage({
-      to: order.customer.phone,
-      type: 'order_confirmation',
-      data: {
-        customerName: order.customer.name.split(' ')[0],
-        orderNumber: order.orderNumber
-      }
-    });
+    // Note: Order confirmation email & WhatsApp message are sent when Admin confirms the order in Admin Panel
 
     // Send Meta Conversions API (CAPI) server-side event
     sendMetaPurchaseEvent(order, req).catch((capiErr) =>
