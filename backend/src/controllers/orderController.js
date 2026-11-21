@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/Order.js';
+import sendEmail, { orderConfirmationTemplate } from '../utils/sendEmail.js';
+import sendWhatsAppMessage from '../utils/sendWhatsApp.js';
 
 export const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
@@ -37,6 +39,27 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   const previousStatus = order.status;
   order.status = status;
   
+  if (status === 'confirmed' && previousStatus !== 'confirmed') {
+    if (order.customer?.email) {
+      try {
+        const html = orderConfirmationTemplate(order);
+        sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Confirmed`, html }).catch(console.error);
+      } catch (e) {
+        console.error('Email confirmation error:', e);
+      }
+    }
+    if (order.customer?.phone) {
+      sendWhatsAppMessage({
+        to: order.customer.phone,
+        type: 'order_confirmation',
+        data: {
+          customerName: order.customer.name.split(' ')[0],
+          orderNumber: order.orderNumber
+        }
+      }).catch(console.error);
+    }
+  }
+
   if (status === 'delivered' && previousStatus !== 'delivered' && order.customer?.phone) {
     sendWhatsAppMessage({
       to: order.customer.phone,
