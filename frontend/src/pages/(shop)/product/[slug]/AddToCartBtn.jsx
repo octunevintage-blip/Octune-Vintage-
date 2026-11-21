@@ -159,7 +159,7 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
 
   const handleAddToCart = () => {
     if (!user) {
-      open('signup');
+      open('signup', { type: 'addToCart', product });
       return;
     }
     if (isAlreadyInCart) {
@@ -178,7 +178,7 @@ export default function AddToCartBtn({ product, isLocked, isReserved }) {
 
   const handleBuyNow = () => {
     if (!user) {
-      open('signup');
+      open('signup', { type: 'buyNow', product });
       return;
     }
     trackAddToCart({

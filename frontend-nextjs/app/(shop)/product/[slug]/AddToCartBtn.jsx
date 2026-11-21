@@ -44,7 +44,7 @@ export default function AddToCartBtn({ product, isLocked }) {
 
   const handleBuyNow = () => {
     if (!user) {
-      open('signup');
+      open('signup', { type: 'buyNow', product });
       return;
     }
     trackAddToCart({

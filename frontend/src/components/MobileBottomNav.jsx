@@ -29,7 +29,7 @@ export default function MobileBottomNav() {
   const handleAddToCart = () => {
     if (!activeProduct) return;
     if (!user) {
-      openAuthModal('signup');
+      openAuthModal('signup', { type: 'addToCart', product: activeProduct });
       return;
     }
     if (isAlreadyInCart) {
@@ -49,7 +49,7 @@ export default function MobileBottomNav() {
   const handleBuyNow = () => {
     if (!activeProduct) return;
     if (!user) {
-      openAuthModal('signup');
+      openAuthModal('signup', { type: 'buyNow', product: activeProduct });
       return;
     }
     trackAddToCart({

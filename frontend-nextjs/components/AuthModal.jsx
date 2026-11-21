@@ -1,12 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { X, Eye, EyeOff, Loader2, User, Mail, Lock, ArrowRight, Phone } from 'lucide-react';
-import { useAuthStore, useAuthModalStore } from '@/lib/store';
+import { useAuthStore, useAuthModalStore, useCartStore } from '@/lib/store';
 import api from '@/lib/api';
 import toast from 'react-hot-toast';
 
 export default function AuthModal() {
-  const { isOpen, tab, close, setTab } = useAuthModalStore();
+  const { isOpen, tab, close, setTab, pendingAction } = useAuthModalStore();
   const { setUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
@@ -122,6 +122,16 @@ export default function AuthModal() {
       toast.success(`Welcome back, ${res.data.name}!`);
       close();
       setLoginData({ email: '', password: '' });
+
+      if (pendingAction) {
+        if (pendingAction.type === 'buyNow' && pendingAction.product) {
+          useCartStore.getState().setBuyNowItem(pendingAction.product);
+          window.location.href = '/checkout?mode=buyNow';
+        } else if (pendingAction.type === 'addToCart' && pendingAction.product) {
+          useCartStore.getState().addItem(pendingAction.product);
+          toast.success('Added to cart');
+        }
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message || 'Login failed');
     } finally {
@@ -141,6 +151,16 @@ export default function AuthModal() {
     setUser(guestUser);
     toast.success('Continuing as Guest');
     close();
+
+    if (pendingAction) {
+      if (pendingAction.type === 'buyNow' && pendingAction.product) {
+        useCartStore.getState().setBuyNowItem(pendingAction.product);
+        window.location.href = '/checkout?mode=buyNow';
+      } else if (pendingAction.type === 'addToCart' && pendingAction.product) {
+        useCartStore.getState().addItem(pendingAction.product);
+        toast.success('Added to cart');
+      }
+    }
   };
 
   return (
@@ -205,6 +225,25 @@ export default function AuthModal() {
 
         {/* Form Body */}
         <div className="px-8 py-6">
+          {/* Quick Continue as Guest Button at the top */}
+          {!isOtpSent && tab !== 'forgot-password' && (
+            <div className="mb-5">
+              <button
+                type="button"
+                onClick={handleGuestLogin}
+                className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-3.5 px-4 text-xs font-bold uppercase tracking-[0.15em] transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer rounded-none active:scale-[0.99]"
+              >
+                <User size={15} />
+                <span>Fast Checkout • Continue as Guest</span>
+              </button>
+              <div className="relative mt-4 flex items-center justify-center">
+                <div className="border-t border-gray-200 w-full" />
+                <span className="bg-white px-3 text-[10px] uppercase tracking-widest text-gray-400 font-bold shrink-0">OR WITH ACCOUNT</span>
+                <div className="border-t border-gray-200 w-full" />
+              </div>
+            </div>
+          )}
+
           {tab === 'signup' ? (
             isOtpSent ? (
               <form onSubmit={handleVerifyOtp} className="space-y-4">

@@ -49,7 +49,8 @@ export const useAuthStore = create(
 export const useAuthModalStore = create((set) => ({
   isOpen: false,
   tab: 'signup', // 'signup' | 'login'
-  open: (tab = 'signup') => set({ isOpen: true, tab }),
-  close: () => set({ isOpen: false }),
+  pendingAction: null,
+  open: (tab = 'signup', pendingAction = null) => set({ isOpen: true, tab, pendingAction }),
+  close: () => set({ isOpen: false, pendingAction: null }),
   setTab: (tab) => set({ tab }),
 }));
