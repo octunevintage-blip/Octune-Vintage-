@@ -249,6 +249,39 @@ export const createPaymentOrder = asyncHandler(async (req, res) => {
     });
   }
 
+  if (paymentMethod === 'whatsapp') {
+    const productIds = products.map(p => p._id);
+    await Product.updateMany(
+      { _id: { $in: productIds } },
+      {
+        $set: {
+          status: 'reserved',
+          reservedUntil: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours lock for WhatsApp payment
+          reservedBy: req.user?._id || null
+        }
+      }
+    );
+
+    if (couponCode) {
+      await Coupon.findOneAndUpdate({ code: couponCode.toUpperCase() }, { $inc: { usedCount: 1 } });
+    }
+
+    try {
+      const html = orderConfirmationTemplate(order);
+      sendEmail({ to: order.customer.email, subject: `Octune Vintage: Order ${order.orderNumber} Received`, html }).catch(console.error);
+    } catch (e) {
+      console.error('Email error:', e);
+    }
+
+    return res.json({
+      success: true,
+      orderId: order._id,
+      orderNumber: order.orderNumber,
+      paymentMethod: 'whatsapp',
+      breakdown: { subtotal, totalDiscount, shipping, total }
+    });
+  }
+
   res.json({
     orderId: order._id,
     razorpayOrderId: razorpayOrder.id,

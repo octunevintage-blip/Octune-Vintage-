@@ -297,11 +297,53 @@ export default function CheckoutPage() {
           city: formData.city, state: formData.state, pincode: formData.pincode
         },
         couponCode: discount > 0 ? couponCode : undefined,
-        paymentMethod: 'razorpay'
+        paymentMethod: 'whatsapp'
       });
-      initPayment(res.data);
+
+      const orderData = res.data;
+      const orderNum = orderData.orderNumber || orderData.orderId;
+
+      const itemsList = checkoutItems
+        .map(i => `• ${i.name} (${i.size || 'Free Size'}) - ${formatINR(i.price)}`)
+        .join('\n');
+
+      const message = 
+`🛍️ *NEW ORDER - OCTUNE VINTAGE*
+━━━━━━━━━━━━━━━━━━
+*Order ID:* ${orderNum}
+*Total Amount:* ${formatINR(total)}
+
+👤 *Customer Details:*
+• *Name:* ${formData.name}
+• *Phone:* ${formData.phone}
+• *Email:* ${formData.email}
+
+📍 *Shipping Address:*
+${formData.line1}${formData.line2 ? ', ' + formData.line2 : ''}
+${formData.city}, ${formData.state} - ${formData.pincode}
+
+📦 *Items Ordered:*
+${itemsList}
+${discount > 0 ? `\n🏷️ *Coupon Discount:* -${formatINR(discount)}` : ''}
+
+━━━━━━━━━━━━━━━━━━
+I would like to complete my payment via UPI / Bank Transfer. Please confirm my order! 🙏`;
+
+      const whatsappOrderUrl = `https://wa.me/918250689552?text=${encodeURIComponent(message)}`;
+
+      if (isBuyNowMode) clearBuyNowItem();
+      else clearCart();
+
+      // Open WhatsApp directly
+      const win = window.open(whatsappOrderUrl, '_blank');
+      if (!win) {
+        window.location.href = whatsappOrderUrl;
+      }
+
+      router.push(`/order-success/${orderData.orderId}`);
     } catch (error) {
-      setPaymentFailed(true);
+      console.error('Checkout error:', error);
+      toast.error(error.response?.data?.message || error.message || 'Failed to place order');
     } finally {
       setLoading(false);
     }
@@ -401,29 +443,26 @@ export default function CheckoutPage() {
               </label>
             </div>
 
-            <button type="submit" disabled={loading} className="btn btn-primary w-full shadow-lg py-5 text-base uppercase tracking-widest font-semibold">
-              {loading ? 'Processing...' : `Pay ${formatINR(total)} securely`}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-5 rounded-none shadow-xl text-sm md:text-base uppercase tracking-widest font-bold text-white transition-all duration-300 hover:brightness-105 active:scale-[0.99] flex items-center justify-center space-x-3 cursor-pointer"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              {loading ? (
+                <span>Processing Order...</span>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-5 h-5 flex-shrink-0">
+                    <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
+                  </svg>
+                  <span>ORDER ON WHATSAPP • {formatINR(total)}</span>
+                </>
+              )}
             </button>
-            <p className="text-center text-xs text-ink/40 flex items-center justify-center space-x-2">
-              <span>Payments processed securely via Razorpay</span>
+            <p className="text-center text-xs text-ink/60 flex items-center justify-center space-x-1">
+              <span>💬 Direct order with admin • Pay via UPI / Bank Transfer</span>
             </p>
-
-            {/* Direct WhatsApp Option */}
-            <div className="pt-2 text-center border-t border-ink/10">
-              <p className="text-xs text-ink/60 mb-2">Facing issues with online payment? Order directly:</p>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center space-x-2 w-full py-3.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider text-white transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] shadow-md hover:shadow-lg"
-                style={{ backgroundColor: '#25D366' }}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" className="w-4 h-4 flex-shrink-0">
-                  <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
-                </svg>
-                <span>Order Directly on WhatsApp</span>
-              </a>
-            </div>
           </form>
 
           {/* Order Summary Sidebar */}
