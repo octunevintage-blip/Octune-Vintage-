@@ -314,11 +314,7 @@ ${formData.line1}${formData.line2 ? ', ' + formData.line2 : ''}
 ${formData.city}, ${formData.state} - ${formData.pincode}
 
 📦 *Items Ordered:*
-${itemsList}
-${discount > 0 ? `\n🏷️ *Coupon Discount:* -${formatINR(discount)}` : ''}
-
-━━━━━━━━━━━━━━━━━━
-I want to order via WhatsApp and pay via UPI / Bank Transfer. Please confirm my order! 🙏`;
+${itemsList}${discount > 0 ? `\n🏷️ *Coupon Discount:* -${formatINR(discount)}` : ''}`;
 
     const whatsappOrderUrl = `https://wa.me/918250689552?text=${encodeURIComponent(message)}`;
 
